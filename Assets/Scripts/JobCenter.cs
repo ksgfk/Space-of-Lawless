@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace KSGFK
@@ -14,7 +13,7 @@ namespace KSGFK
             get
             {
                 var job = _jobs[id];
-                return job.CanAccess ? job : throw new InvalidOperationException();
+                return job != null && job.CanAccess ? job : throw new InvalidOperationException();
             }
         }
 
@@ -40,7 +39,11 @@ namespace KSGFK
             }
         }
 
-        public void Dispose(int id) { this[id].Dispose(); }
+        public void Dispose(int id)
+        {
+            this[id].Dispose();
+            _jobs[id] = null;
+        }
 
         public void Dispose()
         {

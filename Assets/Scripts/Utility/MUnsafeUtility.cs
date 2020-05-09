@@ -1,3 +1,6 @@
+//源码来源:https://github.com/MaxwellGengYF/Unity-MPipeline
+//作者MaxwellGengYF
+
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;

@@ -1,3 +1,6 @@
+//源码来源:https://github.com/MaxwellGengYF/Unity-MPipeline
+//作者MaxwellGengYF
+
 using System;
 using System.Collections;
 using System.Collections.Generic;

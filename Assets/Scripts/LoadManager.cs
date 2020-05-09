@@ -18,19 +18,30 @@ namespace KSGFK
     public class LoadManager : MonoBehaviour
     {
         [SerializeField] private LoadState nowState;
-        private Queue<AsyncOperationHandle> _requestQueue;
-        private Action _onLoadFinish;
+        private Queue<IAsyncHandleWrapper> _requestQueue;
         private Coroutine _workingCoroutine;
+        private Action _completeCallback;
 
-        public void Init()
+        public event Action Complete
         {
-            _requestQueue = new Queue<AsyncOperationHandle>();
-            nowState = LoadState.Sleep;
+            add
+            {
+                if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能添加回调");
+                _completeCallback += value;
+            }
+            remove
+            {
+                if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能删除回调");
+                _completeCallback = (Action) Delegate.Remove(_completeCallback, value);
+            }
         }
+
+        public void Init() { nowState = LoadState.Sleep; }
 
         public void Ready()
         {
             if (nowState != LoadState.Sleep) throw new InvalidOperationException("休眠状态才能准备加载");
+            _requestQueue = new Queue<IAsyncHandleWrapper>();
             nowState = LoadState.Ready;
         }
 
@@ -46,16 +57,17 @@ namespace KSGFK
             Request((AsyncOperationHandle) handle);
         }
 
-        public void Request(AsyncOperationHandle handle)
+        public void Request(AsyncOperationHandle handle) { Request(new AddrAsyncWrapper(handle)); }
+
+        public void Request(IAsyncHandleWrapper wrapper)
         {
             if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能添加请求");
-            _requestQueue.Enqueue(handle);
+            _requestQueue.Enqueue(wrapper);
         }
 
-        public void Work(Action callback)
+        public void Work()
         {
             if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能开始工作");
-            _onLoadFinish = callback;
             nowState = LoadState.Working;
             _workingCoroutine = StartCoroutine(QueueAsyncOpHandles());
         }
@@ -67,6 +79,7 @@ namespace KSGFK
                 var head = _requestQueue.Peek();
                 if (head.IsDone)
                 {
+                    head.OnComplete();
                     _requestQueue.Dequeue();
                 }
 
@@ -74,7 +87,7 @@ namespace KSGFK
             }
 
             nowState = LoadState.Finish;
-            _onLoadFinish?.Invoke();
+            _completeCallback?.Invoke();
             Finish();
         }
 
@@ -87,8 +100,9 @@ namespace KSGFK
 
         private void Finish()
         {
-            _onLoadFinish = null;
+            _completeCallback = null;
             _workingCoroutine = null;
+            _requestQueue = null;
             nowState = LoadState.Sleep;
         }
     }
