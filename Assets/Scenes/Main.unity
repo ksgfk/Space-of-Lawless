@@ -506,6 +506,7 @@ GameObject:
   - component: {fileID: 1682601446}
   - component: {fileID: 1682601448}
   - component: {fileID: 1682601447}
+  - component: {fileID: 1682601449}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -552,8 +553,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bff9f4d11fbc7340b3395ae0832f339, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nowState: 0
+  playerInputAddr:
+    m_AssetGUID: 450286639d85b5a45a602661cdbec4ea
+    m_SubObjectName: 
   mainCamera: {fileID: 519420031}
   virtualCamera: {fileID: 906659782}
+  playerInput: {fileID: 0}
+--- !u!114 &1682601449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682601445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbe43f8d341f49fbb8a6cebcde96136b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1973079989
 GameObject:
   m_ObjectHideFlags: 0

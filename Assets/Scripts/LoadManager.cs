@@ -22,6 +22,8 @@ namespace KSGFK
         private Coroutine _workingCoroutine;
         private Action _completeCallback;
 
+        public LoadState NowState => nowState;
+
         public event Action Complete
         {
             add

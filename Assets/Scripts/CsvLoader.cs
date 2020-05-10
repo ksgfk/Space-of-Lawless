@@ -87,8 +87,15 @@ namespace KSGFK
                     var instance = Activator.CreateInstance(type);
                     for (var i = 0; i < count; i++)
                     {
-                        var field = type.GetField(n[i]);
+                        var field = type.GetField(n[i],
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                         var val = split[i];
+                        if (field == null)
+                        {
+                            Debug.LogWarningFormat("不存在字段{0}", n[i]);
+                            continue;
+                        }
+
                         var fieldType = field.FieldType;
                         if (parsers.TryGetValue(fieldType, out var func))
                         {
