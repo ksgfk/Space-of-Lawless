@@ -77,7 +77,7 @@ namespace KSGFK
                     OnPerInitComplete();
                     break;
                 case GameState.PostInit when _load.NowState == LoadState.Sleep:
-                    OnPostInitComplete();
+                    OnInitComplete();
                     break;
             }
         }
@@ -104,13 +104,17 @@ namespace KSGFK
             _load.Work();
         }
 
-        private void OnPostInitComplete()
+        private void OnInitComplete()
         {
+            InitJobSystems();
             PostInit?.Invoke();
             nowState = GameState.Running;
             PerInit = null;
             Init = null;
             PostInit = null;
+
+            var ship = _entity.SpawnShip(0);
+            _entity.AddModuleToShip(ship, 0);
         }
 
         private void LoadPlayerInput()
@@ -118,6 +122,13 @@ namespace KSGFK
             var req = playerInputAddr.LoadAssetAsync<InputActionAsset>();
             req.Completed += request => playerInput = request.Result;
             _load.Request(req);
+        }
+
+        private void OnDestroy() { _job.Dispose(); }
+
+        private void InitJobSystems()
+        {
+            _job.AddJob(new JobMove());
         }
     }
 }

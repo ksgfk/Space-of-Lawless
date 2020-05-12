@@ -8,14 +8,7 @@ namespace KSGFK
     {
         private readonly List<IJobWrapper> _jobs;
 
-        public IJobWrapper this[int id]
-        {
-            get
-            {
-                var job = _jobs[id];
-                return job != null && job.CanAccess ? job : throw new InvalidOperationException();
-            }
-        }
+        public IJobWrapper this[int id] => _jobs[id];
 
         public JobCenter() { _jobs = new List<IJobWrapper>(); }
 
@@ -32,17 +25,16 @@ namespace KSGFK
             var deltaTime = Time.deltaTime;
             foreach (var job in _jobs)
             {
-                if (job.CanAccess)
-                {
-                    job.OnUpdate(deltaTime);
-                }
+                job.OnUpdate(deltaTime);
             }
         }
 
         public void Dispose(int id)
         {
-            this[id].Dispose();
+            _jobs[id].Dispose();
             _jobs[id] = null;
+            _jobs.Swap(id, _jobs.GetLastIndex());
+            _jobs.RemoveAt(_jobs.GetLastIndex());
         }
 
         public void Dispose()
@@ -51,6 +43,8 @@ namespace KSGFK
             {
                 job.Dispose();
             }
+
+            _jobs.Clear();
         }
     }
 }

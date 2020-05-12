@@ -1,6 +1,6 @@
 namespace KSGFK
 {
-    public interface IEntry<T>
+    public interface IRegisterEntry
     {
         int Id { get; set; }
 

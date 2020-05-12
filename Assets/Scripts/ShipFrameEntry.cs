@@ -4,14 +4,13 @@ using UnityEngine;
 namespace KSGFK
 {
     [Serializable]
-    public class ShipFrameEntry : EntityEntry<EntityShip>
+    public class ShipFrameEntry : EntityRegisterEntry<EntityShip>
     {
         [SerializeField] private int id = int.MinValue;
         [SerializeField] private string name = null;
         [SerializeField] private string addr = null;
         [SerializeField] private float pic_size = float.NaN;
         [SerializeField] private ulong max_health = ulong.MaxValue;
-        [SerializeField] private int max_module = int.MinValue;
         [SerializeField] private Sprite asset = null;
 
         public override int Id { get => id; set => id = value; }
@@ -19,7 +18,6 @@ namespace KSGFK
         public string Addr => addr;
         public float PicSize => pic_size;
         public ulong MaxHealth => max_health;
-        public int MaxModule => max_module;
 
         public Sprite Asset
         {
@@ -35,47 +33,36 @@ namespace KSGFK
             }
         }
 
-        public override EntityShip Instantiate() { throw new NotImplementedException(); }
-    }
-
-    public class ShipFrameProcessor : IProcessor
-    {
-        public void ProProcess(object target)
+        public override EntityShip Instantiate()
         {
-            if (target is ShipFrameEntry frame)
-            {
-                GameManager.Load.Request<Sprite>(frame.Addr, sprite => frame.Asset = sprite);
-            }
-            else
-            {
-                Debug.LogWarningFormat("{0}不是{1},忽略", target, typeof(ShipFrameEntry));
-            }
+            var go = new GameObject($"{name}:{id}");
+            var scale = 120f * pic_size / Asset.texture.width;
+            go.transform.localScale = new Vector3(scale, scale, scale);
+            var spriteRenderer = go.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = Asset;
+            var ship = go.AddComponent<EntityShip>();
+            ship.health = MaxHealth;
+            return ship;
         }
 
-        public void Process(object target) { }
+        public override void PerProcess() { GameManager.Load.Request<Sprite>(Addr, sprite => Asset = sprite); }
 
-        public bool Check(object target, out string info)
+        public override void Process() { }
+
+        public override bool Check(out string info)
         {
             bool result;
             string mInfo = null;
-            if (target is ShipFrameEntry frame)
+            if (Asset)
             {
-                if (frame.Asset)
-                {
-                    result = true;
-                }
-                else
-                {
-                    mInfo = $"未成功加载资源{frame.Addr},忽略";
-                    result = false;
-                }
+                result = true;
             }
             else
             {
-                mInfo = $"{target}不是{typeof(ShipFrameEntry)},忽略";
+                mInfo = $"未成功加载资源{Addr},忽略";
                 result = false;
             }
-
+            
             info = mInfo;
             return result;
         }

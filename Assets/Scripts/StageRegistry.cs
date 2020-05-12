@@ -6,20 +6,18 @@ namespace KSGFK
 {
     public class StageRegistry<T> : RegistryImpl<T>
     {
-        private readonly IProcessor _processor;
-        private List<IEntry<T>> _waitList;
+        private List<IStageProcessEntry> _waitList;
 
-        public StageRegistry(string registryName, IProcessor processor) : base(registryName)
+        public StageRegistry(string registryName) : base(registryName)
         {
-            _waitList = new List<IEntry<T>>();
-            _processor = processor;
+            _waitList = new List<IStageProcessEntry>();
         }
 
-        public void AddToWaitRegister(IEntry<T> entry)
+        public void AddToWaitRegister(IStageProcessEntry registerEntry)
         {
             if (_waitList == null) throw new InvalidOperationException("Init阶段才能注册实体");
-            _processor.ProProcess(entry);
-            _waitList.Add(entry);
+            registerEntry.PerProcess();
+            _waitList.Add(registerEntry);
         }
 
         public void RegisterAll()
@@ -29,8 +27,8 @@ namespace KSGFK
             {
                 try
                 {
-                    _processor.Process(entry);
-                    if (!_processor.Check(entry, out var info))
+                    entry.Process();
+                    if (!entry.Check(out var info))
                     {
                         Debug.LogWarningFormat("{0}未通过注册检查,原因 {1}", entry.RegisterName, info);
                         continue;
