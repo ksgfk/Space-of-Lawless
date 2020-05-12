@@ -4,12 +4,8 @@ namespace KSGFK
 {
     public interface IJobWrapper : IDisposable
     {
-        int RuntimeId { get; set; }
+        string Name { get; }
 
         void OnUpdate(float deltaTime);
-
-        void AddData(IDataProvider item);
-
-        void RemoveData(int runtimeId);
     }
 }

@@ -1,15 +1,17 @@
+using System;
 using System.Collections.Generic;
 using MPipeline;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine.Profiling;
 
 namespace KSGFK
 {
-    public class JobMove : IJobWrapper
+    public unsafe class JobMove : IJobWrapper
     {
-        private readonly Dictionary<int, int> _redirect;
+        private List<IDataCallback> _callbacks;
         private NativeList<MoveData> _data;
 
         public ref MoveData this[int id] => ref _data[id];
@@ -23,15 +25,16 @@ namespace KSGFK
             public void Execute(int index)
             {
                 ref var data = ref DataList[index];
-                data.Translation = math.normalize(data.Direction) * data.Speed * DeltaTime;
+                data.Translation = math.normalizesafe(data.Direction) * data.Speed * DeltaTime;
             }
         }
 
-        public int RuntimeId { get; set; }
+        public string Name { get; }
 
-        public JobMove()
+        public JobMove(string name)
         {
-            _redirect = new Dictionary<int, int>();
+            Name = name;
+            _callbacks = new List<IDataCallback>();
             _data = new NativeList<MoveData>(0, Allocator.Persistent);
         }
 
@@ -39,7 +42,10 @@ namespace KSGFK
         {
             _data.Dispose();
             _data = default;
+            _callbacks = null;
         }
+
+        private static readonly string ProfilerName = $"{typeof(JobMove).FullName}.Update";
 
         public void OnUpdate(float deltaTime)
         {
@@ -48,10 +54,39 @@ namespace KSGFK
                 DataList = _data,
                 DeltaTime = deltaTime
             }.Run(_data.Length);
+            Profiler.BeginSample(ProfilerName);
+            foreach (var callback in _callbacks)
+            {
+                callback.OnUpdate();
+            }
+
+            Profiler.EndSample();
         }
 
-        public void AddData(IDataProvider item) { throw new System.NotImplementedException(); }
+        public int AddData(in MoveData data, IDataCallback callback)
+        {
+            var callList = _callbacks.Count;
+            var index = callList == _data.Length ? callList : throw new InvalidOperationException("可能有bug");
+            _data.Add(data);
+            _callbacks.Add(callback);
+            callback.JobWrapper = this;
+            return index;
+        }
 
-        public void RemoveData(int runtimeId) { throw new System.NotImplementedException(); }
+        public void RemoveData(int runtimeId)
+        {
+            var callList = _callbacks.Count;
+            var all = callList == _data.Length ? callList : throw new InvalidOperationException("可能有bug");
+            var last = all - 1;
+            if (runtimeId != last)
+            {
+                _callbacks[runtimeId] = _callbacks[last];
+                _data[runtimeId] = _data[last];
+                _callbacks[runtimeId].DataId = runtimeId;
+            }
+
+            _data.RemoveLast();
+            _callbacks.RemoveAt(last);
+        }
     }
 }

@@ -6,40 +6,36 @@ namespace KSGFK
 {
     public class JobCenter : IDisposable
     {
-        private readonly List<IJobWrapper> _jobs;
+        private readonly Dictionary<string, IJobWrapper> _jobs;
 
-        public IJobWrapper this[int id] => _jobs[id];
-
-        public JobCenter() { _jobs = new List<IJobWrapper>(); }
-
-        public int AddJob(IJobWrapper wrapper)
-        {
-            var id = _jobs.Count;
-            wrapper.RuntimeId = id;
-            _jobs.Add(wrapper);
-            return id;
-        }
+        public JobCenter() { _jobs = new Dictionary<string, IJobWrapper>(); }
 
         public void OnUpdate()
         {
             var deltaTime = Time.deltaTime;
-            foreach (var job in _jobs)
+            foreach (var job in _jobs.Values)
             {
                 job.OnUpdate(deltaTime);
             }
         }
 
-        public void Dispose(int id)
+        public void AddJob(IJobWrapper wrapper) { _jobs.Add(wrapper.Name, wrapper); }
+
+        public IJobWrapper GetJob(string name)
         {
-            _jobs[id].Dispose();
-            _jobs[id] = null;
-            _jobs.Swap(id, _jobs.GetLastIndex());
-            _jobs.RemoveAt(_jobs.GetLastIndex());
+            if (!_jobs.TryGetValue(name, out var result))
+            {
+                Debug.LogWarningFormat("不存在Job {0}", name);
+            }
+
+            return result;
         }
+
+        public T GetJob<T>(string name) where T : class, IJobWrapper { return GetJob(name) as T; }
 
         public void Dispose()
         {
-            foreach (var job in _jobs)
+            foreach (var job in _jobs.Values)
             {
                 job.Dispose();
             }
