@@ -1,24 +1,23 @@
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace KSGFK
 {
-    public unsafe class JobMoveProxy : MonoBehaviour, IDataCallback
+    public class JobMoveProxy : MonoBehaviour, IJobCallback
     {
         public int id;
-        public Transform moveTarget;
+        public Transform target;
 
         public int DataId { get => id; set => id = value; }
 
         public IJobWrapper JobWrapper { get; set; }
-        
+
         public void OnUpdate()
         {
             var move = (JobMove) JobWrapper;
             ref var moveData = ref move[DataId];
             var translate = new Vector3(moveData.Translation.x, moveData.Translation.y);
-            moveTarget.Translate(translate);
+            target.Translate(translate);
         }
 
         public void OnInputCallback(InputAction.CallbackContext ctx)

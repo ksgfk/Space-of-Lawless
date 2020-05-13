@@ -10,12 +10,14 @@ namespace KSGFK
         [SerializeField] private string name = null;
         [SerializeField] private string addr = null;
         [SerializeField] private int pic_size;
-        [SerializeField] private float max_speed;
+        [SerializeField] private float max_mov_speed;
+        [SerializeField] private float max_rot_speed;
         [SerializeField] private Sprite asset;
 
         public string Addr => addr;
         public int PicSize { get => pic_size; set => pic_size = value; }
-        public float MaxSpeed { get => max_speed; set => max_speed = value; }
+        public float MaxMoveSpeed { get => max_mov_speed; set => max_mov_speed = value; }
+        public float MaxRotateSpeed { get => max_rot_speed; set => max_rot_speed = value; }
 
         public Sprite Asset
         {
@@ -45,7 +47,8 @@ namespace KSGFK
             }
 
             var engine = go.AddComponent<ShipEngine>();
-            engine.maxSpeed = MaxSpeed;
+            engine.maxMoveSpeed = MaxMoveSpeed;
+            engine.maxRotateSpeed = MaxRotateSpeed;
             return engine;
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Cinemachine;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
@@ -107,7 +106,7 @@ namespace KSGFK
             _load.Work();
         }
 
-        private unsafe void OnInitComplete()
+        private void OnInitComplete()
         {
             InitJobSystems();
             PostInit?.Invoke();
@@ -118,16 +117,26 @@ namespace KSGFK
             Init = null;
             PostInit = null;
 
-            var moveJob = _job.GetJob<JobMove>("default_move");
+            var movJob = _job.GetJob<JobMove>("DefaultMoveJob");
+            var rotJob = _job.GetJob<JobRotate>("DefaultRotateJob");
             var ship = _entity.SpawnShip(0);
             var engine = (ShipEngine) _entity.AddModuleToShip(ship, 0);
             var engineGo = engine.gameObject;
-            var proxy = engineGo.AddComponent<JobMoveProxy>();
-            proxy.DataId = moveJob.AddData(engine.CopyMoveData, proxy);
-            proxy.moveTarget = ship.transform;
-            _input.Player.Move.started += proxy.OnInputCallback;
-            _input.Player.Move.performed += proxy.OnInputCallback;
-            _input.Player.Move.canceled += proxy.OnInputCallback;
+            var movProxy = engineGo.AddComponent<JobMoveProxy>();
+            movJob.AddData(engine.CopyMoveData, movProxy);
+            movProxy.target = ship.transform;
+            var rotProxy = engineGo.AddComponent<JobRotateProxy>();
+            rotJob.AddData(engine.CopyRotateData, rotProxy);
+            rotProxy.target = ship.transform;
+            
+            _input.Player.Move.started += movProxy.OnInputCallback;
+            _input.Player.Move.performed += movProxy.OnInputCallback;
+            _input.Player.Move.canceled += movProxy.OnInputCallback;
+            _input.Player.Look.started += rotProxy.OnInputCallback;
+            _input.Player.Look.performed += rotProxy.OnInputCallback;
+            _input.Player.Look.canceled += rotProxy.OnInputCallback;
+            
+            SetCameraFollowTarget(ship.transform);
         }
 
         private void LoadPlayerInput()
@@ -139,6 +148,10 @@ namespace KSGFK
 
         private void OnDestroy() { _job.Dispose(); }
 
-        private void InitJobSystems() { _job.AddJob(new JobMove("default_move")); }
+        private void InitJobSystems()
+        {
+            _job.AddJob(new JobMove("DefaultMoveJob"));
+            _job.AddJob(new JobRotate("DefaultRotateJob"));
+        }
     }
 }

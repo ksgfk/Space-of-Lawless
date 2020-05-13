@@ -1,6 +1,6 @@
 namespace KSGFK
 {
-    public interface IDataCallback
+    public interface IJobCallback
     {
         int DataId { get; set; }
         

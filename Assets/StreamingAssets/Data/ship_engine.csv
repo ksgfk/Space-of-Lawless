@@ -1,2 +1,2 @@
-name,addr,pic_size,max_speed
-taihang,,1,5
+name,addr,pic_size,max_mov_speed,max_rot_speed
+taihang,,1,5,1
