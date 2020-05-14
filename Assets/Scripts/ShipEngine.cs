@@ -16,10 +16,8 @@ namespace KSGFK
         public RotateData CopyRotateData =>
             new RotateData
             {
-                NowPos = Frame.transform.position,
-                Target = new float3(0, 10, 0),
                 Speed = maxRotateSpeed,
-                Rotation = Frame.transform.rotation
+                Rotation = quaternion.identity
             };
     }
 }

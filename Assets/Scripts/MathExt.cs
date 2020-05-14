@@ -63,7 +63,7 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static quaternion NonInitAxisAngle(float3 nonNormalAxis, float degree)
         {
-            return quaternion.AxisAngle(math.normalize(nonNormalAxis), degree * UnitDegree2Radian);
+            return quaternion.AxisAngle(math.normalizesafe(nonNormalAxis), degree * UnitDegree2Radian);
         }
     }
 }

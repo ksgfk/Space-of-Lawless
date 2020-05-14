@@ -14,9 +14,17 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Look",
+                    "name": "Delta",
                     "type": "Value",
                     "id": "aa64e910-4648-450f-ac86-bf2fb6b15f2e",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Point",
+                    "type": "Value",
+                    "id": "0d983da8-f23c-42b1-9a34-3a1e5ecbe011",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
@@ -26,14 +34,6 @@
                     "type": "Button",
                     "id": "76d69daf-6b5c-4da0-af9f-66506fec0f50",
                     "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Point",
-                    "type": "Value",
-                    "id": "0d983da8-f23c-42b1-9a34-3a1e5ecbe011",
-                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
                 }
@@ -141,11 +141,11 @@
                 {
                     "name": "",
                     "id": "8c8e490b-c610-4785-884f-f04217b23ca4",
-                    "path": "*/{Point}",
+                    "path": "<Pointer>/Delta",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Keyboard&Mouse;Touch",
-                    "action": "Look",
+                    "groups": "Touch;Keyboard&Mouse",
+                    "action": "Delta",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

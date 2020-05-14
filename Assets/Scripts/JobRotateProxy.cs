@@ -16,14 +16,14 @@ namespace KSGFK
             var rot = (JobRotate) JobWrapper;
             ref var data = ref rot[DataId];
             target.rotation = data.Rotation;
-            data.NowPos = target.position;
+            data.Rotation = target.rotation;
         }
 
         public void OnInputCallback(InputAction.CallbackContext ctx)
         {
             var rot = (JobRotate) JobWrapper;
             ref var data = ref rot[DataId];
-            data.Target = GameManager.MainCamera.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
+            data.Delta = ctx.ReadValue<Vector2>();
         }
     }
 }

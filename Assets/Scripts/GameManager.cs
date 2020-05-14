@@ -53,6 +53,7 @@ namespace KSGFK
 
         private void Awake()
         {
+            // Cursor.visible = false;
             if (!Instance)
             {
                 Instance = this;
@@ -72,8 +73,7 @@ namespace KSGFK
         {
             switch (nowState)
             {
-                case GameState.Running:
-                    _job.OnUpdate();
+                case GameState.Running:_job.OnUpdate();
                     break;
                 case GameState.Init when _load.NowState == LoadState.Sleep:
                     OnPerInitComplete();
@@ -132,10 +132,10 @@ namespace KSGFK
             _input.Player.Move.started += movProxy.OnInputCallback;
             _input.Player.Move.performed += movProxy.OnInputCallback;
             _input.Player.Move.canceled += movProxy.OnInputCallback;
-            _input.Player.Look.started += rotProxy.OnInputCallback;
-            _input.Player.Look.performed += rotProxy.OnInputCallback;
-            _input.Player.Look.canceled += rotProxy.OnInputCallback;
-            
+            _input.Player.Delta.started += rotProxy.OnInputCallback;
+            _input.Player.Delta.performed += rotProxy.OnInputCallback;
+            _input.Player.Delta.canceled += rotProxy.OnInputCallback;
+
             SetCameraFollowTarget(ship.transform);
         }
 

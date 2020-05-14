@@ -29,9 +29,17 @@ namespace KSGFK
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Look"",
+                    ""name"": ""Delta"",
                     ""type"": ""Value"",
                     ""id"": ""aa64e910-4648-450f-ac86-bf2fb6b15f2e"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""Point"",
+                    ""type"": ""Value"",
+                    ""id"": ""0d983da8-f23c-42b1-9a34-3a1e5ecbe011"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -41,14 +49,6 @@ namespace KSGFK
                     ""type"": ""Button"",
                     ""id"": ""76d69daf-6b5c-4da0-af9f-66506fec0f50"",
                     ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """"
-                },
-                {
-                    ""name"": ""Point"",
-                    ""type"": ""Value"",
-                    ""id"": ""0d983da8-f23c-42b1-9a34-3a1e5ecbe011"",
-                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
                 }
@@ -156,11 +156,11 @@ namespace KSGFK
                 {
                     ""name"": """",
                     ""id"": ""8c8e490b-c610-4785-884f-f04217b23ca4"",
-                    ""path"": ""*/{Point}"",
+                    ""path"": ""<Pointer>/Delta"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse;Touch"",
-                    ""action"": ""Look"",
+                    ""groups"": ""Touch;Keyboard&Mouse"",
+                    ""action"": ""Delta"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -761,9 +761,9 @@ namespace KSGFK
             // Player
             m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
             m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-            m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
-            m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
+            m_Player_Delta = m_Player.FindAction("Delta", throwIfNotFound: true);
             m_Player_Point = m_Player.FindAction("Point", throwIfNotFound: true);
+            m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -826,17 +826,17 @@ namespace KSGFK
         private readonly InputActionMap m_Player;
         private IPlayerActions m_PlayerActionsCallbackInterface;
         private readonly InputAction m_Player_Move;
-        private readonly InputAction m_Player_Look;
-        private readonly InputAction m_Player_Fire;
+        private readonly InputAction m_Player_Delta;
         private readonly InputAction m_Player_Point;
+        private readonly InputAction m_Player_Fire;
         public struct PlayerActions
         {
             private @InputCenter m_Wrapper;
             public PlayerActions(@InputCenter wrapper) { m_Wrapper = wrapper; }
             public InputAction @Move => m_Wrapper.m_Player_Move;
-            public InputAction @Look => m_Wrapper.m_Player_Look;
-            public InputAction @Fire => m_Wrapper.m_Player_Fire;
+            public InputAction @Delta => m_Wrapper.m_Player_Delta;
             public InputAction @Point => m_Wrapper.m_Player_Point;
+            public InputAction @Fire => m_Wrapper.m_Player_Fire;
             public InputActionMap Get() { return m_Wrapper.m_Player; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -849,15 +849,15 @@ namespace KSGFK
                     @Move.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
                     @Move.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
                     @Move.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
-                    @Look.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLook;
-                    @Look.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLook;
-                    @Look.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLook;
-                    @Fire.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
-                    @Fire.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
-                    @Fire.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
+                    @Delta.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDelta;
+                    @Delta.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDelta;
+                    @Delta.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDelta;
                     @Point.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPoint;
                     @Point.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPoint;
                     @Point.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPoint;
+                    @Fire.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
+                    @Fire.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
+                    @Fire.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
                 }
                 m_Wrapper.m_PlayerActionsCallbackInterface = instance;
                 if (instance != null)
@@ -865,15 +865,15 @@ namespace KSGFK
                     @Move.started += instance.OnMove;
                     @Move.performed += instance.OnMove;
                     @Move.canceled += instance.OnMove;
-                    @Look.started += instance.OnLook;
-                    @Look.performed += instance.OnLook;
-                    @Look.canceled += instance.OnLook;
-                    @Fire.started += instance.OnFire;
-                    @Fire.performed += instance.OnFire;
-                    @Fire.canceled += instance.OnFire;
+                    @Delta.started += instance.OnDelta;
+                    @Delta.performed += instance.OnDelta;
+                    @Delta.canceled += instance.OnDelta;
                     @Point.started += instance.OnPoint;
                     @Point.performed += instance.OnPoint;
                     @Point.canceled += instance.OnPoint;
+                    @Fire.started += instance.OnFire;
+                    @Fire.performed += instance.OnFire;
+                    @Fire.canceled += instance.OnFire;
                 }
             }
         }
@@ -1031,9 +1031,9 @@ namespace KSGFK
         public interface IPlayerActions
         {
             void OnMove(InputAction.CallbackContext context);
-            void OnLook(InputAction.CallbackContext context);
-            void OnFire(InputAction.CallbackContext context);
+            void OnDelta(InputAction.CallbackContext context);
             void OnPoint(InputAction.CallbackContext context);
+            void OnFire(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {
