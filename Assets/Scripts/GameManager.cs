@@ -24,6 +24,7 @@ namespace KSGFK
         public static InputActionAsset InputAsset => Instance.playerInput;
         public static EntityManager Entity => Instance._entity;
         public static InputCenter Input => Instance._input;
+        public static PoolCenter Pool => Instance._pool;
 
         [SerializeField] private GameState nowState = GameState.PreInit;
         [SerializeField] private AssetReference playerInputAddr = null;
@@ -35,6 +36,7 @@ namespace KSGFK
         private EntityManager _entity;
         private InputCenter _input;
         [SerializeField] private InputActionAsset playerInput = null;
+        private PoolCenter _pool;
 
         /// <summary>
         /// 读取游戏数据
@@ -63,6 +65,7 @@ namespace KSGFK
             _load = GetComponent<LoadManager>();
             _job = new JobCenter();
             _data = new DataCenter();
+            _pool = new PoolCenter();
             _data.AddDataLoader("WindowsPlayer.csv", new CsvLoader(this));
             _entity = GetComponent<EntityManager>();
 
@@ -73,7 +76,8 @@ namespace KSGFK
         {
             switch (nowState)
             {
-                case GameState.Running:_job.OnUpdate();
+                case GameState.Running:
+                    _job.OnUpdate();
                     break;
                 case GameState.Init when _load.NowState == LoadState.Sleep:
                     OnPerInitComplete();
@@ -128,7 +132,7 @@ namespace KSGFK
             var rotProxy = engineGo.AddComponent<JobRotateProxy>();
             rotJob.AddData(engine.CopyRotateData, rotProxy);
             rotProxy.target = ship.transform;
-            
+
             _input.Player.Move.started += movProxy.OnInputCallback;
             _input.Player.Move.performed += movProxy.OnInputCallback;
             _input.Player.Move.canceled += movProxy.OnInputCallback;

@@ -10,11 +10,14 @@ namespace KSGFK
         private readonly List<GameObject> _pool;
         private readonly Stack<int> _usable;
 
+        public string Symbol { get; }
+
         public IReadOnlyList<GameObject> Container => _pool;
 
-        public ObjectPool(GameObject template, int initCount)
+        public ObjectPool(GameObject template, int initCount, string symbol = null)
         {
             _template = template;
+            Symbol = symbol;
             _pool = new List<GameObject>(initCount);
             _usable = new Stack<int>(initCount);
         }
@@ -81,6 +84,22 @@ namespace KSGFK
             var go = _pool[ptr];
             action(go);
             return ptr;
+        }
+
+        public void ReAllocate(int count)
+        {
+            if (_pool.Count > count)
+            {
+                var m = Math.Max(0, count - 1);
+                _pool.RemoveRange(m, _pool.Count - m);
+            }
+            else if (_pool.Count < count)
+            {
+                for (var i = 0; i < count - _pool.Count; i++)
+                {
+                    _pool.Add(Instantiate());
+                }
+            }
         }
     }
 }
