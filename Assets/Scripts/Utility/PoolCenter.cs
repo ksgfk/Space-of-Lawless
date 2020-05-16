@@ -9,6 +9,8 @@ namespace KSGFK
         private readonly List<ObjectPool> _pools;
         private readonly Dictionary<string, (int, Action<int>)> _indexer;
 
+        public IReadOnlyList<ObjectPool> Pools => _pools;
+
         public PoolCenter()
         {
             _pools = new List<ObjectPool>();

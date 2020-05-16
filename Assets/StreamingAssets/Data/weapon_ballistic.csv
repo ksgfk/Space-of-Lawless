@@ -1,2 +1,0 @@
-name,weapon_addr,weapon_pic_size,bullet_addr,bullet_pic_size,speed,bullet_pooling
-minigun,,1,bullet_normal,1,10,10

@@ -20,6 +20,13 @@ namespace KSGFK
             Symbol = symbol;
             _pool = new List<GameObject>(initCount);
             _usable = new Stack<int>(initCount);
+            for (var i = 0; i < initCount; i++)
+            {
+                var go = Instantiate();
+                var ptr = _pool.Count;
+                _pool.Add(go);
+                Return(ptr);
+            }
         }
 
         public GameObject Instantiate() { return UnityEngine.Object.Instantiate(_template); }

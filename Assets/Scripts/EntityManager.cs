@@ -10,10 +10,11 @@ namespace KSGFK
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
         public static readonly string ShipFramePath = Path.Combine(DataRoot, "ship_frame.csv");
         public static readonly string ShipEnginePath = Path.Combine(DataRoot, "ship_engine.csv");
+        public static readonly string BulletPath = Path.Combine(DataRoot, "entity_bullet.csv");
 
         public int spawnCount;
         public int generation;
-        private StageRegistry<EntityShip> _ship;
+        private StageRegistry<Entity> _entity;
         private StageRegistry<IShipModule> _shipModules;
         private LinkedList<Entity> _active;
 
@@ -22,7 +23,7 @@ namespace KSGFK
 
         public void Init()
         {
-            _ship = new StageRegistry<EntityShip>("ship");
+            _entity = new StageRegistry<Entity>("entity");
             _shipModules = new StageRegistry<IShipModule>("ship_module");
             _active = new LinkedList<Entity>();
             GameManager.Instance.PerInit += OnGamePreInit;
@@ -30,26 +31,36 @@ namespace KSGFK
             GameManager.Instance.PostInit += OnGamePostInit;
         }
 
-        public void RegisterShip(ShipFrameEntry entry) { _ship.AddToWaitRegister(entry); }
+        public void RegisterShip(ShipFrameEntry frame) { _entity.AddToWaitRegister(frame); }
 
         public void RegisterShipModule(ShipModuleEntry module) { _shipModules.AddToWaitRegister(module); }
 
+        public void RegisterBullet(BulletEntry bullet) { _entity.AddToWaitRegister(bullet); }
+
         private void OnGamePreInit()
         {
-            GameManager.Data.AddPath(typeof(ShipFrameEntry), ShipFramePath);
-            GameManager.Data.AddPath(typeof(ShipEngineEntry), ShipEnginePath);
+            var data = GameManager.Data;
+            data.AddPath(typeof(ShipFrameEntry), ShipFramePath);
+            data.AddPath(typeof(ShipEngineEntry), ShipEnginePath);
+            data.AddPath(typeof(BulletEntry), BulletPath);
         }
 
         private void OnGameInit()
         {
-            foreach (var frameEntry in GameManager.Data.Query<ShipFrameEntry>(ShipFramePath))
+            var data = GameManager.Data;
+            foreach (var frameEntry in data.Query<ShipFrameEntry>(ShipFramePath))
             {
                 RegisterShip(frameEntry);
             }
 
-            foreach (var engine in GameManager.Data.Query<ShipEngineEntry>(ShipEnginePath))
+            foreach (var engine in data.Query<ShipEngineEntry>(ShipEnginePath))
             {
                 RegisterShipModule(engine);
+            }
+
+            foreach (var bullet in data.Query<BulletEntry>(BulletPath))
+            {
+                RegisterBullet(bullet);
             }
 
             Register?.Invoke();
@@ -57,23 +68,31 @@ namespace KSGFK
 
         private void OnGamePostInit()
         {
-            _ship.RegisterAll();
+            _entity.RegisterAll();
             _shipModules.RegisterAll();
             PostRegister?.Invoke();
             Register = null;
             PostRegister = null;
         }
 
-        public EntityShip SpawnShip(int id)
+        public EntityShip SpawnShip(int id) { return SpawnEntity<EntityShip>(id); }
+
+        public EntityShip SpawnShip(string registerName) { return SpawnEntity<EntityShip>(registerName); }
+
+        public EntityBullet SpawnBullet(int id) { return SpawnEntity<EntityBullet>(id); }
+        
+        public EntityBullet SpawnBullet(string registerName) { return SpawnEntity<EntityBullet>(registerName); }
+
+        public T SpawnEntity<T>(int id) where T : Entity
         {
-            var entry = _ship[id];
-            return SpawnEntity((ShipFrameEntry) entry);
+            var entry = _entity[id];
+            return SpawnEntity((EntityRegisterEntry<T>) entry);
         }
 
-        public EntityShip SpawnShip(string registerName)
+        public T SpawnEntity<T>(string registerName) where T : Entity
         {
-            var entry = _ship[registerName];
-            return SpawnEntity((ShipFrameEntry) entry);
+            var entry = _entity[registerName];
+            return SpawnEntity((EntityRegisterEntry<T>) entry);
         }
 
         private T SpawnEntity<T>(EntityRegisterEntry<T> entry) where T : Entity

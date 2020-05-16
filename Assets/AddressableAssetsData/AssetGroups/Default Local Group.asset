@@ -27,10 +27,14 @@ MonoBehaviour:
     m_Address: default_ship_action
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: -944628639613478452, guid: 450286639d85b5a45a602661cdbec4ea,
-      type: 3}
-    m_TargetAsset: {fileID: -944628639613478452, guid: 450286639d85b5a45a602661cdbec4ea,
-      type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: fba3cc05b06a67e4e819b02033a218eb
+    m_Address: bullet_normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 2800000, guid: fba3cc05b06a67e4e819b02033a218eb, type: 3}
+    m_TargetAsset: {fileID: 2800000, guid: fba3cc05b06a67e4e819b02033a218eb, type: 3}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 328a6f60c8323a446b301c6173e1364f, type: 2}
   m_SchemaSet:
