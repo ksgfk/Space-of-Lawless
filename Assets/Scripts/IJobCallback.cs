@@ -1,11 +1,9 @@
 namespace KSGFK
 {
-    public interface IJobCallback
+    public interface IJobCallback<T> where T : unmanaged
     {
         int DataId { get; set; }
-        
-        IJobWrapper JobWrapper { get; set; }
-        
-        void OnUpdate();
+
+        void OnUpdate(ref T data);
     }
 }

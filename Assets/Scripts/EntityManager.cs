@@ -31,7 +31,7 @@ namespace KSGFK
             GameManager.Instance.PostInit += OnGamePostInit;
         }
 
-        public void RegisterShip(ShipFrameEntry frame) { _entity.AddToWaitRegister(frame); }
+        public void RegisterShip(EntryEntityShip frame) { _entity.AddToWaitRegister(frame); }
 
         public void RegisterShipModule(ShipModuleEntry module) { _shipModules.AddToWaitRegister(module); }
 
@@ -40,7 +40,7 @@ namespace KSGFK
         private void OnGamePreInit()
         {
             var data = GameManager.Data;
-            data.AddPath(typeof(ShipFrameEntry), ShipFramePath);
+            data.AddPath(typeof(EntryEntityShip), ShipFramePath);
             data.AddPath(typeof(ShipEngineEntry), ShipEnginePath);
             data.AddPath(typeof(BulletEntry), BulletPath);
         }
@@ -48,7 +48,7 @@ namespace KSGFK
         private void OnGameInit()
         {
             var data = GameManager.Data;
-            foreach (var frameEntry in data.Query<ShipFrameEntry>(ShipFramePath))
+            foreach (var frameEntry in data.Query<EntryEntityShip>(ShipFramePath))
             {
                 RegisterShip(frameEntry);
             }
@@ -80,22 +80,26 @@ namespace KSGFK
         public EntityShip SpawnShip(string registerName) { return SpawnEntity<EntityShip>(registerName); }
 
         public EntityBullet SpawnBullet(int id) { return SpawnEntity<EntityBullet>(id); }
-        
+
         public EntityBullet SpawnBullet(string registerName) { return SpawnEntity<EntityBullet>(registerName); }
 
-        public T SpawnEntity<T>(int id) where T : Entity
+        public Entity SpawnEntity(int id)
         {
             var entry = _entity[id];
-            return SpawnEntity((EntityRegisterEntry<T>) entry);
+            return SpawnEntity((EntityRegisterEntry) entry);
         }
 
-        public T SpawnEntity<T>(string registerName) where T : Entity
+        public T SpawnEntity<T>(int id) where T : Entity { return SpawnEntity(id) as T; }
+
+        public Entity SpawnEntity(string registerName)
         {
             var entry = _entity[registerName];
-            return SpawnEntity((EntityRegisterEntry<T>) entry);
+            return SpawnEntity((EntityRegisterEntry) entry);
         }
 
-        private T SpawnEntity<T>(EntityRegisterEntry<T> entry) where T : Entity
+        public T SpawnEntity<T>(string id) where T : Entity { return SpawnEntity(id) as T; }
+
+        private Entity SpawnEntity(EntityRegisterEntry entry)
         {
             if (entry == null)
             {
@@ -103,11 +107,9 @@ namespace KSGFK
             }
 
             var instance = entry.Instantiate();
-            instance.runtimeId = spawnCount;
-            instance.generation = generation;
             var node = new LinkedListNode<Entity>(instance);
             _active.AddLast(node);
-            instance.node = node;
+            instance.Node = node;
             AfterSpawn();
             return instance;
         }
@@ -159,6 +161,13 @@ namespace KSGFK
             var engineGo = module.BaseGameObject;
             engineGo.transform.SetParent(ship.transform);
             module.Frame = ship;
+        }
+
+        public void DestroyEntity(Entity entity)
+        {
+            var entry = (EntityRegisterEntry) _entity[entity.RuntimeId];
+            _active.Remove(entity.Node);
+            entry.Destroy(entity);
         }
     }
 }

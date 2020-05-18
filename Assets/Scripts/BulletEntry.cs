@@ -4,7 +4,7 @@ using UnityEngine;
 namespace KSGFK
 {
     [Serializable]
-    public class BulletEntry : EntityRegisterEntry<EntityBullet>
+    public class BulletEntry : EntityRegisterEntry
     {
         [SerializeField] private int runtimeId;
         [SerializeField] private string name = null;
@@ -37,7 +37,7 @@ namespace KSGFK
 
         public GameObject Template => template;
 
-        public override EntityBullet Instantiate()
+        public override Entity Instantiate()
         {
             EntityBullet result;
             if (PoolCount < 0)
@@ -58,21 +58,22 @@ namespace KSGFK
             return result;
         }
 
-        public override void Destroy(EntityBullet instance)
+        public override void Destroy(Entity instance)
         {
+            var bullet = (EntityBullet) instance;
             if (PoolCount < 0)
             {
                 base.Destroy(instance);
             }
             else
             {
-                if (instance.poolPtr < 0)
+                if (bullet.poolPtr < 0)
                 {
                     throw new InvalidOperationException($"{RegisterName}:{PoolId}不能回收无id的子弹{instance}");
                 }
 
-                GameManager.Pool.Return(PoolId, instance.poolPtr);
-                instance.poolPtr = -1;
+                GameManager.Pool.Return(PoolId, bullet.poolPtr);
+                bullet.poolPtr = -1;
             }
         }
 

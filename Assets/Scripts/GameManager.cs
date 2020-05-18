@@ -121,24 +121,24 @@ namespace KSGFK
             Init = null;
             PostInit = null;
 
-            var movJob = _job.GetJob<JobMove>("DefaultMoveJob");
-            var rotJob = _job.GetJob<JobRotate>("DefaultRotateJob");
+            // var movJob = _job.GetJob<JobMove>("DefaultMoveJob");
+            // var rotJob = _job.GetJob<JobRotate>("DefaultRotateJob");
             var ship = _entity.SpawnShip(0);
-            var engine = (ShipEngine) _entity.AddModuleToShip(ship, 0);
-            var engineGo = engine.gameObject;
-            var movProxy = engineGo.AddComponent<JobMoveProxy>();
-            movJob.AddData(engine.CopyMoveData, movProxy);
-            movProxy.target = ship.transform;
-            var rotProxy = engineGo.AddComponent<JobRotateProxy>();
-            rotJob.AddData(engine.CopyRotateData, rotProxy);
-            rotProxy.target = ship.transform;
+            // var engine = (ShipEngine) _entity.AddModuleToShip(ship, 0);
+            // var engineGo = engine.gameObject;
+            // var movProxy = engineGo.AddComponent<JobMoveProxy>();
+            // movJob.AddData(engine.CopyMoveData, movProxy);
+            // movProxy.target = ship.transform;
+            // var rotProxy = engineGo.AddComponent<JobRotateProxy>();
+            // rotJob.AddData(engine.CopyRotateData, rotProxy);
+            // rotProxy.target = ship.transform;
 
-            _input.Player.Move.started += movProxy.OnInputCallback;
-            _input.Player.Move.performed += movProxy.OnInputCallback;
-            _input.Player.Move.canceled += movProxy.OnInputCallback;
-            _input.Player.Delta.started += rotProxy.OnInputCallback;
-            _input.Player.Delta.performed += rotProxy.OnInputCallback;
-            _input.Player.Delta.canceled += rotProxy.OnInputCallback;
+            // _input.Player.Move.started += movProxy.OnInputCallback;
+            // _input.Player.Move.performed += movProxy.OnInputCallback;
+            // _input.Player.Move.canceled += movProxy.OnInputCallback;
+            // _input.Player.Delta.started += rotProxy.OnInputCallback;
+            // _input.Player.Delta.performed += rotProxy.OnInputCallback;
+            // _input.Player.Delta.canceled += rotProxy.OnInputCallback;
 
             SetCameraFollowTarget(ship.transform);
         }

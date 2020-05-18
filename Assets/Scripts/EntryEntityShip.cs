@@ -4,7 +4,7 @@ using UnityEngine;
 namespace KSGFK
 {
     [Serializable]
-    public class ShipFrameEntry : EntityRegisterEntry<EntityShip>
+    public class EntryEntityShip : EntityRegisterEntry
     {
         [SerializeField] private int id = int.MinValue;
         [SerializeField] private string name = null;
@@ -33,7 +33,7 @@ namespace KSGFK
             }
         }
 
-        public override EntityShip Instantiate()
+        public override Entity Instantiate()
         {
             var go = new GameObject($"{name}:{id}");
             var scale = 120f * pic_size / Asset.texture.width;
@@ -41,7 +41,8 @@ namespace KSGFK
             var spriteRenderer = go.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = Asset;
             var ship = go.AddComponent<EntityShip>();
-            ship.health = MaxHealth;
+            ship.RuntimeId = Id;
+            ship.Health = MaxHealth;
             return ship;
         }
 

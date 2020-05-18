@@ -52,8 +52,6 @@ namespace KSGFK
             return engine;
         }
 
-        public override void Destroy(IShipModule instance) { UnityEngine.Object.Destroy(instance.BaseGameObject); }
-
         public override void PerProcess()
         {
             if (!string.IsNullOrEmpty(Addr))

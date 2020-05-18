@@ -8,7 +8,7 @@ namespace KSGFK
 
         public abstract IShipModule Instantiate();
 
-        public abstract void Destroy(IShipModule instance);
+        public virtual void Destroy(IShipModule instance) { UnityEngine.Object.Destroy(instance.BaseGameObject); }
 
         public abstract void PerProcess();
 

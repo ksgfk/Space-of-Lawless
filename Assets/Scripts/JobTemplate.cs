@@ -8,7 +8,7 @@ namespace KSGFK
 {
     public abstract class JobTemplate<T> : IJobWrapper where T : unmanaged
     {
-        private List<IJobCallback> _callbacks;
+        private List<IJobCallback<T>> _callbacks;
         protected NativeList<T> DataList;
 
         public ref T this[int id] => ref DataList[id];
@@ -18,7 +18,7 @@ namespace KSGFK
         protected JobTemplate(string name)
         {
             Name = name;
-            _callbacks = new List<IJobCallback>();
+            _callbacks = new List<IJobCallback<T>>();
             DataList = new NativeList<T>(0, Allocator.Persistent);
         }
 
@@ -37,22 +37,19 @@ namespace KSGFK
             Profiler.BeginSample(Name);
             foreach (var callback in _callbacks)
             {
-                callback.OnUpdate();
+                callback.OnUpdate(ref this[callback.DataId]);
             }
 
             Profiler.EndSample();
         }
 
-        public int AddData(in T data, IJobCallback callback)
+        public int AddData(in T data, IJobCallback<T> callback)
         {
             var callList = _callbacks.Count;
             var index = callList == DataList.Length ? callList : throw new InvalidOperationException("可能有bug");
             DataList.Add(data);
             _callbacks.Add(callback);
-            
-            callback.JobWrapper = this;
             callback.DataId = index;
-            
             return index;
         }
 

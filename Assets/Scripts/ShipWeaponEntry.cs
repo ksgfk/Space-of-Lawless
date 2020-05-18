@@ -45,18 +45,19 @@ namespace KSGFK
         {
             var result = true;
             var reason = string.Empty;
-            if (!Asset)
+            if (!string.IsNullOrEmpty(Addr))
             {
-                reason += $"未成功加载资源{Addr},忽略";
-                result = false;
+                if (!Asset)
+                {
+                    reason += $"未成功加载资源{Addr},忽略";
+                    result = false;
+                }
             }
 
             info = reason;
             return result;
         }
 
-        public override IShipModule Instantiate() { throw new NotImplementedException(); }
-
-        public override void Destroy(IShipModule instance) { throw new NotImplementedException(); }
+        public override IShipModule Instantiate() { throw new InvalidOperationException(); }
     }
 }

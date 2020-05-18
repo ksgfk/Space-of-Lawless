@@ -1,14 +1,14 @@
 namespace KSGFK
 {
-    public abstract class EntityRegisterEntry<T> : IStageProcessEntry where T : Entity
+    public abstract class EntityRegisterEntry : IStageProcessEntry
     {
         public abstract int Id { get; set; }
 
         public abstract string RegisterName { get; }
 
-        public abstract T Instantiate();
+        public abstract Entity Instantiate();
 
-        public virtual void Destroy(T instance) { UnityEngine.Object.Destroy(instance.gameObject); }
+        public virtual void Destroy(Entity instance) { UnityEngine.Object.Destroy(instance.gameObject); }
 
         public abstract void PerProcess();
 
