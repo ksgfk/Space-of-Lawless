@@ -121,24 +121,17 @@ namespace KSGFK
             Init = null;
             PostInit = null;
 
-            // var movJob = _job.GetJob<JobMove>("DefaultMoveJob");
-            // var rotJob = _job.GetJob<JobRotate>("DefaultRotateJob");
-            var ship = _entity.SpawnShip(0);
-            // var engine = (ShipEngine) _entity.AddModuleToShip(ship, 0);
-            // var engineGo = engine.gameObject;
-            // var movProxy = engineGo.AddComponent<JobMoveProxy>();
-            // movJob.AddData(engine.CopyMoveData, movProxy);
-            // movProxy.target = ship.transform;
-            // var rotProxy = engineGo.AddComponent<JobRotateProxy>();
-            // rotJob.AddData(engine.CopyRotateData, rotProxy);
-            // rotProxy.target = ship.transform;
-
-            // _input.Player.Move.started += movProxy.OnInputCallback;
-            // _input.Player.Move.performed += movProxy.OnInputCallback;
-            // _input.Player.Move.canceled += movProxy.OnInputCallback;
-            // _input.Player.Delta.started += rotProxy.OnInputCallback;
-            // _input.Player.Delta.performed += rotProxy.OnInputCallback;
-            // _input.Player.Delta.canceled += rotProxy.OnInputCallback;
+            var ship = _entity.SpawnEntity<EntityShip>(0);
+            var engine = _entity.InstantiateShipModule<ShipModuleEngine>(0);
+            engine.SetupJob("DefaultMoveJob", "DefaultRotateJob");
+            ship.AddModule(engine);
+            
+            _input.Player.Move.started += engine.OnInputCallbackMove;
+            _input.Player.Move.performed += engine.OnInputCallbackMove;
+            _input.Player.Move.canceled += engine.OnInputCallbackMove;
+            _input.Player.Delta.started += engine.OnInputCallbackRotate;
+            _input.Player.Delta.performed += engine.OnInputCallbackRotate;
+            _input.Player.Delta.canceled += engine.OnInputCallbackRotate;
 
             SetCameraFollowTarget(ship.transform);
         }

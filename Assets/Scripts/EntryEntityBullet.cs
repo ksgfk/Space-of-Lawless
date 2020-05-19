@@ -4,22 +4,17 @@ using UnityEngine;
 namespace KSGFK
 {
     [Serializable]
-    public class BulletEntry : EntityRegisterEntry
+    public class EntryEntityBullet : EntryEntity
     {
-        [SerializeField] private int runtimeId;
-        [SerializeField] private string name = null;
         [SerializeField] private string addr = null;
         [SerializeField] private int pool_count = -1;
         [SerializeField] private Sprite asset;
         [SerializeField] private int poolId;
         [SerializeField] private GameObject template;
-
-        public override int Id { get => runtimeId; set => runtimeId = value; }
-        public override string RegisterName => name;
+        
         public string Addr => addr;
         public int PoolCount => pool_count;
         public int PoolId => poolId;
-
 
         public Sprite Asset
         {
@@ -37,7 +32,7 @@ namespace KSGFK
 
         public GameObject Template => template;
 
-        public override Entity Instantiate()
+        protected override Entity InstantiateBehavior()
         {
             EntityBullet result;
             if (PoolCount < 0)

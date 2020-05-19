@@ -3,31 +3,31 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public interface IRegistry<T>
+    public interface IRegistry<T> where T : IRegisterEntry
     {
         string RegistryName { get; }
 
-        IRegisterEntry this[int id] { get; }
+        T this[int id] { get; }
 
-        IRegisterEntry this[string name] { get; }
+        T this[string name] { get; }
 
-        void Register(IRegisterEntry registerEntry);
+        void Register(T registerEntry);
     }
 
-    public class RegistryImpl<T> : IRegistry<T>
+    public class RegistryImpl<T> : IRegistry<T> where T : IRegisterEntry
     {
-        private readonly List<IRegisterEntry> _entries;
+        private readonly List<T> _entries;
         private readonly Dictionary<string, int> _index;
 
         public string RegistryName { get; }
 
-        public IRegisterEntry this[int id] => _entries[id];
+        public T this[int id] => _entries[id];
 
-        public IRegisterEntry this[string name]
+        public T this[string name]
         {
             get
             {
-                IRegisterEntry result;
+                T result;
                 if (_index.TryGetValue(name, out var id))
                 {
                     result = _entries[id];
@@ -45,11 +45,11 @@ namespace KSGFK
         public RegistryImpl(string registryName)
         {
             RegistryName = registryName;
-            _entries = new List<IRegisterEntry>();
+            _entries = new List<T>();
             _index = new Dictionary<string, int>();
         }
 
-        public void Register(IRegisterEntry registerEntry)
+        public void Register(T registerEntry)
         {
             if (_index.ContainsKey(registerEntry.RegisterName))
             {

@@ -6,29 +6,41 @@ namespace KSGFK
 {
     public class ShipModuleEngine : ShipModule, IJobCallback<MoveData>, IJobCallback<RotateData>
     {
-        [SerializeField] private float maxMoveSpeed;
-
-        [SerializeField] private float maxRotateSpeed;
-        [SerializeField] private int moveDataId;
-        [SerializeField] private int rotateDataId;
-        private JobTemplate<MoveData> _mov;
-        private JobTemplate<RotateData> _rot;
+        [SerializeField] private float maxMoveSpeed = 0;
+        [SerializeField] private float maxRotateSpeed = 0;
+        [SerializeField] private int moveDataId = -1;
+        [SerializeField] private int rotateDataId = -1;
+        private JobTemplate<MoveData> _mov = null;
+        private JobTemplate<RotateData> _rot = null;
 
         int IJobCallback<MoveData>.DataId { get => moveDataId; set => moveDataId = value; }
         int IJobCallback<RotateData>.DataId { get => rotateDataId; set => rotateDataId = value; }
         public float MaxMoveSpeed => maxMoveSpeed;
         public float MaxRotateSpeed => maxRotateSpeed;
 
-        void IJobCallback<RotateData>.OnUpdate(ref RotateData data) { BaseShip.transform.rotation = data.Rotation; }
+        void IJobCallback<RotateData>.OnUpdate(ref RotateData data)
+        {
+            BaseShip.transform.rotation = data.Rotation;
+            data.Speed = MaxRotateSpeed;
+        }
 
         void IJobCallback<MoveData>.OnUpdate(ref MoveData data)
         {
             var translate = new Vector3(data.Translation.x, data.Translation.y);
             BaseShip.transform.Translate(translate);
+            data.Speed = MaxMoveSpeed;
         }
 
-        public void SetupJob(JobTemplate<MoveData> mov, JobTemplate<RotateData> rot)
+        public void Init(float maxMovSpeed, float maxRotSpeed)
         {
+            maxMoveSpeed = maxMovSpeed;
+            maxRotateSpeed = maxRotSpeed;
+        }
+
+        public void SetupJob(string movJobName, string rotJobName)
+        {
+            var mov = GameManager.Job.GetJob<JobTemplate<MoveData>>(movJobName);
+            var rot = GameManager.Job.GetJob<JobTemplate<RotateData>>(rotJobName);
             _mov = mov;
             _rot = rot;
             mov.AddData(new MoveData {Speed = maxMoveSpeed}, this);

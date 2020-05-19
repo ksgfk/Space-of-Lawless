@@ -61,6 +61,8 @@ namespace KSGFK
 
         private async Task<IEnumerable<object>> Read(Type type, string path)
         {
+            var fields = type.GetAllFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var fieldsDict = fields.ToDictionary(fieldInfo => fieldInfo.Name);
             using (var reader = new StreamReader(path, Encoding.UTF8))
             {
                 var firstLine = await reader.ReadLineAsync();
@@ -87,10 +89,8 @@ namespace KSGFK
                     var instance = Activator.CreateInstance(type);
                     for (var i = 0; i < count; i++)
                     {
-                        var field = type.GetField(n[i],
-                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                         var val = split[i];
-                        if (field == null)
+                        if (!fieldsDict.TryGetValue(n[i], out var field))
                         {
                             Debug.LogWarningFormat("不存在字段{0}", n[i]);
                             continue;

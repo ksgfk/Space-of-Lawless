@@ -4,16 +4,13 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public class StageRegistry<T> : RegistryImpl<T>
+    public class StageRegistry<T> : RegistryImpl<T> where T : IRegisterEntry
     {
         private List<IStageProcessEntry> _waitList;
 
-        public StageRegistry(string registryName) : base(registryName)
-        {
-            _waitList = new List<IStageProcessEntry>();
-        }
+        public StageRegistry(string registryName) : base(registryName) { _waitList = new List<IStageProcessEntry>(); }
 
-        public void AddToWaitRegister(IStageProcessEntry registerEntry)
+        public void AddToWaitRegister<TEntry>(TEntry registerEntry) where TEntry : class, T, IStageProcessEntry
         {
             if (_waitList == null) throw new InvalidOperationException("Init阶段才能注册实体");
             registerEntry.PerProcess();
@@ -34,7 +31,7 @@ namespace KSGFK
                         continue;
                     }
 
-                    Register(entry);
+                    Register((T) entry);
                     successCount += 1;
                 }
                 catch (Exception e)

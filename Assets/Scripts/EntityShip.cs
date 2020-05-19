@@ -6,18 +6,14 @@ namespace KSGFK
     public class EntityShip : Entity
     {
         [SerializeField] private ulong health;
-        private LinkedList<IShipModule> _modules;
+        private readonly LinkedList<ShipModule> _modules = new LinkedList<ShipModule>();
 
         public ulong Health { get => health; set => health = value; }
-        public IReadOnlyCollection<IShipModule> Modules => _modules;
+        public ICollection<ShipModule> Modules => _modules;
 
-        public void AddModule(IShipModule module)
+        public void AddModule(ShipModule module)
         {
-            if (_modules == null)
-            {
-                _modules = new LinkedList<IShipModule>();
-            }
-
+            module.BaseShip = this;
             _modules.AddLast(module);
         }
     }

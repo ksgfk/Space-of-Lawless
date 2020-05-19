@@ -14,8 +14,8 @@ namespace KSGFK
 
         public int spawnCount;
         public int generation;
-        private StageRegistry<Entity> _entity;
-        private StageRegistry<IShipModule> _shipModules;
+        private StageRegistry<EntryEntity> _entity;
+        private StageRegistry<EntryShipModule> _shipModules;
         private LinkedList<Entity> _active;
 
         public event Action Register;
@@ -23,8 +23,8 @@ namespace KSGFK
 
         public void Init()
         {
-            _entity = new StageRegistry<Entity>("entity");
-            _shipModules = new StageRegistry<IShipModule>("ship_module");
+            _entity = new StageRegistry<EntryEntity>("entity");
+            _shipModules = new StageRegistry<EntryShipModule>("ship_module");
             _active = new LinkedList<Entity>();
             GameManager.Instance.PerInit += OnGamePreInit;
             GameManager.Instance.Init += OnGameInit;
@@ -33,16 +33,19 @@ namespace KSGFK
 
         public void RegisterShip(EntryEntityShip frame) { _entity.AddToWaitRegister(frame); }
 
-        public void RegisterShipModule(ShipModuleEntry module) { _shipModules.AddToWaitRegister(module); }
+        public void RegisterShipModule(EntryShipModule module) { _shipModules.AddToWaitRegister(module); }
 
-        public void RegisterBullet(BulletEntry bullet) { _entity.AddToWaitRegister(bullet); }
+        public void RegisterBullet(EntryEntityBullet entryEntityBullet)
+        {
+            _entity.AddToWaitRegister(entryEntityBullet);
+        }
 
         private void OnGamePreInit()
         {
             var data = GameManager.Data;
             data.AddPath(typeof(EntryEntityShip), ShipFramePath);
-            data.AddPath(typeof(ShipEngineEntry), ShipEnginePath);
-            data.AddPath(typeof(BulletEntry), BulletPath);
+            data.AddPath(typeof(EntryShipEngine), ShipEnginePath);
+            data.AddPath(typeof(EntryEntityBullet), BulletPath);
         }
 
         private void OnGameInit()
@@ -53,12 +56,12 @@ namespace KSGFK
                 RegisterShip(frameEntry);
             }
 
-            foreach (var engine in data.Query<ShipEngineEntry>(ShipEnginePath))
+            foreach (var engine in data.Query<EntryShipEngine>(ShipEnginePath))
             {
                 RegisterShipModule(engine);
             }
 
-            foreach (var bullet in data.Query<BulletEntry>(BulletPath))
+            foreach (var bullet in data.Query<EntryEntityBullet>(BulletPath))
             {
                 RegisterBullet(bullet);
             }
@@ -75,18 +78,10 @@ namespace KSGFK
             PostRegister = null;
         }
 
-        public EntityShip SpawnShip(int id) { return SpawnEntity<EntityShip>(id); }
-
-        public EntityShip SpawnShip(string registerName) { return SpawnEntity<EntityShip>(registerName); }
-
-        public EntityBullet SpawnBullet(int id) { return SpawnEntity<EntityBullet>(id); }
-
-        public EntityBullet SpawnBullet(string registerName) { return SpawnEntity<EntityBullet>(registerName); }
-
         public Entity SpawnEntity(int id)
         {
             var entry = _entity[id];
-            return SpawnEntity((EntityRegisterEntry) entry);
+            return SpawnEntity(entry);
         }
 
         public T SpawnEntity<T>(int id) where T : Entity { return SpawnEntity(id) as T; }
@@ -94,12 +89,12 @@ namespace KSGFK
         public Entity SpawnEntity(string registerName)
         {
             var entry = _entity[registerName];
-            return SpawnEntity((EntityRegisterEntry) entry);
+            return SpawnEntity(entry);
         }
 
         public T SpawnEntity<T>(string id) where T : Entity { return SpawnEntity(id) as T; }
 
-        private Entity SpawnEntity(EntityRegisterEntry entry)
+        private Entity SpawnEntity(EntryEntity entry)
         {
             if (entry == null)
             {
@@ -127,45 +122,33 @@ namespace KSGFK
             }
         }
 
-        public IShipModule InstantiateShipModule(int moduleId)
+        public ShipModule InstantiateShipModule(int moduleId)
         {
             var entry = _shipModules[moduleId];
-            return InstantiateShipModule((ShipModuleEntry) entry);
+            return InstantiateShipModule(entry);
         }
 
-        public IShipModule InstantiateShipModule(string moduleName)
+        public ShipModule InstantiateShipModule(string moduleName)
         {
             var entry = _shipModules[moduleName];
-            return InstantiateShipModule((ShipModuleEntry) entry);
+            return InstantiateShipModule(entry);
         }
 
-        private static IShipModule InstantiateShipModule(ShipModuleEntry entry) { return entry.Instantiate(); }
-
-        public IShipModule AddModuleToShip(EntityShip ship, int moduleId)
+        public T InstantiateShipModule<T>(int moduleId) where T : ShipModule
         {
-            var module = InstantiateShipModule(moduleId);
-            AddModuleToShip(ship, module);
-            return module;
+            return InstantiateShipModule(moduleId) as T;
         }
 
-        public IShipModule AddModuleToShip(EntityShip ship, string moduleName)
+        public T InstantiateShipModule<T>(string moduleName) where T : ShipModule
         {
-            var module = InstantiateShipModule(moduleName);
-            AddModuleToShip(ship, module);
-            return module;
+            return InstantiateShipModule(moduleName) as T;
         }
 
-        public static void AddModuleToShip(EntityShip ship, IShipModule module)
-        {
-            ship.AddModule(module);
-            var engineGo = module.BaseGameObject;
-            engineGo.transform.SetParent(ship.transform);
-            module.Frame = ship;
-        }
+        private static ShipModule InstantiateShipModule(EntryShipModule entry) { return entry.Instantiate(); }
 
         public void DestroyEntity(Entity entity)
         {
-            var entry = (EntityRegisterEntry) _entity[entity.RuntimeId];
+            var entry = _entity[entity.RuntimeId];
             _active.Remove(entity.Node);
             entry.Destroy(entity);
         }

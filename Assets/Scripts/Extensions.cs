@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace KSGFK
 {
@@ -18,6 +20,20 @@ namespace KSGFK
             var last = list.GetLastIndex();
             list.Swap(index, last);
             list.RemoveAt(last);
+        }
+
+        public static IEnumerable<FieldInfo> GetAllFields(this Type type, BindingFlags flags)
+        {
+            var loopType = type;
+            var list = new List<FieldInfo>();
+            while (loopType != null && loopType != typeof(object))
+            {
+                var fields = loopType.GetFields(flags);
+                list.AddRange(fields);
+                loopType = loopType.BaseType;
+            }
+
+            return list;
         }
     }
 }
