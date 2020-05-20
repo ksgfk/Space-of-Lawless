@@ -123,15 +123,17 @@ namespace KSGFK
 
             var ship = _entity.SpawnEntity<EntityShip>(0);
             var engine = _entity.InstantiateShipModule<ShipModuleEngine>(0);
-            engine.SetupJob("DefaultMoveJob", "DefaultRotateJob");
+            var weapon = _entity.InstantiateShipModule<ShipModuleWeapon>(1);
             ship.AddModule(engine);
-            
+            ship.AddModule(weapon);
+
             _input.Player.Move.started += engine.OnInputCallbackMove;
             _input.Player.Move.performed += engine.OnInputCallbackMove;
             _input.Player.Move.canceled += engine.OnInputCallbackMove;
             _input.Player.Delta.started += engine.OnInputCallbackRotate;
             _input.Player.Delta.performed += engine.OnInputCallbackRotate;
             _input.Player.Delta.canceled += engine.OnInputCallbackRotate;
+            _input.Player.Fire.started += weapon.OnInputCallbackFire;
 
             SetCameraFollowTarget(ship.transform);
         }

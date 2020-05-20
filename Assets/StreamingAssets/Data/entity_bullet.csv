@@ -1,2 +1,2 @@
 name,addr,pool_count
-normal,bullet_normal,10
+normal,entity.bullet_normal,10

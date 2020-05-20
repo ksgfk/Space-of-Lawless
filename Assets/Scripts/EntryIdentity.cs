@@ -9,7 +9,12 @@ namespace KSGFK
         [SerializeField] private int runtimeId = int.MinValue;
         [SerializeField] private string name = null;
 
-        public int Id { get => runtimeId; set => runtimeId = Helper.SingleAssign(value, runtimeId != int.MinValue); }
+        public int RuntimeId
+        {
+            get => runtimeId;
+            set => runtimeId = Helper.SingleAssign(value, runtimeId != int.MinValue);
+        }
+
         public string RegisterName => name;
 
         public abstract void PerProcess();
@@ -23,7 +28,7 @@ namespace KSGFK
         public T Instantiate()
         {
             var result = InstantiateBehavior();
-            result.RuntimeId = Id;
+            result.RuntimeId = RuntimeId;
             return result;
         }
 

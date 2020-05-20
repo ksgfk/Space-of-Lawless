@@ -8,15 +8,19 @@ namespace KSGFK
     public class EntityManager : MonoBehaviour
     {
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
-        public static readonly string ShipFramePath = Path.Combine(DataRoot, "ship_frame.csv");
+        public static readonly string ShipFramePath = Path.Combine(DataRoot, "entity_ship.csv");
         public static readonly string ShipEnginePath = Path.Combine(DataRoot, "ship_engine.csv");
+        public static readonly string ShipWeaponPath = Path.Combine(DataRoot, "ship_weapon.csv");
         public static readonly string BulletPath = Path.Combine(DataRoot, "entity_bullet.csv");
 
-        public int spawnCount;
-        public int generation;
+        [SerializeField] private int spawnCount;
+        [SerializeField] private int generation;
         private StageRegistry<EntryEntity> _entity;
         private StageRegistry<EntryShipModule> _shipModules;
         private LinkedList<Entity> _active;
+
+        public IRegistry<EntryEntity> EntityEntry => _entity;
+        public IRegistry<EntryShipModule> ShipModuleEntry => _shipModules;
 
         public event Action Register;
         public event Action PostRegister;
@@ -46,6 +50,7 @@ namespace KSGFK
             data.AddPath(typeof(EntryEntityShip), ShipFramePath);
             data.AddPath(typeof(EntryShipEngine), ShipEnginePath);
             data.AddPath(typeof(EntryEntityBullet), BulletPath);
+            data.AddPath(typeof(EntryShipWeapon), ShipWeaponPath);
         }
 
         private void OnGameInit()
@@ -59,6 +64,11 @@ namespace KSGFK
             foreach (var engine in data.Query<EntryShipEngine>(ShipEnginePath))
             {
                 RegisterShipModule(engine);
+            }
+
+            foreach (var weapon in data.Query<EntryShipWeapon>(ShipWeaponPath))
+            {
+                RegisterShipModule(weapon);
             }
 
             foreach (var bullet in data.Query<EntryEntityBullet>(BulletPath))

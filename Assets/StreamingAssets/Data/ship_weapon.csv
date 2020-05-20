@@ -1,2 +1,2 @@
-name,addr,pic_size,atk_speed
-minigun,,1,1
+name,addr,damage,atk_speed
+minigun,weapon.minigun,1,100

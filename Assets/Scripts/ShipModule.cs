@@ -7,5 +7,7 @@ namespace KSGFK
         [SerializeField] private EntityShip baseShip = null;
 
         public EntityShip BaseShip { get => baseShip; set => baseShip = Helper.SingleAssign(value, baseShip); }
+
+        public virtual void OnAddToShip() { }
     }
 }

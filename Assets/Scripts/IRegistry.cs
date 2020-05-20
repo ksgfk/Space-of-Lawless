@@ -58,7 +58,7 @@ namespace KSGFK
             }
 
             var id = _entries.Count;
-            registerEntry.Id = id;
+            registerEntry.RuntimeId = id;
             _entries.Add(registerEntry);
             _index.Add(registerEntry.RegisterName, id);
         }

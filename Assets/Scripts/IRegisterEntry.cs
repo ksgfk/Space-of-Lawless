@@ -2,7 +2,7 @@ namespace KSGFK
 {
     public interface IRegisterEntry
     {
-        int Id { get; set; }
+        int RuntimeId { get; set; }
 
         string RegisterName { get; }
     }

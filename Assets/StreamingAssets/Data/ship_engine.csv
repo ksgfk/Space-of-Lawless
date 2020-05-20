@@ -1,2 +1,2 @@
-name,addr,pic_size,max_mov_speed,max_rot_speed
-taihang,,1,5,1
+name,addr,max_mov_speed,max_rot_speed
+taihang_b1,engine.taihang_b1,5,1

@@ -15,6 +15,8 @@ namespace KSGFK
         {
             module.BaseShip = this;
             _modules.AddLast(module);
+            module.transform.SetParent(transform);
+            module.OnAddToShip();
         }
     }
 }

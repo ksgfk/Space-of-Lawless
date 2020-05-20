@@ -6,6 +6,8 @@ namespace KSGFK
 {
     public class ShipModuleEngine : ShipModule, IJobCallback<MoveData>, IJobCallback<RotateData>
     {
+        public string moveJobName = "DefaultMoveJob";
+        public string rotateJobName = "DefaultRotateJob";
         [SerializeField] private float maxMoveSpeed = 0;
         [SerializeField] private float maxRotateSpeed = 0;
         [SerializeField] private int moveDataId = -1;
@@ -37,10 +39,12 @@ namespace KSGFK
             maxRotateSpeed = maxRotSpeed;
         }
 
-        public void SetupJob(string movJobName, string rotJobName)
+        public override void OnAddToShip() { SetupJob(); }
+
+        private void SetupJob()
         {
-            var mov = GameManager.Job.GetJob<JobTemplate<MoveData>>(movJobName);
-            var rot = GameManager.Job.GetJob<JobTemplate<RotateData>>(rotJobName);
+            var mov = GameManager.Job.GetJob<JobTemplate<MoveData>>(moveJobName);
+            var rot = GameManager.Job.GetJob<JobTemplate<RotateData>>(rotateJobName);
             _mov = mov;
             _rot = rot;
             mov.AddData(new MoveData {Speed = maxMoveSpeed}, this);

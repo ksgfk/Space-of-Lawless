@@ -18,11 +18,19 @@ MonoBehaviour:
   m_GUID: 2b547fedbd34d8346b6e1e66f09c0241
   m_SerializeEntries:
   - m_GUID: 1d5017e0124846b4caef1bd32f3b7ce1
-    m_Address: jiangnan_c1_exp
+    m_Address: entity.jiangnan_c1_exp
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
+    m_MainAsset: {fileID: 2800000, guid: 1d5017e0124846b4caef1bd32f3b7ce1, type: 3}
+    m_TargetAsset: {fileID: 2800000, guid: 1d5017e0124846b4caef1bd32f3b7ce1, type: 3}
+  - m_GUID: 3c4c41f8760f3fb44b561b428ef26631
+    m_Address: weapon.minigun
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 7130092387946476670, guid: 3c4c41f8760f3fb44b561b428ef26631,
+      type: 3}
+    m_TargetAsset: {fileID: 7130092387946476670, guid: 3c4c41f8760f3fb44b561b428ef26631,
+      type: 3}
   - m_GUID: 450286639d85b5a45a602661cdbec4ea
     m_Address: default_ship_action
     m_ReadOnly: 0
@@ -31,18 +39,20 @@ MonoBehaviour:
       type: 3}
     m_TargetAsset: {fileID: -944628639613478452, guid: 450286639d85b5a45a602661cdbec4ea,
       type: 3}
-  - m_GUID: 5be30f0f65c7a884d81ad7d5898e8832
-    m_Address: engine_normal_pic
+  - m_GUID: ea0fdc41de9901346bbae4698c9792a8
+    m_Address: engine.taihang_b1
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 2800000, guid: 5be30f0f65c7a884d81ad7d5898e8832, type: 3}
-    m_TargetAsset: {fileID: 2800000, guid: 5be30f0f65c7a884d81ad7d5898e8832, type: 3}
+    m_MainAsset: {fileID: 2505654141192279536, guid: ea0fdc41de9901346bbae4698c9792a8,
+      type: 3}
+    m_TargetAsset: {fileID: 2505654141192279536, guid: ea0fdc41de9901346bbae4698c9792a8,
+      type: 3}
   - m_GUID: fba3cc05b06a67e4e819b02033a218eb
-    m_Address: bullet_normal
+    m_Address: entity.bullet_normal
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
+    m_MainAsset: {fileID: 2800000, guid: fba3cc05b06a67e4e819b02033a218eb, type: 3}
+    m_TargetAsset: {fileID: 2800000, guid: fba3cc05b06a67e4e819b02033a218eb, type: 3}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 328a6f60c8323a446b301c6173e1364f, type: 2}
   m_SchemaSet:

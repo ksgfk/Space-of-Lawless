@@ -18,7 +18,7 @@ namespace KSGFK
 
         protected override Entity InstantiateBehavior()
         {
-            var go = new GameObject($"{RegisterName}:{Id}");
+            var go = new GameObject($"{RegisterName}:{RuntimeId}");
             var scale = 120f * pic_size / Asset.texture.width;
             go.transform.localScale = new Vector3(scale, scale, scale);
             var spriteRenderer = go.AddComponent<SpriteRenderer>();
