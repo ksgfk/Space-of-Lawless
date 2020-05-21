@@ -16,7 +16,7 @@ namespace KSGFK
         public ulong MaxHealth => max_health;
         public Sprite Asset { get => asset; set => asset = Helper.SingleAssign(value, asset && value); }
 
-        protected override Entity InstantiateBehavior()
+        protected override Entity SpawnEntity()
         {
             var go = new GameObject($"{RegisterName}:{RuntimeId}");
             var scale = 120f * pic_size / Asset.texture.width;
@@ -27,6 +27,8 @@ namespace KSGFK
             ship.Health = MaxHealth;
             return ship;
         }
+
+        protected override void DestroyEntity(Entity instance) { UnityEngine.Object.Destroy(instance.gameObject); }
 
         public override void PerProcess() { GameManager.Load.Request<Sprite>(Addr, sprite => Asset = sprite); }
 

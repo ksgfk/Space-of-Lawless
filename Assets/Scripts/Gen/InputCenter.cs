@@ -50,7 +50,7 @@ namespace KSGFK
                     ""id"": ""76d69daf-6b5c-4da0-af9f-66506fec0f50"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": ""Press""
                 }
             ],
             ""bindings"": [

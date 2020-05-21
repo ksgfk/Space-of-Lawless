@@ -14,6 +14,9 @@ namespace KSGFK
         Running
     }
 
+    /// <summary>
+    /// TODO:Burst TransformDirection
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -133,7 +136,9 @@ namespace KSGFK
             _input.Player.Delta.started += engine.OnInputCallbackRotate;
             _input.Player.Delta.performed += engine.OnInputCallbackRotate;
             _input.Player.Delta.canceled += engine.OnInputCallbackRotate;
-            _input.Player.Fire.started += weapon.OnInputCallbackFire;
+            // _input.Player.Fire.started += weapon.OnInputCallbackFire;
+            _input.Player.Fire.performed += weapon.OnInputCallbackFire;
+            // _input.Player.Fire.canceled += weapon.OnInputCallbackFire;
 
             SetCameraFollowTarget(ship.transform);
         }

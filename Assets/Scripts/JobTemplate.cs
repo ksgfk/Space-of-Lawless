@@ -68,5 +68,7 @@ namespace KSGFK
             DataList.RemoveLast();
             _callbacks.RemoveAt(last);
         }
+
+        public void RemoveData(IJobCallback<T> callback) { RemoveData(callback.DataId); }
     }
 }
