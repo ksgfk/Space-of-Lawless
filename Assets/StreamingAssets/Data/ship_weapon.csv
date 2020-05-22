@@ -1,2 +1,2 @@
 name,addr,damage,atk_speed
-minigun,weapon.minigun,1,100
+minigun,weapon.minigun,10,100

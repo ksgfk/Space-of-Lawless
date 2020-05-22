@@ -24,7 +24,7 @@ namespace KSGFK
         public override void Fire()
         {
             var bullet = GameManager.Entity.SpawnEntity<EntityBullet>(bulletRuntimeId);
-            bullet.Launch(BaseShip.transform.up, transform.position, Damage, 2);
+            bullet.Launch(BaseShip.transform.up, transform.position, Damage, 10);
         }
     }
 }

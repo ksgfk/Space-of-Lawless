@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace KSGFK
 {
@@ -34,6 +36,43 @@ namespace KSGFK
             }
 
             return list;
+        }
+
+        public static void OnInputCallbackFireStart(this ShipModuleWeapon weapon, InputAction.CallbackContext ctx)
+        {
+            weapon.CanFire = true;
+        }
+
+        public static void OnInputCallbackFireCancel(this ShipModuleWeapon weapon, InputAction.CallbackContext ctx)
+        {
+            weapon.CanFire = false;
+        }
+
+        public static void OnInputCallbackJobMove(this IJobCallback<MoveData> job, InputAction.CallbackContext ctx)
+        {
+            var j = job.Job;
+            ref var movData = ref j[job.DataId];
+            movData.Direction = ctx.ReadValue<Vector2>();
+        }
+
+        public static void OnInputCallbackJobRotate(this IJobCallback<RotateData> job, InputAction.CallbackContext ctx)
+        {
+            var j = job.Job;
+            ref var rotData = ref j[job.DataId];
+            rotData.Delta = ctx.ReadValue<Vector2>();
+        }
+
+        public static void OnInputCallbackShipEngineRotate(
+            this ShipModuleEngine engine,
+            InputAction.CallbackContext ctx)
+        {
+            var r = ctx.ReadValue<Vector2>();
+            r = GameManager.MainCamera.ScreenToWorldPoint(r);
+            var pos = (Vector2) engine.BaseShip.transform.position;
+            r -= pos;
+            var job = (IJobCallback<RotateData>) engine;
+            ref var rotData = ref job.Job[job.DataId];
+            rotData.Delta = r;
         }
     }
 }

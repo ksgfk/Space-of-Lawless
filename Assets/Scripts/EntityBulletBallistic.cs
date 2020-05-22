@@ -11,8 +11,9 @@ namespace KSGFK
         private JobTemplate<MoveData> _moveJob;
 
         public int DataId { get => jobDataId; set => jobDataId = value; }
+        JobTemplate<MoveData> IJobCallback<MoveData>.Job { get => _moveJob; set => _moveJob = value; }
 
-        public void OnUpdate(ref MoveData data)
+        public void JobUpdate(ref MoveData data)
         {
             ref var trans = ref data.Translation;
             transform.Translate(new Vector3(trans.x, trans.y));

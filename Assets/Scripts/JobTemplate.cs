@@ -37,7 +37,7 @@ namespace KSGFK
             Profiler.BeginSample(Name);
             foreach (var callback in _callbacks)
             {
-                callback.OnUpdate(ref this[callback.DataId]);
+                callback.JobUpdate(ref this[callback.DataId]);
             }
 
             Profiler.EndSample();
@@ -50,6 +50,7 @@ namespace KSGFK
             DataList.Add(data);
             _callbacks.Add(callback);
             callback.DataId = index;
+            callback.Job = this;
             return index;
         }
 

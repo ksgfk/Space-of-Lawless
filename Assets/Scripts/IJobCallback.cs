@@ -4,6 +4,8 @@ namespace KSGFK
     {
         int DataId { get; set; }
 
-        void OnUpdate(ref T data);
+        void JobUpdate(ref T data);
+
+        JobTemplate<T> Job { get; set; }
     }
 }

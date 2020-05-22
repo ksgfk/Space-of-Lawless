@@ -130,15 +130,14 @@ namespace KSGFK
             ship.AddModule(engine);
             ship.AddModule(weapon);
 
-            _input.Player.Move.started += engine.OnInputCallbackMove;
-            _input.Player.Move.performed += engine.OnInputCallbackMove;
-            _input.Player.Move.canceled += engine.OnInputCallbackMove;
-            _input.Player.Delta.started += engine.OnInputCallbackRotate;
-            _input.Player.Delta.performed += engine.OnInputCallbackRotate;
-            _input.Player.Delta.canceled += engine.OnInputCallbackRotate;
-            // _input.Player.Fire.started += weapon.OnInputCallbackFire;
-            _input.Player.Fire.performed += weapon.OnInputCallbackFire;
-            // _input.Player.Fire.canceled += weapon.OnInputCallbackFire;
+            _input.Player.Move.started += engine.OnInputCallbackJobMove;
+            _input.Player.Move.performed += engine.OnInputCallbackJobMove;
+            _input.Player.Move.canceled += engine.OnInputCallbackJobMove;
+            _input.Player.Point.started += engine.OnInputCallbackShipEngineRotate;
+            _input.Player.Point.performed += engine.OnInputCallbackShipEngineRotate;
+            _input.Player.Point.canceled += engine.OnInputCallbackShipEngineRotate;
+            _input.Player.Fire.started += weapon.OnInputCallbackFireStart;
+            _input.Player.Fire.canceled += weapon.OnInputCallbackFireCancel;
 
             SetCameraFollowTarget(ship.transform);
         }
