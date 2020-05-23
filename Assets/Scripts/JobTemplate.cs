@@ -35,11 +35,13 @@ namespace KSGFK
         {
             PerUpdate(deltaTime);
             Profiler.BeginSample(Name);
+            var actionBuffer = new ActionBuffer();
             foreach (var callback in _callbacks)
             {
-                callback.JobUpdate(ref this[callback.DataId]);
+                callback.JobUpdate(ref this[callback.DataId], ref actionBuffer);
             }
 
+            actionBuffer.Action();
             Profiler.EndSample();
         }
 

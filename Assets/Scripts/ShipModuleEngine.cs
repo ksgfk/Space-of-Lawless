@@ -19,13 +19,13 @@ namespace KSGFK
         public float MaxMoveSpeed => maxMoveSpeed;
         public float MaxRotateSpeed => maxRotateSpeed;
 
-        void IJobCallback<RotateData>.JobUpdate(ref RotateData data)
+        void IJobCallback<RotateData>.JobUpdate(ref RotateData data, ref ActionBuffer buffer)
         {
             BaseShip.transform.rotation = data.Rotation;
             data.Speed = MaxRotateSpeed;
         }
 
-        void IJobCallback<MoveData>.JobUpdate(ref MoveData data)
+        void IJobCallback<MoveData>.JobUpdate(ref MoveData data, ref ActionBuffer buffer)
         {
             var translate = new Vector3(data.Translation.x, data.Translation.y);
             BaseShip.transform.Translate(translate);

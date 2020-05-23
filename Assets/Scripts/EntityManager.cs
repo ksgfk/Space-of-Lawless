@@ -18,28 +18,12 @@ namespace KSGFK
         private StageRegistry<EntryEntity> _entity;
         private StageRegistry<EntryShipModule> _shipModules;
         private LinkedList<Entity> _active;
-        private List<Entity> _lateRemoveEntityList;
 
         public IRegistry<EntryEntity> EntityEntry => _entity;
         public IRegistry<EntryShipModule> ShipModuleEntry => _shipModules;
 
         public event Action Register;
         public event Action PostRegister;
-
-        private void LateUpdate()
-        {
-            if (_lateRemoveEntityList == null || _lateRemoveEntityList.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var entity in _lateRemoveEntityList)
-            {
-                DestroyEntity(entity);
-            }
-
-            _lateRemoveEntityList.Clear();
-        }
 
         public void Init()
         {
@@ -174,22 +158,15 @@ namespace KSGFK
 
         public void DestroyEntity(Entity entity)
         {
+            if (entity.Node.List == null)
+            {
+                Debug.LogWarningFormat("已经被销毁的实体:{0}", entity.RuntimeId);
+                return;
+            }
+
             var entry = _entity[entity.RuntimeId];
             _active.Remove(entity.Node);
             entry.Destroy(entity);
-        }
-
-        /// <summary>
-        /// TODO:没有重复检查！！！！
-        /// </summary>
-        public void DestroyEntityLate(Entity entity)
-        {
-            if (_lateRemoveEntityList == null)
-            {
-                _lateRemoveEntityList = new List<Entity>();
-            }
-
-            _lateRemoveEntityList.Add(entity);
         }
     }
 }
