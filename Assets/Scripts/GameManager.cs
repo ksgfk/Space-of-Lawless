@@ -11,7 +11,9 @@ namespace KSGFK
         PreInit,
         Init,
         PostInit,
-        Running
+        Running,
+        Pause,
+        Exit
     }
 
     /// <summary>
@@ -28,11 +30,14 @@ namespace KSGFK
         public static EntityManager Entity => Instance._entity;
         public static InputCenter Input => Instance._input;
         public static PoolCenter Pool => Instance._pool;
+        public static Canvas UiCanvas => Instance.uiCanvas;
+        public static GameState NowState => Instance.nowState;
 
         [SerializeField] private GameState nowState = GameState.PreInit;
         [SerializeField] private AssetReference playerInputAddr = null;
-        public Camera mainCamera;
-        public CinemachineVirtualCamera virtualCamera;
+        [SerializeField] private Camera mainCamera = null;
+        [SerializeField] private CinemachineVirtualCamera virtualCamera = null;
+        [SerializeField] private Canvas uiCanvas = null;
         private LoadManager _load;
         private JobCenter _job;
         private DataCenter _data;
@@ -110,6 +115,13 @@ namespace KSGFK
             LoadPlayerInput();
             _load.Complete += () => nowState = GameState.PostInit;
             Init?.Invoke();
+            _load.Request("panel.debug",
+                (GameObject prefab) =>
+                {
+                    var go = Instantiate(prefab, Instance.uiCanvas.transform);
+                    var debug = go.GetComponent<PanelDebug>();
+                    debug.Init();
+                });
             _load.Work();
         }
 
@@ -123,23 +135,6 @@ namespace KSGFK
             PerInit = null;
             Init = null;
             PostInit = null;
-
-            var ship = _entity.SpawnEntity<EntityShip>(0);
-            var engine = _entity.InstantiateShipModule<ShipModuleEngine>(0);
-            var weapon = _entity.InstantiateShipModule<ShipModuleWeapon>(1);
-            ship.AddModule(engine);
-            ship.AddModule(weapon);
-
-            _input.Player.Move.started += engine.OnInputCallbackJobMove;
-            _input.Player.Move.performed += engine.OnInputCallbackJobMove;
-            _input.Player.Move.canceled += engine.OnInputCallbackJobMove;
-            _input.Player.Point.started += engine.OnInputCallbackShipEngineRotate;
-            _input.Player.Point.performed += engine.OnInputCallbackShipEngineRotate;
-            _input.Player.Point.canceled += engine.OnInputCallbackShipEngineRotate;
-            _input.Player.Fire.started += weapon.OnInputCallbackFireStart;
-            _input.Player.Fire.canceled += weapon.OnInputCallbackFireCancel;
-
-            SetCameraFollowTarget(ship.transform);
         }
 
         private void LoadPlayerInput()

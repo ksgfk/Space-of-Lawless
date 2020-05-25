@@ -9,5 +9,7 @@ namespace KSGFK
         public EntityShip BaseShip { get => baseShip; set => baseShip = Helper.SingleAssign(value, baseShip); }
 
         public virtual void OnAddToShip() { }
+
+        public virtual void OnRemoveFromShip() { }
     }
 }

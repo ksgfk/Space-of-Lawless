@@ -58,6 +58,11 @@ namespace KSGFK
 
         public void RemoveData(int runtimeId)
         {
+            if (runtimeId < 0)
+            {
+                return;
+            }
+
             var callList = _callbacks.Count;
             var all = callList == DataList.Length ? callList : throw new InvalidOperationException("可能有bug");
             var last = all - 1;

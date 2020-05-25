@@ -21,6 +21,7 @@ namespace KSGFK
 
         public IRegistry<EntryEntity> EntityEntry => _entity;
         public IRegistry<EntryShipModule> ShipModuleEntry => _shipModules;
+        public ICollection<Entity> ActiveEntity => _active;
 
         public event Action Register;
         public event Action PostRegister;

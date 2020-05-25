@@ -35,14 +35,20 @@ MonoBehaviour:
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
+  - m_GUID: a97af05116407f045a870bde147d2843
+    m_Address: panel.debug
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 3573169816179250555, guid: a97af05116407f045a870bde147d2843,
+      type: 3}
+    m_TargetAsset: {fileID: 3573169816179250555, guid: a97af05116407f045a870bde147d2843,
+      type: 3}
   - m_GUID: ab625530e67b4b942b573c3f874afebd
     m_Address: entity.bullet_normal
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 3163325075394690987, guid: ab625530e67b4b942b573c3f874afebd,
-      type: 3}
-    m_TargetAsset: {fileID: 3163325075394690987, guid: ab625530e67b4b942b573c3f874afebd,
-      type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: ea0fdc41de9901346bbae4698c9792a8
     m_Address: engine.taihang_b1
     m_ReadOnly: 0

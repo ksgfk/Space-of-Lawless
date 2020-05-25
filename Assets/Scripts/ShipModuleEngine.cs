@@ -40,6 +40,8 @@ namespace KSGFK
 
         public override void OnAddToShip() { SetupJob(); }
 
+        public override void OnRemoveFromShip() { RemoveJob(); }
+
         private void SetupJob()
         {
             var mov = GameManager.Job.GetJob<JobTemplate<MoveData>>(moveJobName);
@@ -51,6 +53,14 @@ namespace KSGFK
                     Rotation = quaternion.identity
                 },
                 this);
+        }
+
+        private void RemoveJob()
+        {
+            var mov = (IJobCallback<MoveData>) this;
+            mov.Job.RemoveData(this);
+            var rot = (IJobCallback<RotateData>) this;
+            rot.Job.RemoveData(this);
         }
     }
 }

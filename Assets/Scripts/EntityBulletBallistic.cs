@@ -6,7 +6,7 @@ namespace KSGFK
     public class EntityBulletBallistic : EntityBullet, IJobCallback<MoveData>
     {
         public string moveJobName = "DefaultMoveJob";
-        [SerializeField] private int jobDataId;
+        [SerializeField] private int jobDataId = -1;
         [SerializeField] private float expireTime;
         private JobTemplate<MoveData> _moveJob;
 
