@@ -159,7 +159,7 @@ namespace KSGFK
 
         public void DestroyEntity(Entity entity)
         {
-            if (entity.Node.List == null)
+            if (!entity || entity.Node.List == null)
             {
                 Debug.LogWarningFormat("已经被销毁的实体:{0}", entity.RuntimeId);
                 return;
