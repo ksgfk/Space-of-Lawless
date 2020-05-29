@@ -17,18 +17,20 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 2b547fedbd34d8346b6e1e66f09c0241
   m_SerializeEntries:
-  - m_GUID: 1d5017e0124846b4caef1bd32f3b7ce1
-    m_Address: entity.jiangnan_c1_exp
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: 3c4c41f8760f3fb44b561b428ef26631
     m_Address: weapon.minigun
     m_ReadOnly: 0
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
+  - m_GUID: 43e2f5f8cb5eb9942be9c5549810355e
+    m_Address: entity.jiangnan_c1_exp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 4084120858583896362, guid: 43e2f5f8cb5eb9942be9c5549810355e,
+      type: 3}
+    m_TargetAsset: {fileID: 4084120858583896362, guid: 43e2f5f8cb5eb9942be9c5549810355e,
+      type: 3}
   - m_GUID: 450286639d85b5a45a602661cdbec4ea
     m_Address: default_ship_action
     m_ReadOnly: 0
@@ -39,10 +41,8 @@ MonoBehaviour:
     m_Address: panel.debug
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 3573169816179250555, guid: a97af05116407f045a870bde147d2843,
-      type: 3}
-    m_TargetAsset: {fileID: 3573169816179250555, guid: a97af05116407f045a870bde147d2843,
-      type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: ab625530e67b4b942b573c3f874afebd
     m_Address: entity.bullet_normal
     m_ReadOnly: 0
