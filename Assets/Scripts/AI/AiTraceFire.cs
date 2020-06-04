@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public class AiController : MonoBehaviour
+    public class AiTraceFire : MonoBehaviour
     {
-        private FsmMachine _fsm;
+        private FsmSystem _fsm;
         private FsmState _normal;
 
         private void Awake()
         {
             _normal = new FsmState("normal");
-            _fsm = new FsmMachine(_normal);
+            _fsm = new FsmSystem(_normal);
         }
     }
 }

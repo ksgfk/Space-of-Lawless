@@ -29,7 +29,7 @@ namespace KSGFK
         }
     }
 
-    public class FsmMachine
+    public class FsmSystem
     {
         private readonly Dictionary<string, FsmState> _states;
         private readonly List<TransitionChain> _transitions;
@@ -37,7 +37,7 @@ namespace KSGFK
         public FsmState NowState { get; private set; }
         public IReadOnlyList<TransitionChain> TransitionChains => _transitions;
 
-        public FsmMachine(FsmState defaultState)
+        public FsmSystem(FsmState defaultState)
         {
             _states = new Dictionary<string, FsmState>();
             _transitions = new List<TransitionChain>();
