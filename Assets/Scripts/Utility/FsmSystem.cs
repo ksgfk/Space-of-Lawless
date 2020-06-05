@@ -3,48 +3,23 @@ using System.Collections.Generic;
 
 namespace KSGFK
 {
-    public readonly struct TransitionChain
-    {
-        public readonly FsmState Last;
-        internal readonly List<TransitionInfo> nextList;
-
-        public IReadOnlyList<TransitionInfo> NextList => nextList;
-
-        public TransitionChain(FsmState last)
-        {
-            Last = last;
-            nextList = new List<TransitionInfo>();
-        }
-    }
-
-    public readonly struct TransitionInfo
-    {
-        public readonly FsmState Next;
-        public readonly FsmTransition Transition;
-
-        public TransitionInfo(FsmState next, FsmTransition transition)
-        {
-            Next = next;
-            Transition = transition;
-        }
-    }
-
     public class FsmSystem
     {
-        private readonly Dictionary<string, FsmState> _states;
-        private readonly List<TransitionChain> _transitions;
+        private readonly Dictionary<string, IFsmState> _states;
+        private readonly List<FsmTransitionChain> _transitions;
 
-        public FsmState NowState { get; private set; }
-        public IReadOnlyList<TransitionChain> TransitionChains => _transitions;
+        public IFsmState NowState { get; private set; }
+        public IReadOnlyList<FsmTransitionChain> TransitionChains => _transitions;
 
-        public FsmSystem(FsmState defaultState)
+        public FsmSystem(IFsmState defaultState)
         {
-            _states = new Dictionary<string, FsmState>();
-            _transitions = new List<TransitionChain>();
+            _states = new Dictionary<string, IFsmState>();
+            _transitions = new List<FsmTransitionChain>();
             NowState = defaultState;
+            AddState(defaultState);
         }
 
-        public void AddState(FsmState state)
+        public void AddState(IFsmState state)
         {
             if (_states.ContainsKey(state.Name))
             {
@@ -54,7 +29,7 @@ namespace KSGFK
             _states.Add(state.Name, state);
         }
 
-        public void AddTransition(FsmState last, FsmState next, FsmTransition transition)
+        public void AddTransition(IFsmState last, IFsmState next, FsmTransition transition)
         {
             if (!_states.ContainsValue(last) || !_states.ContainsValue(next))
             {
@@ -62,10 +37,10 @@ namespace KSGFK
             }
 
             var index = _transitions.FindIndex(i => i.Last == last);
-            TransitionChain trans;
+            FsmTransitionChain trans;
             if (index == -1)
             {
-                trans = new TransitionChain(last);
+                trans = new FsmTransitionChain(last);
                 last.TransitionId = _transitions.Count;
                 _transitions.Add(trans);
             }
@@ -74,11 +49,12 @@ namespace KSGFK
                 trans = _transitions[index];
             }
 
-            trans.nextList.Add(new TransitionInfo(next, transition));
+            trans.TransitionList.Add(new FsmTransitionInfo(next, transition));
         }
 
         public void CheckTransition()
         {
+            NowState.OnUpdate();
             var id = NowState.TransitionId;
             if (id < 0)
             {
@@ -86,7 +62,7 @@ namespace KSGFK
             }
 
             var chain = _transitions[id];
-            foreach (var info in chain.NextList)
+            foreach (var info in chain.transitionList)
             {
                 if (info.Transition.Check(NowState))
                 {
@@ -96,7 +72,7 @@ namespace KSGFK
             }
         }
 
-        private void SwitchState(FsmState next)
+        private void SwitchState(IFsmState next)
         {
             NowState.OnLeave();
             next.OnEnter();
