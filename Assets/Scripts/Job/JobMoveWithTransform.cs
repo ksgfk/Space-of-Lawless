@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MPipeline;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,20 +12,20 @@ namespace KSGFK
     public class JobMoveWithTransform : IJobWrapper
     {
         private TransformAccessArray _transArr;
-        private NativeList<MoveData> _movData;
-        private List<IJobCallback<MoveData>> _callbacks;
+        private NativeList<DataMoveWithTrans> _movData;
+        private List<IJobCallback<JobMoveWithTransform>> _callbacks;
         private int _length;
 
+        [BurstCompile]
         private struct MoveWithTransform : IJobParallelForTransform
         {
-            public NativeList<MoveData> DataList;
+            public NativeList<DataMoveWithTrans> DataList;
             public float DeltaTime;
 
             public void Execute(int index, TransformAccess transform)
             {
                 ref var data = ref DataList[index];
-                ref var trans = ref data.Translation;
-                data.Translation = math.normalizesafe(data.Direction) * data.Speed * DeltaTime;
+                var trans = math.normalizesafe(data.Direction) * data.Speed * DeltaTime;
                 transform.position += new Vector3(trans.x, trans.y);
             }
         }
@@ -35,8 +36,8 @@ namespace KSGFK
         {
             Name = name;
             _transArr = new TransformAccessArray(size, 8);
-            _movData = new NativeList<MoveData>(size, Allocator.Persistent);
-            _callbacks = new List<IJobCallback<MoveData>>(size);
+            _movData = new NativeList<DataMoveWithTrans>(size, Allocator.Persistent);
+            _callbacks = new List<IJobCallback<JobMoveWithTransform>>(size);
             _length = 0;
         }
 
@@ -57,7 +58,7 @@ namespace KSGFK
             _callbacks = null;
         }
 
-        public void AddJob(Transform trans, in MoveData movData, IJobCallback<MoveData> callback)
+        public void AddData(Transform trans, in DataMoveWithTrans movData, IJobCallback<JobMoveWithTransform> callback)
         {
             if (!trans) throw new ArgumentNullException(nameof(trans));
             callback.DataId = _length;
@@ -69,7 +70,7 @@ namespace KSGFK
             CheckLength();
         }
 
-        public void RemoveJob(IJobCallback<MoveData> callback)
+        public void RemoveData(IJobCallback<JobMoveWithTransform> callback)
         {
             var removed = callback.DataId;
             if (removed < 0 || removed >= _length)

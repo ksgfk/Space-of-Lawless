@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5571050129093435968}
   - component: {fileID: 8856214586356310510}
-  - component: {fileID: 3052911289915161078}
+  - component: {fileID: 5245919776586904496}
   m_Layer: 0
   m_Name: entity.bullet_normal
   m_TagString: Untagged
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3052911289915161078
+--- !u!114 &5245919776586904496
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,6 +96,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runtimeId: -1
   poolObjectId: -1
-  moveJobName: DefaultMoveJob
+  moveJobName: DefaultMoveWithTrans
   jobDataId: -1
   expireTime: 0

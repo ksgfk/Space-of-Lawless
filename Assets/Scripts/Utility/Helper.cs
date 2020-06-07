@@ -35,9 +35,9 @@ namespace KSGFK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T GetDataFromJob<T>(IJobCallback<T> jobUser) where T : unmanaged
+        public static ref T GetDataFromJob<T>(IJobCallback<JobTemplate<T>> jobUser) where T : unmanaged
         {
-            return ref ((JobTemplate<T>) jobUser.Job)[jobUser.DataId];
+            return ref jobUser.Job[jobUser.DataId];
         }
     }
 }

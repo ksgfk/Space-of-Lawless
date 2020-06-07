@@ -15,10 +15,7 @@ namespace KSGFK
         Pause,
         Exit
     }
-
-    /// <summary>
-    /// TODO:Burst TransformDirection
-    /// </summary>
+    
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -150,6 +147,7 @@ namespace KSGFK
         {
             _job.AddJob(new JobMove("DefaultMoveJob"));
             _job.AddJob(new JobRotate("DefaultRotateJob"));
+            _job.AddJob(new JobMoveWithTransform("DefaultMoveWithTrans",0));
         }
     }
 }

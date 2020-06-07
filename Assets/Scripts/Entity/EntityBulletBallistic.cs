@@ -1,36 +1,33 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace KSGFK
 {
-    public class EntityBulletBallistic : EntityBullet, IJobCallback<MoveData>
+    public class EntityBulletBallistic : EntityBullet, IJobCallback<JobMoveWithTransform>
     {
-        public string moveJobName = "DefaultMoveJob";
+        public string moveJobName = "DefaultMoveWithTrans";
         [SerializeField] private int jobDataId = -1;
         [SerializeField] private float expireTime;
-        private JobTemplate<MoveData> _moveJob;
+        private JobMoveWithTransform _moveJob;
 
         public int DataId { get => jobDataId; set => jobDataId = value; }
-        IJobWrapper IJobCallback<MoveData>.Job { get => _moveJob; set => _moveJob = (JobTemplate<MoveData>) value; }
+        JobMoveWithTransform IJobCallback<JobMoveWithTransform>.Job { get => _moveJob; set => _moveJob = value; }
 
-        public void JobUpdate(ref MoveData data, ref ActionBuffer buffer)
+        private void Update()
         {
-            // ref var trans = ref data.Translation;
-            // transform.Translate(new Vector3(trans.x, trans.y));
-            // if (Time.time >= expireTime)
-            // {
-            //     buffer.DestroyEntity(this);
-            // }
+            if (Time.time >= expireTime)
+            {
+                GameManager.Entity.DestroyEntity(this);
+            }
         }
 
         public override void Launch(Vector2 direction, Vector2 startPos, float speed, float duration)
         {
-            _moveJob.AddData(new MoveData
-                {
-                    Direction = new float2(0, 1),
-                    Speed = speed
-                },
-                this);
+            var data = new DataMoveWithTrans
+            {
+                Direction = direction,
+                Speed = speed
+            };
+            _moveJob.AddData(transform, data, this);
             expireTime = Time.time + duration;
             var trans = transform;
             trans.rotation = MathExt.FromToRotation(Vector3.up, direction);
@@ -40,7 +37,7 @@ namespace KSGFK
         public override void OnSpawn()
         {
             base.OnSpawn();
-            _moveJob = GameManager.Job.GetJob<JobTemplate<MoveData>>(moveJobName);
+            _moveJob = GameManager.Job.GetJob<JobMoveWithTransform>(moveJobName);
         }
 
         public override void OnRemoveFromWorld()

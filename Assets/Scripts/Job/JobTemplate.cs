@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using MPipeline;
 using Unity.Collections;
-using UnityEngine.Profiling;
 
 namespace KSGFK
 {
     public abstract class JobTemplate<T> : IJobWrapper where T : unmanaged
     {
-        private List<IJobCallback<T>> _callbacks;
+        private List<IJobCallback<JobTemplate<T>>> _callbacks;
         protected NativeList<T> DataList;
 
         public ref T this[int id] => ref DataList[id];
@@ -18,7 +17,7 @@ namespace KSGFK
         protected JobTemplate(string name)
         {
             Name = name;
-            _callbacks = new List<IJobCallback<T>>();
+            _callbacks = new List<IJobCallback<JobTemplate<T>>>();
             DataList = new NativeList<T>(0, Allocator.Persistent);
         }
 
@@ -34,18 +33,18 @@ namespace KSGFK
         public virtual void OnUpdate(float deltaTime)
         {
             PerUpdate(deltaTime);
-            Profiler.BeginSample(Name);
-            var actionBuffer = new ActionBuffer();
-            foreach (var callback in _callbacks)
-            {
-                callback.JobUpdate(ref this[callback.DataId], ref actionBuffer);
-            }
-
-            actionBuffer.Action();
-            Profiler.EndSample();
+            // Profiler.BeginSample(Name);
+            // var actionBuffer = new ActionBuffer();
+            // foreach (var callback in _callbacks)
+            // {
+            //     callback.JobUpdate(ref this[callback.DataId], ref actionBuffer);
+            // }
+            //
+            // actionBuffer.Action();
+            // Profiler.EndSample();
         }
 
-        public int AddData(in T data, IJobCallback<T> callback)
+        public int AddData(in T data, IJobCallback<JobTemplate<T>> callback)
         {
             var callList = _callbacks.Count;
             var index = callList == DataList.Length ? callList : throw new InvalidOperationException("可能有bug");
@@ -77,6 +76,6 @@ namespace KSGFK
             _callbacks.RemoveAt(last);
         }
 
-        public void RemoveData(IJobCallback<T> callback) { RemoveData(callback.DataId); }
+        public void RemoveData(IJobCallback<JobTemplate<T>> callback) { RemoveData(callback.DataId); }
     }
 }
