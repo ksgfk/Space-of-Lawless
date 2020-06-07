@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace KSGFK
 {
@@ -22,6 +23,7 @@ namespace KSGFK
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T SingleAssign<T>(T value, bool canAssign)
         {
             if (canAssign)
@@ -30,6 +32,12 @@ namespace KSGFK
             }
 
             return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T GetDataFromJob<T>(IJobCallback<T> jobUser) where T : unmanaged
+        {
+            return ref ((JobTemplate<T>) jobUser.Job)[jobUser.DataId];
         }
     }
 }

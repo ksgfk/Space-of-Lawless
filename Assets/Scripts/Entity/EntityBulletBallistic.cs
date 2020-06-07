@@ -11,16 +11,16 @@ namespace KSGFK
         private JobTemplate<MoveData> _moveJob;
 
         public int DataId { get => jobDataId; set => jobDataId = value; }
-        JobTemplate<MoveData> IJobCallback<MoveData>.Job { get => _moveJob; set => _moveJob = value; }
+        IJobWrapper IJobCallback<MoveData>.Job { get => _moveJob; set => _moveJob = (JobTemplate<MoveData>) value; }
 
         public void JobUpdate(ref MoveData data, ref ActionBuffer buffer)
         {
-            ref var trans = ref data.Translation;
-            transform.Translate(new Vector3(trans.x, trans.y));
-            if (Time.time >= expireTime)
-            {
-                buffer.DestroyEntity(this);
-            }
+            // ref var trans = ref data.Translation;
+            // transform.Translate(new Vector3(trans.x, trans.y));
+            // if (Time.time >= expireTime)
+            // {
+            //     buffer.DestroyEntity(this);
+            // }
         }
 
         public override void Launch(Vector2 direction, Vector2 startPos, float speed, float duration)

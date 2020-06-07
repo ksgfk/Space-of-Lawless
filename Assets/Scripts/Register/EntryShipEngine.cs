@@ -21,7 +21,8 @@ namespace KSGFK
             var go = UnityEngine.Object.Instantiate(Prefab);
             go.name = $"{RegisterName}:{RuntimeId}";
             var engine = go.GetComponent<ShipModuleEngine>();
-            engine.Init(MaxMoveSpeed, MaxRotateSpeed);
+            engine.MaxMoveSpeed = MaxMoveSpeed;
+            engine.MaxRotateSpeed = MaxRotateSpeed;
             return engine;
         }
 

@@ -97,8 +97,9 @@ namespace KSGFK
             }
 
             var input = GameManager.Input;
-            var engine =
-                lastSpawnPlayer.Modules.FirstOrDefault(module => module is ShipModuleEngine) as ShipModuleEngine;
+            var engine = lastSpawnPlayer
+                .Modules
+                .FirstOrDefault(module => module is ShipModuleEngineJob) as ShipModuleEngineJob;
             if (engine != null)
             {
                 void Move(InputAction.CallbackContext ctx) => engine.OnInputCallbackJobMove(ctx);

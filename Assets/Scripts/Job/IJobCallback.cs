@@ -6,6 +6,6 @@ namespace KSGFK
 
         void JobUpdate(ref T data, ref ActionBuffer buffer);
 
-        JobTemplate<T> Job { get; set; }
+        IJobWrapper Job { get; set; }
     }
 }

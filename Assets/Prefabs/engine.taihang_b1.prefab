@@ -96,9 +96,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runtimeId: -1
   baseShip: {fileID: 0}
+  maxMoveSpeed: -1
+  maxRotateSpeed: -1
   moveJobName: DefaultMoveJob
   rotateJobName: DefaultRotateJob
-  maxMoveSpeed: 0
-  maxRotateSpeed: 0
   moveDataId: -1
   rotateDataId: -1

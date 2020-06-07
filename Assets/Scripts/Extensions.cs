@@ -15,7 +15,12 @@ namespace KSGFK
             list[r] = t;
         }
 
-        public static int GetLastIndex<T>(this IList<T> list) { return list.Count - 1; }
+        public static int GetLastIndex<T>(this IList<T> list) { return list.Count <= 0 ? 0 : list.Count - 1; }
+
+        public static T GetLastElement<T>(this IList<T> list)
+        {
+            return list.Count <= 0 ? default : list[list.Count - 1];
+        }
 
         public static void RemoveSwapLast<T>(this IList<T> list, int index)
         {
@@ -48,18 +53,9 @@ namespace KSGFK
             weapon.CanFire = false;
         }
 
-        public static void OnInputCallbackJobMove(this IJobCallback<MoveData> job, InputAction.CallbackContext ctx)
+        public static void OnInputCallbackJobMove(this ShipModuleEngine job, InputAction.CallbackContext ctx)
         {
-            var j = job.Job;
-            ref var movData = ref j[job.DataId];
-            movData.Direction = ctx.ReadValue<Vector2>();
-        }
-
-        public static void OnInputCallbackJobRotate(this IJobCallback<RotateData> job, InputAction.CallbackContext ctx)
-        {
-            var j = job.Job;
-            ref var rotData = ref j[job.DataId];
-            rotData.Delta = ctx.ReadValue<Vector2>();
+            job.SetMoveDirection(ctx.ReadValue<Vector2>());
         }
 
         public static void OnInputCallbackShipEngineRotate(
@@ -70,9 +66,7 @@ namespace KSGFK
             r = GameManager.MainCamera.ScreenToWorldPoint(r);
             var pos = (Vector2) engine.BaseShip.transform.position;
             r -= pos;
-            var job = (IJobCallback<RotateData>) engine;
-            ref var rotData = ref job.Job[job.DataId];
-            rotData.Delta = r;
+            engine.SetRotateDelta(r);
         }
     }
 }
