@@ -15,7 +15,10 @@ namespace KSGFK
         Pause,
         Exit
     }
-    
+
+    /// <summary>
+    /// TODO:引擎专用Job
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -147,7 +150,8 @@ namespace KSGFK
         {
             _job.AddJob(new JobMove("DefaultMoveJob"));
             _job.AddJob(new JobRotate("DefaultRotateJob"));
-            _job.AddJob(new JobMoveWithTransform("DefaultMoveWithTrans",0));
+            _job.AddJob(new JobMoveForTransform("DefaultMoveWithTrans", 0));
+            _job.AddJob(new JobTimingTask("Task"));
         }
     }
 }

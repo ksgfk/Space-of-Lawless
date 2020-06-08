@@ -2,23 +2,36 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public class EntityBulletBallistic : EntityBullet, IJobCallback<JobMoveWithTransform>
+    /// <summary>
+    /// TODO:子弹击中消失要手动移除JobTimingTask的任务
+    /// </summary>
+    public class EntityBulletBallistic : EntityBullet,
+        IJobCallback<JobTemplateForTransform<DataMoveWithTrans>>,
+        IJobTimingTask
     {
         public string moveJobName = "DefaultMoveWithTrans";
+        public string taskJobName = "Task";
         [SerializeField] private int jobDataId = -1;
-        [SerializeField] private float expireTime;
-        private JobMoveWithTransform _moveJob;
+        [SerializeField] private int taskId = -1;
+        private JobTemplateForTransform<DataMoveWithTrans> _moveJob;
+        private JobTimingTask _taskJob;
 
-        public int DataId { get => jobDataId; set => jobDataId = value; }
-        JobMoveWithTransform IJobCallback<JobMoveWithTransform>.Job { get => _moveJob; set => _moveJob = value; }
-
-        private void Update()
+        int IJobCallback<JobTemplateForTransform<DataMoveWithTrans>>.DataId
         {
-            if (Time.time >= expireTime)
-            {
-                GameManager.Entity.DestroyEntity(this);
-            }
+            get => jobDataId;
+            set => jobDataId = value;
         }
+
+        int IJobCallback<JobTimingTask>.DataId { get => taskId; set => taskId = value; }
+        JobTimingTask IJobCallback<JobTimingTask>.Job { get => _taskJob; set => _taskJob = value; }
+
+        JobTemplateForTransform<DataMoveWithTrans> IJobCallback<JobTemplateForTransform<DataMoveWithTrans>>.Job
+        {
+            get => _moveJob;
+            set => _moveJob = value;
+        }
+
+        void IJobTimingTask.RunTask() { GameManager.Entity.DestroyEntity(this); }
 
         public override void Launch(Vector2 direction, Vector2 startPos, float speed, float duration)
         {
@@ -28,16 +41,17 @@ namespace KSGFK
                 Speed = speed
             };
             _moveJob.AddData(transform, data, this);
-            expireTime = Time.time + duration;
             var trans = transform;
             trans.rotation = MathExt.FromToRotation(Vector3.up, direction);
             trans.position = startPos;
+            _taskJob.AddTask(duration, this);
         }
 
         public override void OnSpawn()
         {
             base.OnSpawn();
-            _moveJob = GameManager.Job.GetJob<JobMoveWithTransform>(moveJobName);
+            _moveJob = GameManager.Job.GetJob<JobMoveForTransform>(moveJobName);
+            _taskJob = GameManager.Job.GetJob<JobTimingTask>(taskJobName);
         }
 
         public override void OnRemoveFromWorld()

@@ -5,12 +5,12 @@ using Unity.Mathematics;
 
 namespace KSGFK
 {
-    public class JobRotate : JobTemplate<RotateData>
+    public class JobRotate : JobTemplate<DataRotate>
     {
         [BurstCompile]
         private struct Rotate : IJobParallelFor
         {
-            public NativeList<RotateData> DataList;
+            public NativeList<DataRotate> DataList;
             public float DeltaTime;
 
             public void Execute(int index)
@@ -30,7 +30,7 @@ namespace KSGFK
 
         public JobRotate(string name) : base(name) { }
 
-        protected override void PerUpdate(float deltaTime)
+        public override void OnUpdate(float deltaTime)
         {
             new Rotate
             {

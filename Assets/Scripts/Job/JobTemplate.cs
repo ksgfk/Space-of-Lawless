@@ -28,21 +28,7 @@ namespace KSGFK
             _callbacks = null;
         }
 
-        protected abstract void PerUpdate(float deltaTime);
-
-        public virtual void OnUpdate(float deltaTime)
-        {
-            PerUpdate(deltaTime);
-            // Profiler.BeginSample(Name);
-            // var actionBuffer = new ActionBuffer();
-            // foreach (var callback in _callbacks)
-            // {
-            //     callback.JobUpdate(ref this[callback.DataId], ref actionBuffer);
-            // }
-            //
-            // actionBuffer.Action();
-            // Profiler.EndSample();
-        }
+        public abstract void OnUpdate(float deltaTime);
 
         public int AddData(in T data, IJobCallback<JobTemplate<T>> callback)
         {

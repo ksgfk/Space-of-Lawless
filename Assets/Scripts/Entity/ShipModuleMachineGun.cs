@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace KSGFK
 {
@@ -23,8 +24,15 @@ namespace KSGFK
 
         public override void Fire()
         {
-            var bullet = GameManager.Entity.SpawnEntity<EntityBullet>(bulletRuntimeId);
-            bullet.Launch(BaseShip.transform.up, transform.position, Damage, 5);
+            for (int i = 0; i < 10; i++)
+            {
+                var bullet = GameManager.Entity.SpawnEntity<EntityBullet>(bulletRuntimeId);
+                bullet.Launch(
+                    (BaseShip.transform.up + new Vector3(Random.Range(-10, 10), Random.Range(-10, 10))).normalized,
+                    transform.position,
+                    Damage,
+                    Random.Range(1, 10));
+            }
         }
     }
 }

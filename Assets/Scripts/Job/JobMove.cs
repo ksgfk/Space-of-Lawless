@@ -5,12 +5,12 @@ using Unity.Mathematics;
 
 namespace KSGFK
 {
-    public class JobMove : JobTemplate<MoveData>
+    public class JobMove : JobTemplate<DataMove>
     {
         [BurstCompile]
         private struct Move : IJobParallelFor
         {
-            public NativeList<MoveData> DataList;
+            public NativeList<DataMove> DataList;
             public float DeltaTime;
 
             public void Execute(int index)
@@ -22,7 +22,7 @@ namespace KSGFK
 
         public JobMove(string name) : base(name) { }
 
-        protected override void PerUpdate(float deltaTime)
+        public override void OnUpdate(float deltaTime)
         {
             new Move
             {

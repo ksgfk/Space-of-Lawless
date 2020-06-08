@@ -2,7 +2,7 @@ using Unity.Mathematics;
 
 namespace KSGFK
 {
-    public struct MoveData
+    public struct DataMove
     {
         public float Speed;
         public float2 Direction;
