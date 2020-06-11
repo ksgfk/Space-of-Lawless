@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ namespace KSGFK
 {
     public static class Extensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Swap<T>(this IList<T> list, int l, int r)
         {
             var t = list[l];
@@ -15,21 +17,30 @@ namespace KSGFK
             list[r] = t;
         }
 
-        public static int GetLastIndex<T>(this IList<T> list) { return list.Count <= 0 ? 0 : list.Count - 1; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetLastIndex<T>(this IList<T> list) { return list.Count <= 0 ? -1 : list.Count - 1; }
 
-        public static T GetLastElement<T>(this IList<T> list)
+        public static void RemoveAtSwapBack<T>(this IList<T> list, int index)
         {
-            return list.Count <= 0 ? default : list[list.Count - 1];
+            var size = list.Count;
+            if (size <= 0)
+            {
+                return;
+            }
+
+            var lastIndex = size - 1;
+            if (lastIndex == index)
+            {
+                list.RemoveAt(lastIndex);
+                return;
+            }
+
+            var lastElement = list[lastIndex];
+            list[index] = lastElement;
+            list.RemoveAt(lastIndex);
         }
 
-        public static void RemoveSwapLast<T>(this IList<T> list, int index)
-        {
-            var last = list.GetLastIndex();
-            list.Swap(index, last);
-            list.RemoveAt(last);
-        }
-
-        public static IEnumerable<FieldInfo> GetAllFields(this Type type, BindingFlags flags)
+        public static IEnumerable<FieldInfo> GetAllInheritedFields(this Type type, BindingFlags flags)
         {
             var loopType = type;
             var list = new List<FieldInfo>();

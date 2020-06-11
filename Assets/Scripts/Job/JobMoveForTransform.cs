@@ -6,12 +6,27 @@ using UnityEngine.Jobs;
 
 namespace KSGFK
 {
-    public class JobMoveForTransform : JobTemplateForTransform<DataMoveWithTrans>
+    public struct JobMoveForTransformInitReq
     {
+        public float Speed;
+        public float2 Direction;
+        public Transform Trans;
+    }
+
+    public struct DataMoveForTransform
+    {
+        public float Speed;
+        public float2 Direction;
+    }
+
+    public class JobMoveForTransform : JobWrapperImpl<JobMoveForTransformInitReq, DataMoveForTransform>
+    {
+        private TransformAccessArray _transList;
+
         [BurstCompile]
         private struct MoveWithTransform : IJobParallelForTransform
         {
-            public NativeList<DataMoveWithTrans> DataList;
+            public NativeList<DataMoveForTransform> DataList;
             public float DeltaTime;
 
             public void Execute(int index, TransformAccess transform)
@@ -22,16 +37,32 @@ namespace KSGFK
             }
         }
 
-        public JobMoveForTransform(string name, int size) : base(name, size) { }
+        public JobMoveForTransform() { _transList = new TransformAccessArray(0, 6); }
 
-        public override void OnUpdate(float deltaTime)
+        public override void OnUpdate()
         {
             var handler = new MoveWithTransform
             {
-                DataList = DataArr,
-                DeltaTime = deltaTime
-            }.Schedule(TransArr);
+                DataList = DataList,
+                DeltaTime = Time.deltaTime
+            }.Schedule(_transList);
             handler.Complete();
         }
+
+        protected override void OnAddData(ref JobMoveForTransformInitReq data)
+        {
+            DataList.Add(new DataMoveForTransform {Direction = data.Direction, Speed = data.Speed});
+            _transList.Add(data.Trans);
+        }
+
+        protected override void OnRemoveData(int id) { _transList.RemoveAtSwapBack(id); }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            _transList.Dispose();
+        }
+
+        protected override bool CheckLength() { return base.CheckLength() && DataList.Length == _transList.length; }
     }
 }

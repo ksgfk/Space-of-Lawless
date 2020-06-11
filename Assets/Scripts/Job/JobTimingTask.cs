@@ -8,17 +8,23 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public class JobTimingTask : IJobWrapper
+    public struct JobTimingTaskInitReq
     {
-        private List<IJobTimingTask> _tasks;
-        private NativeList<DataTriggerTime> _data;
+        public float Duration;
+        public Action Task;
+    }
+
+    public class JobTimingTask : JobWrapperImpl<JobTimingTaskInitReq, float>
+    {
+        private readonly List<Action> _tasks;
         private NativeList<int> _triggerList;
-        private int _length;
+
+        public int TaskCount => _tasks.Count;
 
         [BurstCompile]
         private struct CheckTime : IJob
         {
-            public NativeList<DataTriggerTime> DataList;
+            public NativeList<float> DataList;
             public float NowTime;
             public NativeList<int> TriggerList;
 
@@ -26,8 +32,8 @@ namespace KSGFK
             {
                 for (var i = 0; i < DataList.Length; i++)
                 {
-                    ref var data = ref DataList[i];
-                    if (NowTime >= data.Time)
+                    var data = DataList[i];
+                    if (NowTime >= data)
                     {
                         TriggerList.Add(i);
                     }
@@ -35,85 +41,48 @@ namespace KSGFK
             }
         }
 
-        public string Name { get; }
-
-        public JobTimingTask(string name)
+        public JobTimingTask()
         {
-            Name = name;
-            _tasks = new List<IJobTimingTask>();
-            _data = new NativeList<DataTriggerTime>(0, Allocator.Persistent);
+            _tasks = new List<Action>();
             _triggerList = new NativeList<int>(0, Allocator.Persistent);
-            _length = 0;
         }
 
-        public void OnUpdate(float deltaTime)
+        public override void OnUpdate()
         {
             new CheckTime
             {
-                DataList = _data,
+                DataList = DataList,
                 NowTime = Time.time,
                 TriggerList = _triggerList
             }.Run();
             for (var i = 0; i < _triggerList.Length; i++)
             {
-                _tasks[_triggerList[i]].RunTask();
+                _tasks[_triggerList[i]]();
             }
 
             for (var i = _triggerList.Length - 1; i >= 0; i--)
             {
-                RemoveTask(_triggerList[i]);
+                RemoveData(JobInfo[_triggerList[i]]);
             }
 
             _triggerList.Clear();
         }
 
-        public void Dispose()
+        protected override void OnAddData(ref JobTimingTaskInitReq data)
         {
-            _data.Dispose();
+            DataList.Add(data.Duration + Time.time);
+            _tasks.Add(data.Task ?? (() => { }));
+        }
+
+        protected override void OnRemoveData(int id) { _tasks.RemoveAtSwapBack(id); }
+
+        protected override bool CheckLength() { return base.CheckLength() && JobInfo.Count == _tasks.Count; }
+
+        public override void Dispose()
+        {
+            base.Dispose();
             _triggerList.Dispose();
-            _tasks = null;
-        }
-
-        public void AddTask(float expireTime, IJobTimingTask task)
-        {
-            task.DataId = _length;
-            task.Job = this;
-            _tasks.Add(task);
-            _data.Add(new DataTriggerTime {Time = Time.time + expireTime});
-            _length++;
-            CheckLength();
-        }
-
-        private void RemoveTask(int removed)
-        {
-            if (removed < 0 || removed >= _length)
-            {
-                throw new ArgumentException($"无效id:{removed}");
-            }
-
-            var lastIndex = _tasks.GetLastIndex();
-            var last = _tasks.GetLastElement();
-            if (last == default)
-            {
-                throw new ArgumentException();
-            }
-
-            last.DataId = removed;
-            _tasks[removed] = last;
-            _tasks.RemoveAt(lastIndex);
-            _data.Remove(removed);
-            _length--;
-            CheckLength();
-        }
-
-        public void RemoveTask(IJobTimingTask task) { RemoveTask(task.DataId); }
-
-        private void CheckLength()
-        {
-            if (_length != _tasks.Count || _length != _data.Length)
-            {
-                throw new ArgumentException();
-            }
+            _tasks.Clear();
         }
     }
 }

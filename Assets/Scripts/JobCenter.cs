@@ -1,56 +1,102 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace KSGFK
 {
     public class JobCenter : IDisposable
     {
-        private readonly List<IJobWrapper> _jobs;
+        public static readonly string JobInfoPath = Path.Combine(GameManager.DataRoot, "job.csv");
 
-        public JobCenter() { _jobs = new List<IJobWrapper>(); }
+        private RegistryImpl<EntryJob> _jobInfo;
+        private List<IJobWrapper> _jobList;
+
+        public JobCenter()
+        {
+            GameManager.Instance.PerInit += OnGamePerInit;
+            GameManager.Instance.Init += OnGameInit;
+        }
+
+        private static void OnGamePerInit() { GameManager.Data.AddPath(typeof(EntryJob), JobInfoPath); }
+
+        private void OnGameInit()
+        {
+            _jobInfo = new RegistryImpl<EntryJob>("job");
+            foreach (var jobInfo in GameManager.Data.Query<EntryJob>(JobInfoPath))
+            {
+                _jobInfo.Register(jobInfo);
+            }
+
+            _jobList = _jobInfo.Select(info =>
+                {
+                    var type = Type.GetType(info.FullTypeName);
+                    if (type == null)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    if (!typeof(IJobWrapper).IsAssignableFrom(type))
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    var instance = Activator.CreateInstance(type);
+                    return instance as IJobWrapper;
+                })
+                .ToList();
+        }
 
         public void OnUpdate()
         {
-            var deltaTime = Time.deltaTime;
-            foreach (var job in _jobs)
+            foreach (var job in _jobList)
             {
-                job.OnUpdate(deltaTime);
+                Profiler.BeginSample(job.GetType().FullName);
+                job.OnUpdate();
+                Profiler.EndSample();
             }
-        }
-
-        public void AddJob(IJobWrapper wrapper)
-        {
-            if (_jobs.Find(job => job.Name == wrapper.Name) != default)
-            {
-                Debug.LogWarningFormat("已存在Job {0}", wrapper.Name);
-                return;
-            }
-
-            _jobs.Add(wrapper);
         }
 
         public IJobWrapper GetJob(string name)
         {
-            var findResult = _jobs.Find(job => job.Name == name);
-            if (findResult == default)
-            {
-                Debug.LogWarningFormat("不存在Job {0}", name);
-            }
-
-            return findResult;
+            var index = _jobInfo[name];
+            return _jobList[index.RuntimeId];
         }
 
-        public T GetJob<T>(string name) where T : class, IJobWrapper { return GetJob(name) as T; }
+        public IJobWrapper GetJob(int id) { return _jobList[id]; }
+
+        public JobWrapperImpl<TInput, TStore> GetJob<TInput, TStore>(string name)
+            where TInput : struct
+            where TStore : unmanaged
+        {
+            var job = GetJob(name);
+            JobWrapperImpl<TInput, TStore> result;
+            if (job is JobWrapperImpl<TInput, TStore> impl)
+            {
+                result = impl;
+            }
+            else
+            {
+                Debug.LogWarningFormat("Job {0}的类型是 {1} ,不是 {2}",
+                    name,
+                    job.GetType(),
+                    typeof(JobWrapperImpl<TInput, TStore>));
+                result = default;
+            }
+
+            return result;
+        }
 
         public void Dispose()
         {
-            foreach (var job in _jobs)
+            foreach (var job in _jobList)
             {
                 job.Dispose();
             }
 
-            _jobs.Clear();
+            _jobList.Clear();
         }
     }
 }

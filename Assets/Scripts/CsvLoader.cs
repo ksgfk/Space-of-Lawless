@@ -61,7 +61,7 @@ namespace KSGFK
 
         private async Task<IEnumerable<object>> Read(Type type, string path)
         {
-            var fields = type.GetAllFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var fields = type.GetAllInheritedFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var fieldsDict = fields.ToDictionary(fieldInfo => fieldInfo.Name);
             using (var reader = new StreamReader(path, Encoding.UTF8))
             {

@@ -7,11 +7,10 @@ namespace KSGFK
 {
     public class EntityManager : MonoBehaviour
     {
-        public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
-        public static readonly string ShipFramePath = Path.Combine(DataRoot, "entity_ship.csv");
-        public static readonly string ShipEnginePath = Path.Combine(DataRoot, "ship_engine.csv");
-        public static readonly string ShipWeaponPath = Path.Combine(DataRoot, "ship_weapon.csv");
-        public static readonly string BulletPath = Path.Combine(DataRoot, "entity_bullet.csv");
+        public static readonly string ShipFramePath = Path.Combine(GameManager.DataRoot, "entity_ship.csv");
+        public static readonly string ShipEnginePath = Path.Combine(GameManager.DataRoot, "ship_engine.csv");
+        public static readonly string ShipWeaponPath = Path.Combine(GameManager.DataRoot, "ship_weapon.csv");
+        public static readonly string BulletPath = Path.Combine(GameManager.DataRoot, "entity_bullet.csv");
 
         [SerializeField] private int spawnCount;
         [SerializeField] private int generation;
@@ -45,7 +44,7 @@ namespace KSGFK
             _entity.AddToWaitRegister(entryEntityBullet);
         }
 
-        private void OnGamePreInit()
+        private static void OnGamePreInit()
         {
             var data = GameManager.Data;
             data.AddPath(typeof(EntryEntityShip), ShipFramePath);
@@ -113,9 +112,18 @@ namespace KSGFK
             }
 
             var instance = entry.Instantiate();
-            var node = new LinkedListNode<Entity>(instance);
+            LinkedListNode<Entity> node;
+            if (instance.Node == null)
+            {
+                node = new LinkedListNode<Entity>(instance);
+                instance.Node = node;
+            }
+            else
+            {
+                node = instance.Node;
+            }
+
             _active.AddLast(node);
-            instance.Node = node;
             AfterSpawn();
             return instance;
         }

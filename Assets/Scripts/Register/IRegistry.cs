@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace KSGFK
         void Register(T registerEntry);
     }
 
-    public class RegistryImpl<T> : IRegistry<T> where T : IRegisterEntry
+    public class RegistryImpl<T> : IRegistry<T>, IEnumerable<T> where T : IRegisterEntry
     {
         private readonly List<T> _entries;
         private readonly Dictionary<string, int> _index;
@@ -42,6 +43,8 @@ namespace KSGFK
             }
         }
 
+        public IReadOnlyDictionary<string, int> NameToIndex => _index;
+
         public RegistryImpl(string registryName)
         {
             RegistryName = registryName;
@@ -62,5 +65,9 @@ namespace KSGFK
             _entries.Add(registerEntry);
             _index.Add(registerEntry.RegisterName, id);
         }
+
+        public IEnumerator<T> GetEnumerator() { return ((IEnumerable<T>) _entries).GetEnumerator(); }
+
+        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
     }
 }

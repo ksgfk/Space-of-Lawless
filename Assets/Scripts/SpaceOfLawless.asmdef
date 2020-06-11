@@ -1,0 +1,20 @@
+{
+    "name": "SpaceOfLawless",
+    "references": [
+        "Cinemachine",
+        "Unity.Addressables",
+        "Unity.Burst",
+        "Unity.InputSystem",
+        "Unity.Mathematics",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

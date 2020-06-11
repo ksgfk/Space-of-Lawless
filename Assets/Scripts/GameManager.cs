@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -21,6 +22,7 @@ namespace KSGFK
     /// </summary>
     public class GameManager : MonoBehaviour
     {
+        public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
         public static GameManager Instance { get; private set; }
         public static LoadManager Load => Instance._load;
         public static JobCenter Job => Instance._job;
@@ -148,10 +150,10 @@ namespace KSGFK
 
         private void InitJobSystems()
         {
-            _job.AddJob(new JobMove("DefaultMoveJob"));
-            _job.AddJob(new JobRotate("DefaultRotateJob"));
-            _job.AddJob(new JobMoveForTransform("DefaultMoveWithTrans", 0));
-            _job.AddJob(new JobTimingTask("Task"));
+            // _job.AddJob(new JobMove("DefaultMoveJob"));
+            // _job.AddJob(new JobRotate("DefaultRotateJob"));
+            // _job.AddJob(new JobMoveForTransform("DefaultMoveWithTrans", 0));
+            // _job.AddJob(new JobTimingTask("Task"));
         }
     }
 }
