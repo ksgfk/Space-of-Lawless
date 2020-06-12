@@ -129,7 +129,6 @@ namespace KSGFK
 
         private void OnInitComplete()
         {
-            InitJobSystems();
             PostInit?.Invoke();
             _input = new InputCenter();
             nowState = GameState.Running;
@@ -147,13 +146,5 @@ namespace KSGFK
         }
 
         private void OnDestroy() { _job.Dispose(); }
-
-        private void InitJobSystems()
-        {
-            // _job.AddJob(new JobMove("DefaultMoveJob"));
-            // _job.AddJob(new JobRotate("DefaultRotateJob"));
-            // _job.AddJob(new JobMoveForTransform("DefaultMoveWithTrans", 0));
-            // _job.AddJob(new JobTimingTask("Task"));
-        }
     }
 }

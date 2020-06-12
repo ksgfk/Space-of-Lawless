@@ -9,7 +9,7 @@ namespace KSGFK
     public struct JobMoveInitReq
     {
         public float Speed;
-        public float2 Direction;
+        public Vector2 Direction;
     }
 
     public struct DataMove

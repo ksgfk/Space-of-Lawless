@@ -1,15 +1,36 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace KSGFK
 {
     public class ShipModuleEngineJob : ShipModuleEngine
     {
-        public string moveJobName = "DefaultMoveJob";
-        public string rotateJobName = "DefaultRotateJob";
-        [SerializeField] private JobInfo moveInfo = JobInfo.Default;
-        [SerializeField] private JobInfo rotateInfo = JobInfo.Default;
-        private JobWrapperImpl<JobMoveInitReq, DataMove> _moveJob;
+        public string jobName = "MoveAndRotate";
+        [SerializeField] private JobInfo jobInfo = JobInfo.Default;
+        private JobWrapperImpl<JobMR4TInitReq, DataMoveRotate> _job;
+
+        public override bool CanMove
+        {
+            get => canMove;
+            set
+            {
+                if (value)
+                {
+                    jobInfo = _job.AddData(new JobMR4TInitReq
+                    {
+                        Direction = Vector2.zero,
+                        MoveSpeed = MaxMoveSpeed,
+                        RotateDelta = Vector2.zero,
+                        Trans = BaseShip.transform
+                    });
+                }
+                else
+                {
+                    _job.RemoveData(jobInfo);
+                }
+
+                canMove = value;
+            }
+        }
 
         public override void OnAddToShip() { SetupJob(); }
 
@@ -17,55 +38,22 @@ namespace KSGFK
 
         private void SetupJob()
         {
-            _moveJob = GameManager.Job.GetJob<JobMoveInitReq, DataMove>(moveJobName);
-            moveInfo = _moveJob.AddData(new JobMoveInitReq {Direction = new float2(0, 1), Speed = MaxMoveSpeed});
-            // var rot = GameManager.Job.GetJob(rotateJobName);
-            // mov.AddData(new DataMove {Speed = MaxMoveSpeed}, this);
-            // rot.AddData(new DataRotate
-            //     {
-            //         Speed = MaxMoveSpeed,
-            //         Rotation = quaternion.identity
-            //     },
-            //     this);
+            _job = GameManager.Job.GetJob<JobMR4TInitReq, DataMoveRotate>(jobName);
             CanMove = true;
         }
 
-        private void RemoveJob()
-        {
-            _moveJob.RemoveData(moveInfo);
-            CanMove = false;
-            // var mov = (IJobCallback<JobTemplate<DataMove>>) this;
-            // mov.Job.RemoveData(this);
-            // var rot = (IJobCallback<JobTemplate<DataRotate>>) this;
-            // rot.Job.RemoveData(this);
-            // CanMove = false;
-        }
+        private void RemoveJob() { CanMove = false; }
 
         public override void SetMoveDirection(Vector2 direction)
         {
-            ref var moveData = ref _moveJob[moveInfo];
+            ref var moveData = ref _job[jobInfo];
             moveData.Direction = direction;
         }
 
         public override void SetRotateDelta(Vector2 delta)
         {
-            // ref var rotData = ref Helper.GetDataFromJob<DataRotate>(this);
-            // rotData.Delta = delta;
-        }
-
-        public override void Move()
-        {
-            ref var moveData = ref _moveJob[moveInfo];
-            ref var trans = ref moveData.Translation;
-            var translate = new Vector3(trans.x, trans.y);
-            BaseShip.transform.position += translate;
-            // ref var rotData = ref Helper.GetDataFromJob<DataRotate>(this);
-            // BaseShip.transform.rotation = rotData.Rotation;
-            // // rotData.Speed = MaxRotateSpeed;
-            // ref var movData = ref Helper.GetDataFromJob<DataMove>(this);
-            // var translate = new Vector3(movData.Translation.x, movData.Translation.y);
-            // BaseShip.transform.Translate(translate);
-            // // movData.Speed = MaxMoveSpeed;
+            ref var rotateData = ref _job[jobInfo];
+            rotateData.RotateDelta = delta;
         }
     }
 }

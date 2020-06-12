@@ -65,5 +65,39 @@ namespace KSGFK
         {
             return quaternion.AxisAngle(math.normalizesafe(nonNormalAxis), degree * UnitDegree2Radian);
         }
+
+        public static float3 QuaternionMulVec3(quaternion q, float3 point)
+        {
+            var rotation = q.value;
+            float num1 = rotation.x * 2f;
+            float num2 = rotation.y * 2f;
+            float num3 = rotation.z * 2f;
+            float num4 = rotation.x * num1;
+            float num5 = rotation.y * num2;
+            float num6 = rotation.z * num3;
+            float num7 = rotation.x * num2;
+            float num8 = rotation.x * num3;
+            float num9 = rotation.y * num3;
+            float num10 = rotation.w * num1;
+            float num11 = rotation.w * num2;
+            float num12 = rotation.w * num3;
+            float3 vector3;
+            vector3.x = (float) ((1.0 - ((double) num5 + (double) num6)) * (double) point.x +
+                                 ((double) num7 - (double) num12) * (double) point.y +
+                                 ((double) num8 + (double) num11) * (double) point.z);
+            vector3.y = (float) (((double) num7 + (double) num12) * (double) point.x +
+                                 (1.0 - ((double) num4 + (double) num6)) * (double) point.y +
+                                 ((double) num9 - (double) num10) * (double) point.z);
+            vector3.z = (float) (((double) num8 - (double) num11) * (double) point.x +
+                                 ((double) num9 + (double) num10) * (double) point.y +
+                                 (1.0 - ((double) num4 + (double) num5)) * (double) point.z);
+            return vector3;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 TransformDirection(quaternion rotation, float3 dir)
+        {
+            return QuaternionMulVec3(rotation, dir);
+        }
     }
 }
