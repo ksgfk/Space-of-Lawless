@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -214,6 +214,7 @@ GameObject:
   m_Component:
   - component: {fileID: 202454881}
   - component: {fileID: 202454882}
+  - component: {fileID: 202454883}
   m_Layer: 0
   m_Name: engine
   m_TagString: Untagged
@@ -285,6 +286,26 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &202454883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202454880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14a45825bf8b4d22a9d025d4a58ba11f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runtimeId: -1
+  baseShip: {fileID: 0}
+  maxMoveSpeed: -1
+  maxRotateSpeed: -1
+  canMove: 0
+  jobName: MoveAndRotate
+  jobInfo:
+    id: -1
 --- !u!1 &699370046
 GameObject:
   m_ObjectHideFlags: 0
