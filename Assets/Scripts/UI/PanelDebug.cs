@@ -127,7 +127,7 @@ namespace KSGFK
                 input.Player.Fire.canceled += FireCancel;
             }
 
-            GameManager.SetCameraFollowTarget(lastSpawnPlayer.transform);
+            // GameManager.SetCameraFollowTarget(lastSpawnPlayer.transform);
         }
 
         public void OnDestroyEntityBtnPress()

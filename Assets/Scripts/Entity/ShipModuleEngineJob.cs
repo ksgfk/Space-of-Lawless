@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace KSGFK
@@ -44,16 +45,23 @@ namespace KSGFK
 
         private void RemoveJob() { CanMove = false; }
 
-        public override void SetMoveDirection(Vector2 direction)
+        public override void MoveDirection(Vector2 direction)
         {
             ref var moveData = ref _job[jobInfo];
             moveData.Direction = direction;
         }
 
-        public override void SetRotateDelta(Vector2 delta)
+        public override void RotateDelta(Vector2 delta)
         {
             ref var rotateData = ref _job[jobInfo];
             rotateData.RotateDelta = delta;
+        }
+
+        public override void Rotate(float angle)
+        {
+            ref var rotateData = ref _job[jobInfo];
+            math.sincos(angle, out var sinA, out var cosA);
+            rotateData.RotateDelta = new float2(cosA, sinA);
         }
     }
 }

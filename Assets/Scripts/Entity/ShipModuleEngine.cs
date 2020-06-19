@@ -22,10 +22,10 @@ namespace KSGFK
 
         public virtual bool CanMove { get => canMove; set => canMove = value; }
 
-        public abstract void SetMoveDirection(Vector2 direction);
+        public abstract void MoveDirection(Vector2 direction);
 
-        public abstract void SetRotateDelta(Vector2 delta);
+        public abstract void RotateDelta(Vector2 delta);
 
-        public virtual void Move() { }
+        public virtual void Rotate(float angle) { }
     }
 }

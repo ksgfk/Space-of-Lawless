@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 2505654141192279536}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -70,7 +70,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 5be30f0f65c7a884d81ad7d5898e8832, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   baseShip: {fileID: 0}
   maxMoveSpeed: -1
   maxRotateSpeed: -1
-  moveJobName: DefaultMoveJob
-  rotateJobName: DefaultRotateJob
-  moveDataId: -1
-  rotateDataId: -1
+  canMove: 0
+  jobName: MoveAndRotate
+  jobInfo:
+    id: -1

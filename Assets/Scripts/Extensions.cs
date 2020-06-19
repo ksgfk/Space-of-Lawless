@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -66,7 +67,7 @@ namespace KSGFK
 
         public static void OnInputCallbackJobMove(this ShipModuleEngine job, InputAction.CallbackContext ctx)
         {
-            job.SetMoveDirection(ctx.ReadValue<Vector2>());
+            job.MoveDirection(ctx.ReadValue<Vector2>());
         }
 
         public static void OnInputCallbackShipEngineRotate(
@@ -77,7 +78,13 @@ namespace KSGFK
             r = GameManager.MainCamera.ScreenToWorldPoint(r);
             var pos = (Vector2) engine.BaseShip.transform.position;
             r -= pos;
-            engine.SetRotateDelta(r);
+            engine.RotateDelta(r);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 ToVec3(this Vector2 vec2, float z) { return new Vector3(vec2.x, vec2.y, z); }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsZero(this float f) { return math.abs(f) <= 0.0000001f; }
     }
 }

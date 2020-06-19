@@ -17,8 +17,8 @@ namespace KSGFK
     public struct DataMoveRotate
     {
         public float MoveSpeed;
-        public Vector2 Direction;
-        public Vector2 RotateDelta;
+        public float2 Direction;
+        public float2 RotateDelta;
     }
 
     public class JobMoveAndRotateForTransform : JobWrapperImpl<JobMR4TInitReq, DataMoveRotate>

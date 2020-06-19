@@ -1,14 +1,25 @@
-using System;
 using UnityEngine;
 
 namespace KSGFK
 {
     public class ShipModuleEngineMono : ShipModuleEngine
     {
-        public override void SetMoveDirection(Vector2 direction) { }
+        public override void MoveDirection(Vector2 direction)
+        {
+            BaseShip.transform.Translate(direction.normalized * (Time.deltaTime * MaxMoveSpeed));
+        }
 
-        public override void SetRotateDelta(Vector2 delta) { }
-        
-        public override void Move() { }
+        public override void RotateDelta(Vector2 delta)
+        {
+            BaseShip.transform.rotation = MathExt.FromToRotation(Vector3.up, delta);
+        }
+
+        public override void Rotate(float angle)
+        {
+            var t = BaseShip.transform;
+            var eulerAngles = t.eulerAngles;
+            var a = Mathf.Lerp(eulerAngles.z, angle + eulerAngles.z, Time.deltaTime * MaxRotateSpeed);
+            t.rotation = Quaternion.AngleAxis(a, Vector3.forward);
+        }
     }
 }
