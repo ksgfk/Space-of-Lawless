@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace KSGFK
 {
@@ -32,6 +34,12 @@ namespace KSGFK
             }
 
             return value;
+        }
+
+        [Conditional("DEBUG_RAYS")]
+        public static void DrawRay(Vector3 start, Vector3 dir, Color color)
+        {
+            UnityEngine.Debug.DrawRay(start, dir, color);
         }
     }
 }

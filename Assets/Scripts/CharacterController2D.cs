@@ -10,6 +10,7 @@ namespace KSGFK
     {
         public LayerMask collideMask;
         [Range(0.1f, float.MaxValue)] public float rayLength = 1;
+        [Range(2, 10)] public int rayCount = 2;
 
         private Rigidbody2D _rigid;
         private Collider2D _coll;
@@ -24,41 +25,64 @@ namespace KSGFK
 
         public void Move(Vector2 translation)
         {
-            var pos = transform.position;
-            var border = _coll.bounds;
-            var topLeft = new Vector2(border.min.x, border.max.y);
-            var bottomRight = new Vector2(border.max.x, border.min.y);
-            Vector2 startPos;
-            Vector2 dir;
-            if (!translation.x.IsZero())
-            {
-                var isLeft = translation.x < 0;
-                var startX = isLeft ? topLeft.x : bottomRight.x;
-                dir = isLeft ? Vector2.left : Vector2.right;
-                startPos = new Vector2(startX, pos.y);
-            }
-            else if (!translation.y.IsZero())
-            {
-                var isBottom = translation.y < 0;
-                var startY = isBottom ? bottomRight.y : topLeft.y;
-                dir = isBottom ? Vector2.down : Vector2.up;
-                startPos = new Vector2(pos.x, startY);
-            }
-            else
+            MoveHorizontal(ref translation);
+            MoveVertical(ref translation);
+            _rigid.transform.position += (Vector3) translation;
+        }
+
+        private void MoveHorizontal(ref Vector2 translation)
+        {
+            if (translation.x.IsZero())
             {
                 return;
             }
 
-            var ray = Physics2D.Raycast(startPos, dir, rayLength, collideMask);
-            Debug.DrawLine(startPos, startPos + dir * rayLength, Color.red);
+            var border = _coll.bounds;
+            var isLeft = translation.x < 0;
+            var startX = isLeft ? border.min.x : border.max.x;
+            var dir = isLeft ? Vector2.left : Vector2.right;
+            var startPos = new Vector2(startX, transform.position.y);
+        }
+
+        private void MoveVertical(ref Vector2 translation)
+        {
+            if (translation.y.IsZero())
+            {
+                return;
+            }
+
+            var border = _coll.bounds;
+            var leftUp = new Vector2(border.min.x, border.max.y);
+            var rightDown = new Vector2(border.max.x, border.min.y);
+            var isDown = translation.y < 0;
+            var dir = isDown ? Vector2.down : Vector2.up;
+            var startY = isDown ? rightDown.y : leftUp.y;
+            var perRayInterval = (rightDown.x - leftUp.x) / (rayCount - 1);
+            for (var i = 0; i < rayCount; i++)
+            {
+                var startPos = new Vector2(leftUp.x + perRayInterval * i, startY);
+                var ray = Physics2D.Raycast(startPos, dir, rayLength, collideMask);
+                Helper.DrawRay(startPos, dir * rayLength, Color.red);
+                if (!ray)
+                {
+                    continue;
+                }
+
+                var point = ray.point;
+                if (Mathf.Abs(startPos.y + translation.y) > Mathf.Abs(point.y))
+                {
+                    //如果不减去0.000001，射线发射处会与碰撞体边界重合，重合部分似乎，检测不到
+                    translation.y = point.y - startPos.y - 0.000001f * dir.y;
+                }
+            }
         }
 
         private void Update()
         {
             Move(Vector2.up * Time.deltaTime);
-            Move(Vector2.down * Time.deltaTime);
-            Move(Vector2.left * Time.deltaTime);
-            Move(Vector2.right * Time.deltaTime);
+            // Move(Vector2.down * Time.deltaTime);
+            // Move(Vector2.left * Time.deltaTime);
+            // Move(Vector2.right * Time.deltaTime);
         }
     }
 }
