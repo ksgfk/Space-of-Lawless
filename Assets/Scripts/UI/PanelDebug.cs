@@ -127,6 +127,8 @@ namespace KSGFK
                 input.Player.Fire.canceled += FireCancel;
             }
 
+            // var cc2d = lastSpawnPlayer.gameObject.AddComponent<CharacterController2D>();
+            
             // GameManager.SetCameraFollowTarget(lastSpawnPlayer.transform);
         }
 

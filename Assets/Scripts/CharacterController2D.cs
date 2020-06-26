@@ -3,7 +3,7 @@ using UnityEngine;
 namespace KSGFK
 {
     /// <summary>
-    /// TODO:WIP
+    /// TODO:RaycastCommand
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class CharacterController2D : MonoBehaviour
@@ -11,16 +11,11 @@ namespace KSGFK
         public LayerMask collideMask;
         [Range(0.1f, float.MaxValue)] public float rayLength = 1;
         [Range(2, 10)] public int rayCount = 2;
-        [SerializeField] private Vector2 _velocity;
+        public float minSpeed = 0.00001f;
 
         private Rigidbody2D _rigid;
         private Collider2D _coll;
-        private Vector2 _translation;
-
-        /// <summary>
-        /// 单位:格/秒
-        /// </summary>
-        public Vector2 Velocity => _velocity;
+        [SerializeField] private Vector2 _translation;
 
         private void Awake()
         {
@@ -28,17 +23,28 @@ namespace KSGFK
             _coll = GetComponent<Collider2D>();
             _rigid.bodyType = RigidbodyType2D.Kinematic;
             _rigid.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            _rigid.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
 
-        private void LateUpdate()
+        private void FixedUpdate()
         {
             MoveHorizontal();
             MoveVertical();
-            transform.position += (Vector3) _translation;
-            var deltaTime = Time.deltaTime;
-            if (!deltaTime.IsZero())
+            var fixedTime = Time.fixedDeltaTime;
+            if (!fixedTime.IsZero())
             {
-                _velocity = _translation / deltaTime;
+                var velocity = _translation / fixedTime;
+                if (Mathf.Abs(velocity.x) < minSpeed)
+                {
+                    velocity.x = 0f;
+                }
+
+                if (Mathf.Abs(velocity.y) < minSpeed)
+                {
+                    velocity.y = 0f;
+                }
+
+                _rigid.velocity = velocity;
             }
 
             _translation = Vector2.zero;
@@ -70,10 +76,9 @@ namespace KSGFK
                     continue;
                 }
 
-                var point = ray.point;
-                if (Mathf.Abs(startPos.x + _translation.x) > Mathf.Abs(point.x))
+                if (ray.distance <= Mathf.Abs(_translation.x))
                 {
-                    _translation.x = point.x - startPos.x - 0.000001f * dir.x;
+                    _translation.x = (ray.distance - 0.001f) * dir.x;
                 }
             }
         }
@@ -102,21 +107,11 @@ namespace KSGFK
                     continue;
                 }
 
-                var point = ray.point;
-                if (Mathf.Abs(startPos.y + _translation.y) > Mathf.Abs(point.y))
+                if (ray.distance <= Mathf.Abs(_translation.y))
                 {
-                    //如果不减去0.000001，射线发射处会与碰撞体边界重合，重合部分似乎，检测不到
-                    _translation.y = point.y - startPos.y - 0.000001f * dir.y;
+                    _translation.y = (ray.distance - 0.001f) * dir.y;
                 }
             }
-        }
-
-        private void Update()
-        {
-            Move(Vector2.up * Time.deltaTime);
-            // Move(Vector2.down * Time.deltaTime);
-            Move(Vector2.left * Time.deltaTime);
-            // Move(Vector2.right * Time.deltaTime);
         }
     }
 }

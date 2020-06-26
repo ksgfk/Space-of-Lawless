@@ -99,5 +99,11 @@ namespace KSGFK
         {
             return QuaternionMulVec3(rotation, dir);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 TransformDirection(Quaternion rotation, Vector3 dir)
+        {
+            return rotation * dir;
+        }
     }
 }

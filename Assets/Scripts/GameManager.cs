@@ -16,10 +16,7 @@ namespace KSGFK
         Pause,
         Exit
     }
-
-    /// <summary>
-    /// TODO:引擎专用Job
-    /// </summary>
+    
     public class GameManager : MonoBehaviour
     {
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");

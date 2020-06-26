@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5613877539936595140}
   - component: {fileID: 5613877539936595138}
   - component: {fileID: 5613877539936595139}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: edge-up
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ GameObject:
   - component: {fileID: 5613877540229879538}
   - component: {fileID: 5613877540229879536}
   - component: {fileID: 5613877540229879537}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: edge-down
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 5613877541575568712}
   - component: {fileID: 5613877541575568710}
   - component: {fileID: 5613877541575568711}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: edge-right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5613877541631472491}
   - component: {fileID: 5613877541631472490}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SquareEdge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -326,7 +326,7 @@ Transform:
   m_GameObject: {fileID: 5613877541631472492}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 1}
   m_Children:
   - {fileID: 5613877541858796853}
   - {fileID: 5613877541575568712}
@@ -362,7 +362,7 @@ GameObject:
   - component: {fileID: 5613877541858796853}
   - component: {fileID: 5613877541858796854}
   - component: {fileID: 5613877541858796855}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: edge-left
   m_TagString: Untagged
   m_Icon: {fileID: 0}

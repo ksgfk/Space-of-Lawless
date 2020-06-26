@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace KSGFK
@@ -6,12 +7,16 @@ namespace KSGFK
     {
         public override void MoveDirection(Vector2 direction)
         {
-            BaseShip.transform.Translate(direction.normalized * (Time.deltaTime * MaxMoveSpeed));
+            // BaseShip.transform.Translate(direction.normalized * (Time.deltaTime * MaxMoveSpeed));
+            BaseShip.GetComponent<CharacterController2D>()
+                .Move(MathExt.TransformDirection(transform.rotation, direction) * (Time.deltaTime * MaxMoveSpeed));
         }
 
         public override void RotateDelta(Vector2 delta)
         {
-            BaseShip.transform.rotation = MathExt.FromToRotation(Vector3.up, delta);
+            BaseShip.transform.rotation = Quaternion.Slerp(BaseShip.transform.rotation,
+                MathExt.FromToRotation(Vector3.up, delta),
+                Time.deltaTime * MaxRotateSpeed);
         }
 
         public override void Rotate(float angle)

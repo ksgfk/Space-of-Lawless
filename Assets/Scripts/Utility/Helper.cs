@@ -41,5 +41,16 @@ namespace KSGFK
         {
             UnityEngine.Debug.DrawRay(start, dir, color);
         }
+
+        public static T[] NewArray<T>(int size, Func<T> defaultVal)
+        {
+            var arr = new T[size];
+            for (var i = 0; i < size; i++)
+            {
+                arr[i] = defaultVal();
+            }
+
+            return arr;
+        }
     }
 }
