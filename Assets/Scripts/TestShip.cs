@@ -5,47 +5,43 @@ namespace KSGFK
 {
     public class TestShip : MonoBehaviour
     {
+        public float moveSpeed;
+        public float moveDump;
+
+        private CharacterController2D _cc2d;
+        private Rigidbody2D _rigid;
+
         private void Awake()
         {
-            
+            _cc2d = GetComponent<CharacterController2D>();
+            _rigid = GetComponent<Rigidbody2D>();
         }
 
         private void Update()
         {
-            var ship = GetComponent<CharacterController2D>();
+            var m = Vector2.zero;
             if (Keyboard.current.wKey.IsPressed())
             {
-                ship.Move(Vector2.up * Time.deltaTime);
+                m.y = 1;
             }
 
             if (Keyboard.current.sKey.IsPressed())
             {
-                ship.Move(Vector2.down * Time.deltaTime);
+                m.y = -1;
             }
 
             if (Keyboard.current.aKey.IsPressed())
             {
-                ship.Move(Vector2.left * Time.deltaTime);
+                m.x = -1;
             }
 
             if (Keyboard.current.dKey.IsPressed())
             {
-                ship.Move(Vector2.right * Time.deltaTime);
+                m.x = 1;
             }
 
-            // var rigid = GetComponent<Rigidbody2D>();
-            // var v = Vector2.zero;
-            // if (Keyboard.current.wKey.IsPressed())
-            // {
-            //     v.y = 1;
-            // }
-            //
-            // if (Keyboard.current.sKey.IsPressed())
-            // {
-            //     v.y = -1;
-            // }
-            //
-            // rigid.velocity = v;
+            var deltaTime = Time.deltaTime;
+            _cc2d.Move(MathExt.DumpMove(_rigid.velocity, in m, moveDump, deltaTime) * deltaTime);
         }
     }
 }

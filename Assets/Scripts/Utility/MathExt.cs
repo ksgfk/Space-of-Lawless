@@ -101,9 +101,18 @@ namespace KSGFK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 TransformDirection(Quaternion rotation, Vector3 dir)
+        public static Vector3 TransformDirection(Quaternion rotation, Vector3 dir) { return rotation * dir; }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 DumpMove(in Vector2 origin, in Vector2 target, float dump, float deltaTime)
         {
-            return rotation * dir;
+            return Vector2.Lerp(origin, target, deltaTime * dump);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float2 DumpMove(in float2 origin, in float2 target, float dump, float deltaTime)
+        {
+            return math.lerp(origin, target, deltaTime * dump);
         }
     }
 }
