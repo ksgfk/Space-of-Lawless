@@ -44,14 +44,7 @@ namespace KSGFK
             _entity.AddToWaitRegister(entryEntityBullet);
         }
 
-        private static void OnGamePreInit()
-        {
-            var data = GameManager.Data;
-            data.AddPath(typeof(EntryEntityShip), ShipFramePath);
-            data.AddPath(typeof(EntryShipEngine), ShipEnginePath);
-            data.AddPath(typeof(EntryEntityBullet), BulletPath);
-            data.AddPath(typeof(EntryShipWeapon), ShipWeaponPath);
-        }
+        private static void OnGamePreInit() { }
 
         private void OnGameInit()
         {

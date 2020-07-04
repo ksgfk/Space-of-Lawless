@@ -63,8 +63,19 @@ namespace KSGFK
 
         public void Request(IAsyncHandleWrapper wrapper)
         {
-            if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能添加请求");
-            _requestQueue.Enqueue(wrapper);
+            if (nowState != LoadState.Ready)
+            {
+                if (nowState != LoadState.Working)
+                {
+                    throw new InvalidOperationException("准备,工作状态才能添加请求");
+                }
+
+                _requestQueue.Enqueue(wrapper);
+            }
+            else
+            {
+                _requestQueue.Enqueue(wrapper);
+            }
         }
 
         public void Work()

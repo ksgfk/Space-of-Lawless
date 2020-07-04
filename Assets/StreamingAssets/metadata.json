@@ -1,0 +1,26 @@
+{
+  "EntityInfo": [
+    {
+      "Path": "entity_ship.csv",
+      "Type": "KSGFK.EntryEntityShip"
+    },
+    {
+      "Path": "entity_bullet.csv",
+      "Type": "KSGFK.EntryEntityBullet"
+    },
+    {
+      "Path": "ship_engine.csv",
+      "Type": "KSGFK.EntryShipEngine"
+    },
+    {
+      "Path": "ship_weapon.csv",
+      "Type": "KSGFK.EntryShipWeapon"
+    }
+  ],
+  "JobInfo": [
+    {
+      "Path": "job.csv",
+      "Type": "KSGFK.EntryJob"
+    }
+  ]
+}

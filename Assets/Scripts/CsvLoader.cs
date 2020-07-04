@@ -12,14 +12,12 @@ namespace KSGFK
 {
     public class CsvLoader : DataLoader
     {
-        private readonly MonoBehaviour _holder;
         protected readonly Dictionary<Type, Func<string, object>> parsers;
 
         public Dictionary<Type, Func<string, object>> Parser => parsers;
 
-        public CsvLoader(MonoBehaviour holder)
+        public CsvLoader()
         {
-            _holder = holder;
             parsers = new Dictionary<Type, Func<string, object>>
             {
                 {typeof(string), str => str},
@@ -56,12 +54,13 @@ namespace KSGFK
         public override IAsyncHandleWrapper StartLoad(Type type, string path)
         {
             var task = Read(type, path);
-            return new CsvLoaderWrapper(_holder, task, path);
+            return new CsvLoaderWrapper(task, path);
         }
 
         private async Task<IEnumerable<object>> Read(Type type, string path)
         {
-            var fields = type.GetAllInheritedFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var fields =
+                type.GetAllInheritedFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var fieldsDict = fields.ToDictionary(fieldInfo => fieldInfo.Name);
             using (var reader = new StreamReader(path, Encoding.UTF8))
             {
@@ -131,27 +130,16 @@ namespace KSGFK
     {
         private readonly string _path;
         private readonly Type _dataType;
-        private IEnumerable<object> _result;
+        private readonly Task<IEnumerable<object>> _result;
 
-        public bool IsDone { get; private set; }
+        public bool IsDone => _result.IsCompleted;
 
-        internal CsvLoaderWrapper(MonoBehaviour holder, Task<IEnumerable<object>> task, string path)
+        internal CsvLoaderWrapper(Task<IEnumerable<object>> task, string path)
         {
             _path = path;
-            holder.StartCoroutine(CheckIsDone(task));
+            _result = task;
         }
 
-        public void OnComplete() { GameManager.Data.DataDict.Add(_path, _result.ToArray()); }
-
-        private IEnumerator CheckIsDone(Task<IEnumerable<object>> task)
-        {
-            while (!task.IsCompleted)
-            {
-                yield return null;
-            }
-
-            IsDone = true;
-            _result = task.Result;
-        }
+        public void OnComplete() { GameManager.Data.DataDict.Add(_path, _result.Result.ToArray()); }
     }
 }

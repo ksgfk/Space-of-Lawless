@@ -10,11 +10,13 @@ namespace KSGFK
 
         private CharacterController2D _cc2d;
         private Rigidbody2D _rigid;
+        private Camera _cam;
 
         private void Awake()
         {
             _cc2d = GetComponent<CharacterController2D>();
             _rigid = GetComponent<Rigidbody2D>();
+            _cam = Camera.main;
         }
 
         private void Update()
@@ -40,8 +42,10 @@ namespace KSGFK
                 m.x = 1;
             }
 
+            var worldPos = (Vector2) _cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            var r = MathExt.FromToRotation(Vector3.up, worldPos - (Vector2) transform.position);
             var deltaTime = Time.deltaTime;
-            _cc2d.Move(MathExt.DumpMove(_rigid.velocity, in m, moveDump, deltaTime) * deltaTime);
+            _cc2d.Move(MathExt.DumpMove(_rigid.velocity, r * m * moveSpeed, moveDump, deltaTime) * deltaTime);
         }
     }
 }

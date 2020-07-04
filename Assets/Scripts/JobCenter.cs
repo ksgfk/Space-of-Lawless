@@ -20,7 +20,7 @@ namespace KSGFK
             GameManager.Instance.Init += OnGameInit;
         }
 
-        private static void OnGamePerInit() { GameManager.Data.AddPath(typeof(EntryJob), JobInfoPath); }
+        private static void OnGamePerInit() { }
 
         private void OnGameInit()
         {

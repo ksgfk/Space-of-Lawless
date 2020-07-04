@@ -41,3 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Tile
+    uniqueID: 530500451
+    locked: 0
+  - name: Entity
+    uniqueID: 2202423109
+    locked: 0
+  - name: Wall
+    uniqueID: 2130641285
+    locked: 0

@@ -16,7 +16,7 @@ namespace KSGFK
         Pause,
         Exit
     }
-    
+
     public class GameManager : MonoBehaviour
     {
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
@@ -31,6 +31,7 @@ namespace KSGFK
         public static PoolCenter Pool => Instance._pool;
         public static Canvas UiCanvas => Instance.uiCanvas;
         public static GameState NowState => Instance.nowState;
+        public static GameMetaData MetaData => Instance._meta;
 
         [SerializeField] private GameState nowState = GameState.PreInit;
         [SerializeField] private AssetReference playerInputAddr = null;
@@ -44,6 +45,7 @@ namespace KSGFK
         private InputCenter _input;
         [SerializeField] private InputActionAsset playerInput = null;
         private PoolCenter _pool;
+        private GameMetaData _meta;
 
         /// <summary>
         /// 读取游戏数据
@@ -69,12 +71,19 @@ namespace KSGFK
                 DontDestroyOnLoad(gameObject);
             }
 
+            using (var reader = new StreamReader(Path.Combine(Application.streamingAssetsPath, "metadata.json")))
+            {
+                var str = reader.ReadToEnd();
+                _meta = JsonUtility.FromJson<GameMetaData>(str);
+            }
+
             _load = GetComponent<LoadManager>();
             _job = new JobCenter();
             _data = new DataCenter();
             _pool = new PoolCenter();
-            _data.AddDataLoader("WindowsPlayer.csv", new CsvLoader(this));
+            _data.AddDataLoader("WindowsPlayer.csv", new CsvLoader());
             _entity = GetComponent<EntityManager>();
+            AddAllDataPath();
 
             InvokePerInit();
         }
@@ -140,6 +149,39 @@ namespace KSGFK
             var req = playerInputAddr.LoadAssetAsync<InputActionAsset>();
             req.Completed += request => playerInput = request.Result;
             _load.Request(req);
+        }
+
+        private void AddAllDataPath()
+        {
+            foreach (var entityInfo in _meta.EntityInfo)
+            {
+                try
+                {
+                    _data.AddPath(Type.GetType(entityInfo.Type),
+                        Path.Combine(Application.streamingAssetsPath,
+                            "Data",
+                            entityInfo.Path));
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+            }
+
+            foreach (var jobInfo in _meta.JobInfo)
+            {
+                try
+                {
+                    _data.AddPath(Type.GetType(jobInfo.Type),
+                        Path.Combine(Application.streamingAssetsPath,
+                            "Data",
+                            jobInfo.Path));
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+            }
         }
 
         private void OnDestroy() { _job.Dispose(); }
