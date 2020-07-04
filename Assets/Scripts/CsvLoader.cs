@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +9,9 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    /// <summary>
+    /// TODO:自定义特性注入,而不是反射所有字段
+    /// </summary>
     public class CsvLoader : DataLoader
     {
         protected readonly Dictionary<Type, Func<string, object>> parsers;

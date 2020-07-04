@@ -55,31 +55,16 @@ namespace KSGFK
             return list;
         }
 
-        public static void OnInputCallbackFireStart(this ShipModuleWeapon weapon, InputAction.CallbackContext ctx)
-        {
-            weapon.CanFire = true;
-        }
-
-        public static void OnInputCallbackFireCancel(this ShipModuleWeapon weapon, InputAction.CallbackContext ctx)
-        {
-            weapon.CanFire = false;
-        }
-
-        public static void OnInputCallbackJobMove(this ShipModuleEngine job, InputAction.CallbackContext ctx)
-        {
-            job.MoveDirection(ctx.ReadValue<Vector2>());
-        }
-
-        public static void OnInputCallbackShipEngineRotate(
-            this ShipModuleEngine engine,
-            InputAction.CallbackContext ctx)
-        {
-            var r = ctx.ReadValue<Vector2>();
-            r = GameManager.MainCamera.ScreenToWorldPoint(r);
-            var pos = (Vector2) engine.BaseShip.transform.position;
-            r -= pos;
-            engine.RotateDelta(r);
-        }
+        // public static void OnInputCallbackShipEngineRotate(
+        //     this ShipModuleEngine engine,
+        //     InputAction.CallbackContext ctx)
+        // {
+        //     var r = ctx.ReadValue<Vector2>();
+        //     r = GameManager.MainCamera.ScreenToWorldPoint(r);
+        //     var pos = (Vector2) engine.BaseShip.transform.position;
+        //     r -= pos;
+        //     engine.RotateDelta(r);
+        // }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ToVec3(this Vector2 vec2, float z) { return new Vector3(vec2.x, vec2.y, z); }

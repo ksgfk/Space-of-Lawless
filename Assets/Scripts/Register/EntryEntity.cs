@@ -2,9 +2,15 @@ namespace KSGFK
 {
     public abstract class EntryEntity : EntryIdentity<Entity>
     {
+        /// <summary>
+        /// 实例化实体时调用
+        /// </summary>
         protected abstract Entity SpawnEntity();
 
-        protected abstract void DestroyEntity(Entity instance);
+        /// <summary>
+        /// 销毁实体时调用
+        /// </summary>
+        protected virtual void DestroyEntity(Entity instance) { base.Destroy(instance); }
 
         protected sealed override Entity InstantiateBehavior()
         {
@@ -13,7 +19,7 @@ namespace KSGFK
             return result;
         }
 
-        public override void Destroy(Entity instance)
+        public sealed override void Destroy(Entity instance)
         {
             instance.OnRemoveFromWorld();
             DestroyEntity(instance);

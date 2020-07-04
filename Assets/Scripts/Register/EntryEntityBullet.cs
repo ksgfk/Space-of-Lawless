@@ -38,7 +38,7 @@ namespace KSGFK
             return result;
         }
 
-        protected override void DestroyEntity(Entity instance)
+        protected sealed override void DestroyEntity(Entity instance)
         {
             var bullet = (EntityBullet) instance;
             if (PoolCount < 0)

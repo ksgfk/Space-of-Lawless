@@ -19,12 +19,18 @@ namespace KSGFK
 
         public abstract void PerProcess();
 
-        public abstract void Process();
+        public virtual void Process() { }
 
         public abstract bool Check(out string info);
 
+        /// <summary>
+        /// 实例化注册项的行为
+        /// </summary>
         protected abstract T InstantiateBehavior();
 
+        /// <summary>
+        /// 实例化注册项
+        /// </summary>
         public T Instantiate()
         {
             var result = InstantiateBehavior();
@@ -32,6 +38,10 @@ namespace KSGFK
             return result;
         }
 
+        /// <summary>
+        /// 销毁注册项实例
+        /// </summary>
+        /// <param name="instance"></param>
         public virtual void Destroy(T instance) { UnityEngine.Object.Destroy(instance.gameObject); }
     }
 }

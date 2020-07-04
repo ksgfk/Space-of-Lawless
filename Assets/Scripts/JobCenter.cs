@@ -9,8 +9,6 @@ namespace KSGFK
 {
     public class JobCenter : IDisposable
     {
-        public static readonly string JobInfoPath = Path.Combine(GameManager.DataRoot, "job.csv");
-
         private RegistryImpl<EntryJob> _jobInfo;
         private List<IJobWrapper> _jobList;
 
@@ -25,9 +23,12 @@ namespace KSGFK
         private void OnGameInit()
         {
             _jobInfo = new RegistryImpl<EntryJob>("job");
-            foreach (var jobInfo in GameManager.Data.Query<EntryJob>(JobInfoPath))
+            foreach (var jobInfo in GameManager.MetaData.JobInfo)
             {
-                _jobInfo.Register(jobInfo);
+                foreach (var job in GameManager.Data.Query<EntryJob>(GameManager.GetDataPath(jobInfo.Path)))
+                {
+                    _jobInfo.Register(job);
+                }
             }
 
             _jobList = _jobInfo.Select(info =>

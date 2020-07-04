@@ -10,7 +10,7 @@ namespace KSGFK
         public static bool CheckResource(UnityEngine.Object asset, string addr, out string info)
         {
             bool result;
-            string mInfo = null;
+            var mInfo = string.Empty;
             if (asset)
             {
                 result = true;
@@ -19,6 +19,24 @@ namespace KSGFK
             {
                 mInfo = $"未成功加载资源{addr},忽略";
                 result = false;
+            }
+
+            info = mInfo;
+            return result;
+        }
+
+        public static bool CheckComponent<T>(GameObject go, out string info) where T : Component
+        {
+            bool result;
+            var mInfo = string.Empty;
+            if (go.TryGetComponent<T>(out _))
+            {
+                result = true;
+            }
+            else
+            {
+                result = false;
+                mInfo = $"GO{go.name}不存在{typeof(T).FullName}组件";
             }
 
             info = mInfo;

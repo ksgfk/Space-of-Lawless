@@ -23,7 +23,12 @@ namespace KSGFK
         public static GameManager Instance { get; private set; }
         public static LoadManager Load => Instance._load;
         public static JobCenter Job => Instance._job;
+
+        /// <summary>
+        /// 生命周期于PostInit事件发布后截至
+        /// </summary>
         public static DataCenter Data => Instance._data;
+
         public static Camera MainCamera => Instance.mainCamera;
         public static InputActionAsset InputAsset => Instance.playerInput;
         public static EntityManager Entity => Instance._entity;
@@ -142,6 +147,7 @@ namespace KSGFK
             PerInit = null;
             Init = null;
             PostInit = null;
+            _data = null;
         }
 
         private void LoadPlayerInput()
@@ -185,5 +191,7 @@ namespace KSGFK
         }
 
         private void OnDestroy() { _job.Dispose(); }
+
+        public static string GetDataPath(string fileName) { return Path.Combine(DataRoot, fileName); }
     }
 }
