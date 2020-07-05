@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    /// <summary>
+    /// 数据中心，储存所有原始数据
+    /// </summary>
     public class DataCenter
     {
         private readonly Dictionary<string, IReadOnlyList<object>> _data;
@@ -21,11 +24,11 @@ namespace KSGFK
             _tempDataPath = new List<(string, Type)>();
         }
 
-        public void AddDataLoader(string fileExt, DataLoader loader)
+        public void AddDataLoader(DataLoader loader)
         {
             try
             {
-                _loaders.Add(fileExt, loader);
+                _loaders.Add($"{loader.Platform}.{loader.FileExt}", loader);
             }
             catch (Exception e)
             {
@@ -35,12 +38,14 @@ namespace KSGFK
 
         public DataLoader GetDataLoader(string fileExt) { return _loaders[fileExt]; }
 
+        /// <summary>
+        /// 开始加载所有被添加的数据路径
+        /// </summary>
         public void StartLoad()
         {
             var load = GameManager.Load;
             load.Complete += () =>
             {
-                Debug.LogFormat("load data complete");
                 foreach (var kv in _data)
                 {
                     Debug.LogFormat("[Count:{0}][Path:{1}]", kv.Value.Count, kv.Key);
@@ -62,7 +67,7 @@ namespace KSGFK
 
                 try
                 {
-                    var wrapper = loader.StartLoad(type, path);
+                    var wrapper = loader.StartLoad(type, path, _data);
                     load.Request(wrapper);
                 }
                 catch (Exception e)
@@ -74,8 +79,18 @@ namespace KSGFK
             _tempDataPath = null;
         }
 
+        /// <summary>
+        /// 添加一个数据路径
+        /// </summary>
+        /// <param name="dataType">数据类型</param>
+        /// <param name="path">路径</param>
         public void AddPath(Type dataType, string path) { _tempDataPath.Add((path, dataType)); }
 
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        /// <param name="path">路径</param>
+        /// <typeparam name="T">数据类型</typeparam>
         public IEnumerable<T> Query<T>(string path)
         {
             IEnumerable<object> enumerable;

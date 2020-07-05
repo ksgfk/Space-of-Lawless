@@ -48,4 +48,5 @@ sysinfo.txt
 crashlytics-build.properties
 
 .idea/
-Plugins/
+Demigiant/
+Demigiant.meta

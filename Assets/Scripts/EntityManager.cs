@@ -19,18 +19,15 @@ namespace KSGFK
         {
             _entity = new StageRegistry<EntryEntity>("entity");
             _active = new LinkedList<Entity>();
-            GameManager.Instance.PerInit += OnGamePreInit;
             GameManager.Instance.Init += OnGameInit;
             GameManager.Instance.PostInit += OnGamePostInit;
         }
-
-        private static void OnGamePreInit() { }
 
         private void OnGameInit()
         {
             foreach (var info in GameManager.MetaData.EntityInfo)
             {
-                var it = GameManager.Data.Query<EntryEntity>(GameManager.GetDataPath(info.Path));
+                var it = GameManager.TempData.Query<EntryEntity>(GameManager.GetDataPath(info.Path));
                 try
                 {
                     foreach (var entity in it)

@@ -1,6 +1,8 @@
 namespace KSGFK
 {
-    
+    /// <summary>
+    /// 可阶段性处理的注册项
+    /// </summary>
     public interface IStageProcessEntry : IRegisterEntry
     {
         /// <summary>

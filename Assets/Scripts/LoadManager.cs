@@ -59,7 +59,7 @@ namespace KSGFK
             Request((AsyncOperationHandle) handle);
         }
 
-        public void Request(AsyncOperationHandle handle) { Request(new AddrAsyncWrapper(handle)); }
+        public void Request(AsyncOperationHandle handle) { Request(new AddrLoadWrapper(handle)); }
 
         public void Request(IAsyncHandleWrapper wrapper)
         {

@@ -1,5 +1,8 @@
 namespace KSGFK
 {
+    /// <summary>
+    /// 注册项
+    /// </summary>
     public interface IRegisterEntry
     {
         /// <summary>

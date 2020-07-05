@@ -25,7 +25,7 @@ namespace KSGFK
             _jobInfo = new RegistryImpl<EntryJob>("job");
             foreach (var jobInfo in GameManager.MetaData.JobInfo)
             {
-                foreach (var job in GameManager.Data.Query<EntryJob>(GameManager.GetDataPath(jobInfo.Path)))
+                foreach (var job in GameManager.TempData.Query<EntryJob>(GameManager.GetDataPath(jobInfo.Path)))
                 {
                     _jobInfo.Register(job);
                 }
@@ -92,6 +92,11 @@ namespace KSGFK
 
         public void Dispose()
         {
+            if (_jobList == null)
+            {
+                return;
+            }
+
             foreach (var job in _jobList)
             {
                 job.Dispose();

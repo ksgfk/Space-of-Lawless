@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -69,6 +72,20 @@ namespace KSGFK
             }
 
             return arr;
+        }
+
+        public static IEnumerable<FieldInfo> GetReflectionInjectFields(Type type)
+        {
+            if (type.GetCustomAttribute<SerializableAttribute>() == null)
+            {
+                throw new ArgumentException(string.Format("拥有{0}特性的类型才能获取拥有{1}特性的字段",
+                    nameof(SerializableAttribute),
+                    nameof(ReflectionInjectAttribute)));
+            }
+
+            return from info in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                where info.GetCustomAttribute<ReflectionInjectAttribute>() != null
+                select info;
         }
     }
 }

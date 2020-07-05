@@ -1,5 +1,8 @@
 namespace KSGFK
 {
+    /// <summary>
+    /// 实体注册项基类
+    /// </summary>
     public abstract class EntryEntity : EntryIdentity<Entity>
     {
         /// <summary>

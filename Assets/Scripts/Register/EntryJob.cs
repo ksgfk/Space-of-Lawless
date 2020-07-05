@@ -1,10 +1,13 @@
+using System;
+
 namespace KSGFK
 {
+    [Serializable]
     public class EntryJob : IRegisterEntry
     {
         private int _runtimeId = int.MinValue;
-        private string name = null;
-        private string full_type_name = null;
+        [ReflectionInject] private string name = null;
+        [ReflectionInject] private string full_type_name = null;
 
         public int RuntimeId
         {

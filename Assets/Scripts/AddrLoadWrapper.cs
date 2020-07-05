@@ -2,13 +2,16 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace KSGFK
 {
-    public class AddrAsyncWrapper : IAsyncHandleWrapper
+    /// <summary>
+    /// Addressables异步请求的包装
+    /// </summary>
+    public class AddrLoadWrapper : IAsyncHandleWrapper
     {
         public AsyncOperationHandle Handle { get; }
 
         public bool IsDone => Handle.IsDone;
 
-        public AddrAsyncWrapper(AsyncOperationHandle handle) { Handle = handle; }
+        public AddrLoadWrapper(AsyncOperationHandle handle) { Handle = handle; }
 
         public void OnComplete() { }
     }

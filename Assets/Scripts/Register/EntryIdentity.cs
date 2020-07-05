@@ -1,18 +1,21 @@
 using System;
-using UnityEngine;
+using CsvHelper.Configuration.Attributes;
 
 namespace KSGFK
 {
+    /// <summary>
+    /// 继承自Mono的注册项基类
+    /// </summary>
     [Serializable]
     public abstract class EntryIdentity<T> : IStageProcessEntry where T : IdentityObject
     {
-        [SerializeField] private int runtimeId = int.MinValue;
-        [SerializeField] private string name = null;
+        private int _runtimeId = int.MinValue;
+        [ReflectionInject] protected string name = null;
 
         public int RuntimeId
         {
-            get => runtimeId;
-            set => runtimeId = Helper.SingleAssign(value, runtimeId != int.MinValue);
+            get => _runtimeId;
+            set => _runtimeId = Helper.SingleAssign(value, _runtimeId != int.MinValue);
         }
 
         public string RegisterName => name;

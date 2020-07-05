@@ -25,9 +25,10 @@ namespace KSGFK
         public static JobCenter Job => Instance._job;
 
         /// <summary>
+        /// 游戏初始化时暂时的数据存放点
         /// 生命周期于PostInit事件发布后截至
         /// </summary>
-        public static DataCenter Data => Instance._data;
+        public static DataCenter TempData => Instance._data;
 
         public static Camera MainCamera => Instance.mainCamera;
         public static InputActionAsset InputAsset => Instance.playerInput;
@@ -86,7 +87,7 @@ namespace KSGFK
             _job = new JobCenter();
             _data = new DataCenter();
             _pool = new PoolCenter();
-            _data.AddDataLoader("WindowsPlayer.csv", new CsvLoader());
+            _data.AddDataLoader(new CsvWinLoader());
             _entity = GetComponent<EntityManager>();
             AddAllDataPath();
 

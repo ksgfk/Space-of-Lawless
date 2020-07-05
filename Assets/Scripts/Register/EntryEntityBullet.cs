@@ -6,16 +6,16 @@ namespace KSGFK
     [Serializable]
     public class EntryEntityBullet : EntryEntity
     {
-        [SerializeField] private string addr = null;
-        [SerializeField] private int pool_count = -1;
-        [SerializeField] private GameObject asset;
-        [SerializeField] private int poolId;
+        [ReflectionInject] private string addr = null;
+        [ReflectionInject] private int pool_count = -1;
+        private GameObject _asset;
+        private int _poolId;
 
         public string Addr => addr;
         public int PoolCount => pool_count;
-        public int PoolId => poolId;
+        public int PoolId => _poolId;
 
-        public GameObject Asset { get => asset; set => asset = Helper.SingleAssign(value, asset && value); }
+        public GameObject Asset { get => _asset; set => _asset = Helper.SingleAssign(value, _asset && value); }
 
         protected override Entity SpawnEntity()
         {
@@ -69,7 +69,7 @@ namespace KSGFK
                 return;
             }
 
-            poolId = GameManager.Pool.Allocate(Asset, RegisterName, PoolCount, newId => poolId = newId);
+            _poolId = GameManager.Pool.Allocate(Asset, RegisterName, PoolCount, newId => _poolId = newId);
         }
 
         public override bool Check(out string info)
