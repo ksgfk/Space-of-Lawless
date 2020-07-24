@@ -164,10 +164,7 @@ namespace KSGFK
             {
                 try
                 {
-                    _data.AddPath(Type.GetType(entityInfo.Type),
-                        Path.Combine(Application.streamingAssetsPath,
-                            "Data",
-                            entityInfo.Path));
+                    _data.AddPath(Type.GetType(entityInfo.Type), GetDataPath(entityInfo.Path));
                 }
                 catch (Exception e)
                 {
@@ -179,10 +176,7 @@ namespace KSGFK
             {
                 try
                 {
-                    _data.AddPath(Type.GetType(jobInfo.Type),
-                        Path.Combine(Application.streamingAssetsPath,
-                            "Data",
-                            jobInfo.Path));
+                    _data.AddPath(Type.GetType(jobInfo.Type), GetDataPath(jobInfo.Path));
                 }
                 catch (Exception e)
                 {

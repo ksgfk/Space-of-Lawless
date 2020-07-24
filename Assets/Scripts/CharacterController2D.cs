@@ -2,20 +2,22 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    /// <summary>
-    /// TODO:RaycastCommand
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class CharacterController2D : MonoBehaviour
     {
         public LayerMask collideMask;
-        [Range(0.1f, float.MaxValue)] public float rayLength = 1;
+        [Range(0.1f, 15)] public float rayLength = 1;
         [Range(2, 10)] public int rayCount = 2;
-        public float minSpeed = 0.00001f;
+        [Range(0, 25)] public float maxVelocity = 2;
+        public float acceleration = 5;
+        [Range(0, 100)] public float dumpForce = 1;
 
         private Rigidbody2D _rigid;
         private Collider2D _coll;
-        [SerializeField] private Vector2 _translation;
+        [SerializeField] private Vector2 _velocity;
+        private bool _isSpeedUp;
+
+        public Vector2 Velocity => _velocity;
 
         private void Awake()
         {
@@ -26,91 +28,125 @@ namespace KSGFK
             _rigid.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
-            MoveHorizontal();
-            MoveVertical();
-            var fixedTime = Time.fixedDeltaTime;
-            if (!fixedTime.IsZero())
-            {
-                var velocity = _translation / fixedTime;
-                if (Mathf.Abs(velocity.x) < minSpeed)
-                {
-                    velocity.x = 0f;
-                }
-
-                if (Mathf.Abs(velocity.y) < minSpeed)
-                {
-                    velocity.y = 0f;
-                }
-
-                _rigid.velocity = velocity;
-            }
-
-            _translation = Vector2.zero;
-        }
-
-        public void Move(Vector2 translation) { _translation += translation; }
-
-        private void MoveHorizontal()
-        {
-            if (_translation.x.IsZero())
+            var fixedTime = Time.deltaTime;
+            if (fixedTime.IsZero())
             {
                 return;
             }
 
-            var border = _coll.bounds;
-            var leftUp = new Vector2(border.min.x, border.max.y);
-            var rightDown = new Vector2(border.max.x, border.min.y);
-            var isLeft = _translation.x < 0;
-            var startX = isLeft ? leftUp.x : rightDown.x;
-            var dir = isLeft ? Vector2.left : Vector2.right;
-            var perRayInterval = (leftUp.y - rightDown.y) / (rayCount - 1);
-            for (var i = 0; i < rayCount; i++)
+            var move = _velocity * fixedTime;
+            MoveDetect(ref move);
+            transform.position += (Vector3) move;
+            if (_isSpeedUp)
             {
-                var startPos = new Vector2(startX, rightDown.y + perRayInterval * i);
-                var ray = Physics2D.Raycast(startPos, dir, rayLength, collideMask);
-                Helper.DrawRay(startPos, dir * rayLength, Color.red);
-                if (!ray)
+                _isSpeedUp = false;
+            }
+            else
+            {
+                _velocity = Vector2.Lerp(move / fixedTime, Vector2.zero, fixedTime * dumpForce);
+            }
+
+            MathExt.SetSmallValZero(ref _velocity);
+        }
+
+        public void Move(Vector2 direction)
+        {
+            var deltaTime = Time.deltaTime;
+            var tryAddV = _velocity + direction * (acceleration * deltaTime);
+            if (tryAddV.magnitude > maxVelocity)
+            {
+                _velocity = tryAddV.normalized * maxVelocity;
+            }
+            else
+            {
+                _velocity = tryAddV;
+            }
+
+            _isSpeedUp = true;
+        }
+
+        private unsafe void MoveDetect(ref Vector2 deltaMove)
+        {
+            var ray = stackalloc RaycastHit2D[rayCount * 2];
+            var bounds = _coll.bounds;
+            var min = bounds.min;
+            var max = bounds.max;
+            var aabb = new Vector4(min.x, max.y, max.x, min.y);
+            RayCastHorizontal(in aabb, in deltaMove, ray, out var horDir);
+            RayCastVertical(in aabb, in deltaMove, ray, out var verDir);
+            var trans = transform;
+            for (var i = 0; i < rayCount * 2; i++)
+            {
+                var result = ray + i;
+                if (!result->collider)
                 {
                     continue;
                 }
 
-                if (ray.distance <= Mathf.Abs(_translation.x))
+                if (result->transform == trans)
                 {
-                    _translation.x = (ray.distance - 0.001f) * dir.x;
+                    continue;
+                }
+
+                var part = i < rayCount;
+                var dis = Mathf.Abs(part ? deltaMove.x : deltaMove.y);
+                var rayDis = result->distance;
+                if (rayDis > dis)
+                {
+                    continue;
+                }
+
+                var newT = rayDis - 0.001f;
+                if (part)
+                {
+                    deltaMove.x = newT * horDir.x;
+                }
+                else
+                {
+                    deltaMove.y = newT * verDir.y;
                 }
             }
         }
 
-        private void MoveVertical()
+        private unsafe void RayCastHorizontal(in Vector4 aabb, in Vector2 deltaMove, RaycastHit2D* arr, out Vector2 dir)
         {
-            if (_translation.y.IsZero())
+            if (deltaMove.x.IsZero())
             {
+                dir = Vector2.zero;
                 return;
             }
 
-            var border = _coll.bounds;
-            var leftUp = new Vector2(border.min.x, border.max.y);
-            var rightDown = new Vector2(border.max.x, border.min.y);
-            var isDown = _translation.y < 0;
-            var dir = isDown ? Vector2.down : Vector2.up;
-            var startY = isDown ? rightDown.y : leftUp.y;
-            var perRayInterval = (rightDown.x - leftUp.x) / (rayCount - 1);
+            var isLeft = deltaMove.x < 0;
+            var startX = isLeft ? aabb.x : aabb.z;
+            dir = isLeft ? Vector2.left : Vector2.right;
+            var perRayInterval = (aabb.y - aabb.w) / (rayCount - 1);
             for (var i = 0; i < rayCount; i++)
             {
-                var startPos = new Vector2(leftUp.x + perRayInterval * i, startY);
-                var ray = Physics2D.Raycast(startPos, dir, rayLength, collideMask);
+                var startPos = new Vector2(startX, aabb.w + perRayInterval * i);
+                arr[i] = Physics2D.Raycast(startPos, dir, rayLength, collideMask);
                 Helper.DrawRay(startPos, dir * rayLength, Color.red);
-                if (!ray)
-                {
-                    continue;
-                }
+            }
+        }
 
-                if (ray.distance <= Mathf.Abs(_translation.y))
-                {
-                    _translation.y = (ray.distance - 0.001f) * dir.y;
-                }
+        private unsafe void RayCastVertical(in Vector4 aabb, in Vector2 deltaMove, RaycastHit2D* arr, out Vector2 dir)
+        {
+            if (deltaMove.y.IsZero())
+            {
+                dir = Vector2.zero;
+                return;
+            }
+
+            var isDown = deltaMove.y < 0;
+            dir = isDown ? Vector2.down : Vector2.up;
+            var startY = isDown ? aabb.w : aabb.y;
+            var perRayInterval = (aabb.z - aabb.x) / (rayCount - 1);
+            for (var i = 0; i < rayCount; i++)
+            {
+                var startPos = new Vector2(aabb.x + perRayInterval * i, startY);
+                arr[i + rayCount] = Physics2D.Raycast(startPos, dir, rayLength, collideMask);
+                Helper.DrawRay(startPos, dir * rayLength, Color.red);
             }
         }
     }

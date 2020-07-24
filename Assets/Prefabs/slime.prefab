@@ -10,8 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1509282955097764092}
   - component: {fileID: 8414444806684423218}
+  - component: {fileID: 5432443742517121405}
   - component: {fileID: 5080223789682851331}
-  - component: {fileID: 3265263654016879481}
+  - component: {fileID: 1369153154782787185}
+  - component: {fileID: 6686406887708687534}
   m_Layer: 8
   m_Name: slime
   m_TagString: Untagged
@@ -83,6 +85,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!50 &5432443742517121405
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6681522160728325772}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0.5
+  m_AngularDrag: 0
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
 --- !u!58 &5080223789682851331
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -99,7 +122,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.39
---- !u!114 &3265263654016879481
+--- !u!114 &1369153154782787185
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -112,4 +135,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runtimeId: -1
-  _maxHealth: 18446744073709551615
+  maxHealth: 18446744073709551615
+  nowHealth: 0
+--- !u!114 &6686406887708687534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6681522160728325772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b873604bf467429189e7e4e38e1e91ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collideMask:
+    serializedVersion: 2
+    m_Bits: 768
+  rayLength: 1
+  rayCount: 2
+  maxSpeed: 1
+  minSpeed: 0.00001
+  acceleration: 10
+  dumpForce: 1
+  _deltaMovement: {x: 0, y: 0}
+  _velocity: {x: 0, y: 0}

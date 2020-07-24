@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using UnityEngine;
+using static Unity.Mathematics.math;
 
 namespace KSGFK
 {
@@ -35,10 +36,10 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Angle(float3 from, float3 to)
         {
-            var num = math.sqrt(math.lengthsq(from) * (double) math.lengthsq(to));
+            var num = sqrt(lengthsq(from) * (double) lengthsq(to));
             return num < 1.00000000362749E-15
                 ? 0.0f
-                : (float) math.acos(math.clamp(math.dot(@from, to) / num, -1f, 1f)) * UnitRadian2Degree;
+                : (float) acos(clamp(dot(from, to) / num, -1f, 1f)) * UnitRadian2Degree;
         }
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static quaternion FromToRotation(float3 from, float3 to)
         {
-            var axis = math.cross(from, to);
+            var axis = cross(from, to);
             var angle = Angle(from, to);
             return NonInitAxisAngle(axis, angle);
         }
@@ -63,7 +64,7 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static quaternion NonInitAxisAngle(float3 nonNormalAxis, float degree)
         {
-            return quaternion.AxisAngle(math.normalizesafe(nonNormalAxis), degree * UnitDegree2Radian);
+            return Unity.Mathematics.quaternion.AxisAngle(normalizesafe(nonNormalAxis), degree * UnitDegree2Radian);
         }
 
         public static float3 QuaternionMulVec3(quaternion q, float3 point)
@@ -112,7 +113,67 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float2 DumpMove(in float2 origin, in float2 target, float dump, float deltaTime)
         {
-            return math.lerp(origin, target, deltaTime * dump);
+            return lerp(origin, target, deltaTime * dump);
+        }
+
+        /// <summary>
+        /// 绕原点旋转向量
+        /// </summary>
+        /// <param name="raw">需要旋转的向量</param>
+        /// <param name="angle">旋转角度</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Rotate(Vector2 raw, float angle)
+        {
+            sincos(radians(angle), out var sin, out var cos);
+            return Mul(Matrix2X2(cos, -sin, sin, cos), raw);
+        }
+
+        /// <summary>
+        /// 2x2与2x1矩阵乘法
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Mul(Vector4 mat2X2, Vector2 vec2)
+        {
+            return new Vector2(mat2X2.x, mat2X2.z) * vec2.x + new Vector2(mat2X2.y, mat2X2.w) * vec2.y;
+        }
+
+        /// <summary>
+        /// 构造2x2矩阵
+        /// </summary>
+        /// <param name="m00">矩阵中1行1列值</param>
+        /// <param name="m01">矩阵中1行2列值</param>
+        /// <param name="m10">矩阵中2行1列值</param>
+        /// <param name="m11">矩阵中2行2列值</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4 Matrix2X2(float m00, float m01, float m10, float m11)
+        {
+            return new Vector4(m00, m01, m10, m11);
+        }
+
+        /// <summary>
+        /// 坐标系转换，以y轴为基准
+        /// </summary>
+        /// <param name="targetCoord">目标坐标系</param>
+        /// <param name="vec2">需要转换的向量</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 ConvertCoord(Vector2 targetCoord, Vector2 vec2)
+        {
+            var angle = Vector2.SignedAngle(Vector2.up, targetCoord);
+            return Rotate(vec2, angle);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetSmallValZero(ref Vector2 vec2)
+        {
+            if (vec2.x.IsZero())
+            {
+                vec2.x = 0f;
+            }
+
+            if (vec2.y.IsZero())
+            {
+                vec2.y = 0f;
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using CsvHelper.Configuration.Attributes;
 
 namespace KSGFK
 {

@@ -10,8 +10,7 @@ namespace KSGFK
         public Text entityCountTxt;
         private int _lastEntityCount;
         public InputField spawnEntityName;
-        public InputField shipModuleName;
-        public Entity lastSpawn;
+        public Player player;
 
         public void Init() { StartCoroutine(OnUpdate()); }
 
@@ -37,24 +36,34 @@ namespace KSGFK
             }
         }
 
-        private readonly Regex _idNum = new Regex("^[0-9]*$");
+        private readonly Regex _idNum = new Regex(@"^id:[0-9]+$");
 
-        public void OnSpawnEntityBtnPress()
+        private Entity SpawnEntity()
         {
+            var em = GameManager.Entity;
             var txt = spawnEntityName.text;
-            if (_idNum.IsMatch(txt))
-            {
-                GameManager.Entity.SpawnEntity(int.Parse(txt));
-            }
-            else
-            {
-                GameManager.Entity.SpawnEntity(txt);
-            }
+            var e = _idNum.IsMatch(txt) ? em.SpawnEntity(int.Parse(txt.Substring(3))) : em.SpawnEntity(txt);
+            return e;
         }
 
-        public void OnAddShipModuleBtnPress() { }
+        public void OnSpawnEntityBtnPress() { SpawnEntity(); }
 
-        public void OnAsPlayerBtnPress() { }
+        public void OnSpawnPlayerBtnPress()
+        {
+            if (player)
+            {
+                return;
+            }
+
+            var e = SpawnEntity();
+            if (!e)
+            {
+                return;
+            }
+
+            player = e.gameObject.AddComponent<Player>();
+            player.Setup(e);
+        }
 
         public void OnDestroyEntityBtnPress() { }
 
