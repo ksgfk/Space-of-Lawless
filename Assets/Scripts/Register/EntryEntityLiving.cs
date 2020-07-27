@@ -11,7 +11,9 @@ namespace KSGFK
     {
         [ReflectionInject] private string addr = null;
         [ReflectionInject] private ulong max_health = ulong.MinValue;
-        private GameObject _prefab = null;
+        private GameObject _prefab;
+
+        public GameObject Prefab => _prefab;
 
         public override void PerProcess() { GameManager.Load.Request(addr, (GameObject go) => _prefab = go); }
 

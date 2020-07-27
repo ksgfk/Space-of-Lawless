@@ -93,7 +93,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6681522160728325772}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -153,10 +153,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 768
   rayLength: 1
-  rayCount: 2
-  maxSpeed: 1
-  minSpeed: 0.00001
-  acceleration: 10
-  dumpForce: 1
-  _deltaMovement: {x: 0, y: 0}
+  rayCount: 4
+  maxVelocity: 2
+  acceleration: 5
+  dumpForce: 10
   _velocity: {x: 0, y: 0}

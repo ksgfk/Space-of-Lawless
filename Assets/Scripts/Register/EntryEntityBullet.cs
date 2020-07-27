@@ -15,7 +15,7 @@ namespace KSGFK
         public int PoolCount => pool_count;
         public int PoolId => _poolId;
 
-        public GameObject Asset { get => _asset; set => _asset = Helper.SingleAssign(value, _asset && value); }
+        public GameObject Asset { get => _asset; private set => _asset = Helper.SingleAssign(value, _asset && value); }
 
         protected override Entity SpawnEntity()
         {

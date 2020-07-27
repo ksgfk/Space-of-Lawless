@@ -17,6 +17,10 @@ namespace KSGFK
         Exit
     }
 
+    /// <summary>
+    /// TODO:RegisterCenter管理所有注册项
+    /// TODO:World管理场景中实体，而不是用EntityManager
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
