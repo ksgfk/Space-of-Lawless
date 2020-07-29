@@ -5,6 +5,7 @@ namespace KSGFK
     /// <summary>
     /// 活着的,有血量的生物
     /// </summary>
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class EntityLiving : Entity
     {

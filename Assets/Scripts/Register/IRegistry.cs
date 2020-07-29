@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public interface IRegistry<T> where T : IRegisterEntry
+    public interface IRegistry<T> : IEnumerable<T> where T : IRegisterEntry
     {
         string RegistryName { get; }
 
@@ -15,7 +15,7 @@ namespace KSGFK
         void Register(T registerEntry);
     }
 
-    public class RegistryImpl<T> : IRegistry<T>, IEnumerable<T> where T : IRegisterEntry
+    public class RegistryImpl<T> : IRegistry<T> where T : IRegisterEntry
     {
         private readonly List<T> _entries;
         private readonly Dictionary<string, int> _index;

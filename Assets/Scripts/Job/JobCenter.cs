@@ -8,29 +8,18 @@ namespace KSGFK
 {
     public class JobCenter : IDisposable
     {
-        private RegistryImpl<EntryJob> _jobInfo;
+        private readonly GameManager _gm;
         private List<IJobWrapper> _jobList;
 
-        public JobCenter()
+        public JobCenter(GameManager gm)
         {
-            GameManager.Instance.PerInit += OnGamePerInit;
-            GameManager.Instance.Init += OnGameInit;
+            _gm = gm;
+            gm.PostInit += OnGamePostInit;
         }
 
-        private static void OnGamePerInit() { }
-
-        private void OnGameInit()
+        private void OnGamePostInit(GameManager gm)
         {
-            _jobInfo = new RegistryImpl<EntryJob>("job");
-            foreach (var jobInfo in GameManager.MetaData.JobInfo)
-            {
-                foreach (var job in GameManager.TempData.Query<EntryJob>(GameManager.GetDataPath(jobInfo.Path)))
-                {
-                    _jobInfo.Register(job);
-                }
-            }
-
-            _jobList = _jobInfo.Select(info =>
+            _jobList = gm.Register.Job.Select(info =>
                 {
                     var type = Type.GetType(info.FullTypeName);
                     if (type == null)
@@ -61,7 +50,7 @@ namespace KSGFK
 
         public IJobWrapper GetJob(string name)
         {
-            var index = _jobInfo[name];
+            var index = _gm.Register.Job[name];
             return _jobList[index.RuntimeId];
         }
 

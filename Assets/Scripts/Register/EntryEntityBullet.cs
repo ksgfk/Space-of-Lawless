@@ -27,7 +27,7 @@ namespace KSGFK
             }
             else
             {
-                var myPool = GameManager.Pool.Pools[PoolId];
+                var myPool = GameManager.Instance.Pool.Pools[PoolId];
                 var ptr = myPool.Get();
                 var go = myPool.Container[ptr];
                 var b = go.GetComponent<EntityBullet>();
@@ -52,14 +52,14 @@ namespace KSGFK
                     throw new InvalidOperationException($"{RegisterName}:{PoolId}不能回收无id的子弹{instance}");
                 }
 
-                GameManager.Pool.Return(PoolId, bullet.PoolObjectId);
+                GameManager.Instance.Pool.Return(PoolId, bullet.PoolObjectId);
                 bullet.PoolObjectId = -1;
                 bullet.RuntimeId = -1;
                 bullet.Node = null;
             }
         }
 
-        public override void PerProcess() { GameManager.Load.Request<GameObject>(Addr, ass => Asset = ass); }
+        public override void PerProcess() { GameManager.Instance.Load.Request<GameObject>(Addr, ass => Asset = ass); }
 
         public override void Process()
         {
@@ -69,13 +69,13 @@ namespace KSGFK
                 return;
             }
 
-            _poolId = GameManager.Pool.Allocate(Asset, RegisterName, PoolCount, newId => _poolId = newId);
+            _poolId = GameManager.Instance.Pool.Allocate(Asset, RegisterName, PoolCount, newId => _poolId = newId);
         }
 
         public override bool Check(out string info)
         {
             var result = Helper.CheckResource(Asset, Addr, out var reason);
-            if (!GameManager.Pool.IsAllocated(RegisterName))
+            if (!GameManager.Instance.Pool.IsAllocated(RegisterName))
             {
                 reason += $" 未成功分配资源池{RegisterName},忽略";
                 result = false;

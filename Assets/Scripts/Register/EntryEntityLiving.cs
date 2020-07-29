@@ -15,7 +15,7 @@ namespace KSGFK
 
         public GameObject Prefab => _prefab;
 
-        public override void PerProcess() { GameManager.Load.Request(addr, (GameObject go) => _prefab = go); }
+        public override void PerProcess() { GameManager.Instance.Load.Request(addr, (GameObject go) => _prefab = go); }
 
         public override bool Check(out string info)
         {

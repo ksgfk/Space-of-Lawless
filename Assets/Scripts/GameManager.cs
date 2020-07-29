@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -18,30 +21,24 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:RegisterCenter管理所有注册项
     /// TODO:World管理场景中实体，而不是用EntityManager
     /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
         public static GameManager Instance { get; private set; }
-        public static LoadManager Load => Instance._load;
-        public static JobCenter Job => Instance._job;
-
-        /// <summary>
-        /// 游戏初始化时暂时的数据存放点
-        /// 生命周期于PostInit事件发布后截至
-        /// </summary>
-        public static DataCenter TempData => Instance._data;
-
-        public static Camera MainCamera => Instance.mainCamera;
-        public static InputActionAsset InputAsset => Instance.playerInput;
-        public static EntityManager Entity => Instance._entity;
-        public static InputCenter Input => Instance._input;
-        public static PoolCenter Pool => Instance._pool;
-        public static Canvas UiCanvas => Instance.uiCanvas;
-        public static GameState NowState => Instance.nowState;
-        public static MetaData MetaData => Instance._meta;
+        public LoadManager Load => _load;
+        public JobCenter Job => _job;
+        public DataCenter TempData => _data;
+        public Camera MainCamera => mainCamera;
+        public InputActionAsset InputAsset => playerInput;
+        public EntityManager Entity => _entity;
+        public InputCenter Input => _input;
+        public PoolCenter Pool => _pool;
+        public Canvas UiCanvas => uiCanvas;
+        public GameState NowState => nowState;
+        public MetaData MetaData => _meta;
+        public RegisterCenter Register => _register;
 
         [SerializeField] private GameState nowState = GameState.PreInit;
         [SerializeField] private AssetReference playerInputAddr = null;
@@ -56,25 +53,25 @@ namespace KSGFK
         [SerializeField] private InputActionAsset playerInput = null;
         private PoolCenter _pool;
         private MetaData _meta;
+        private RegisterCenter _register;
 
         /// <summary>
         /// 读取游戏数据
         /// </summary>
-        public event Action PerInit;
+        public event Action<GameManager> PerInit;
 
         /// <summary>
         /// 加载所需资源
         /// </summary>
-        public event Action Init;
+        public event Action<GameManager> Init;
 
         /// <summary>
         /// 后期处理
         /// </summary>
-        public event Action PostInit;
+        public event Action<GameManager> PostInit;
 
         private void Awake()
         {
-            // Cursor.visible = false;
             if (!Instance)
             {
                 Instance = this;
@@ -88,12 +85,13 @@ namespace KSGFK
             }
 
             _load = GetComponent<LoadManager>();
-            _job = new JobCenter();
-            _data = new DataCenter();
+            _job = new JobCenter(this);
+            _data = new DataCenter(this);
             _pool = new PoolCenter();
             _data.AddDataLoader(new CsvWinLoader());
             _entity = GetComponent<EntityManager>();
             AddAllDataPath();
+            _register = new RegisterCenter(this);
 
             InvokePerInit();
         }
@@ -120,8 +118,8 @@ namespace KSGFK
         {
             _load.Init();
             _load.Ready();
-            _entity.Init();
-            PerInit?.Invoke();
+            _entity.Init(this);
+            PerInit?.Invoke(this);
             _load.Complete += () => nowState = GameState.Init;
             _data.StartLoad();
             _load.Work();
@@ -132,7 +130,7 @@ namespace KSGFK
             _load.Ready();
             LoadPlayerInput();
             _load.Complete += () => nowState = GameState.PostInit;
-            Init?.Invoke();
+            Init?.Invoke(this);
             _load.Request("panel.debug",
                 (GameObject prefab) =>
                 {
@@ -145,7 +143,7 @@ namespace KSGFK
 
         private void OnInitComplete()
         {
-            PostInit?.Invoke();
+            PostInit?.Invoke(this);
             _input = new InputCenter();
             nowState = GameState.Running;
             _input.Enable();
@@ -164,23 +162,21 @@ namespace KSGFK
 
         private void AddAllDataPath()
         {
-            foreach (var entityInfo in _meta.EntityInfo)
+            var metadataType = typeof(MetaData);
+            var publicFields = metadataType.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            foreach (var field in publicFields.Where(field => field.FieldType == typeof(MetaData.Info[])))
             {
-                try
-                {
-                    _data.AddPath(Type.GetType(entityInfo.Type), GetDataPath(entityInfo.Path));
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
+                AddDataPath((MetaData.Info[]) field.GetValue(_meta));
             }
+        }
 
-            foreach (var jobInfo in _meta.JobInfo)
+        private void AddDataPath(IEnumerable<MetaData.Info> infos)
+        {
+            foreach (var info in infos)
             {
                 try
                 {
-                    _data.AddPath(Type.GetType(jobInfo.Type), GetDataPath(jobInfo.Path));
+                    _data.AddPath(Type.GetType(info.Type), GetDataPath(info.Path));
                 }
                 catch (Exception e)
                 {

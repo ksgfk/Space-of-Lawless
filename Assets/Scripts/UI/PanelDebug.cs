@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -7,6 +8,7 @@ namespace KSGFK
 {
     public class PanelDebug : MonoBehaviour
     {
+        private GameManager _gm;
         public Text entityCountTxt;
         private int _lastEntityCount;
         public InputField spawnEntityName;
@@ -15,16 +17,18 @@ namespace KSGFK
 
         public void Init() { StartCoroutine(OnUpdate()); }
 
+        private void Awake() { _gm = GameManager.Instance; }
+
         private IEnumerator OnUpdate()
         {
             while (true)
             {
-                switch (GameManager.NowState)
+                switch (_gm.NowState)
                 {
                     case GameState.Running:
-                        if (GameManager.Entity.ActiveEntity.Count != _lastEntityCount)
+                        if (_gm.Entity.ActiveEntity.Count != _lastEntityCount)
                         {
-                            _lastEntityCount = GameManager.Entity.ActiveEntity.Count;
+                            _lastEntityCount = _gm.Entity.ActiveEntity.Count;
                             entityCountTxt.text = _lastEntityCount.ToString();
                         }
 
@@ -41,7 +45,7 @@ namespace KSGFK
 
         private Entity SpawnEntity()
         {
-            var em = GameManager.Entity;
+            var em = _gm.Entity;
             var txt = spawnEntityName.text;
             var e = _idNum.IsMatch(txt) ? em.SpawnEntity(int.Parse(txt.Substring(3))) : em.SpawnEntity(txt);
             return e;

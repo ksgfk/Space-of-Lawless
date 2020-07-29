@@ -5,6 +5,7 @@ namespace KSGFK
     /// <summary>
     /// TODO:子弹击中消失要手动移除JobTimingTask的任务
     /// </summary>
+    [DisallowMultipleComponent]
     public class EntityBulletBallistic : EntityBullet
     {
         public string moveJobName = "DefaultMoveWithTrans";
@@ -27,7 +28,7 @@ namespace KSGFK
             trans.position = startPos;
             taskInfo = _taskJob.AddData(new JobTimingTaskInitReq
             {
-                Task = () => GameManager.Entity.DestroyEntity(this),
+                Task = () => GameManager.Instance.Entity.DestroyEntity(this),
                 Duration = duration
             });
         }
@@ -35,8 +36,8 @@ namespace KSGFK
         public override void OnSpawn()
         {
             base.OnSpawn();
-            _moveJob = GameManager.Job.GetJob<JobMoveForTransformInitReq, DataMoveForTransform>(moveJobName);
-            _taskJob = GameManager.Job.GetJob<JobTimingTaskInitReq, float>(taskJobName);
+            _moveJob = GameManager.Instance.Job.GetJob<JobMoveForTransformInitReq, DataMoveForTransform>(moveJobName);
+            _taskJob = GameManager.Instance.Job.GetJob<JobTimingTaskInitReq, float>(taskJobName);
         }
 
         public override void OnRemoveFromWorld()

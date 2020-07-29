@@ -11,14 +11,16 @@ namespace KSGFK
     /// </summary>
     public class DataCenter
     {
+        private readonly GameManager _gm;
         private readonly Dictionary<string, IReadOnlyList<object>> _data;
         private List<(string, Type)> _tempDataPath;
         private readonly Dictionary<string, DataLoader> _loaders;
 
         internal IDictionary<string, IReadOnlyList<object>> DataDict => _data;
 
-        public DataCenter()
+        public DataCenter(GameManager gm)
         {
+            _gm = gm;
             _data = new Dictionary<string, IReadOnlyList<object>>();
             _loaders = new Dictionary<string, DataLoader>();
             _tempDataPath = new List<(string, Type)>();
@@ -43,7 +45,7 @@ namespace KSGFK
         /// </summary>
         public void StartLoad()
         {
-            var load = GameManager.Load;
+            var load = _gm.Load;
             load.Complete += () =>
             {
                 foreach (var kv in _data)

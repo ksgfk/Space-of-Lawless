@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    [DisallowMultipleComponent]
     public class ItemGun : Item
     {
         public Vector2 bulletInitPos;

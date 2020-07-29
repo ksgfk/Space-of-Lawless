@@ -1,60 +1,25 @@
-using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace KSGFK
 {
     public class EntityManager : MonoBehaviour
     {
-        private StageRegistry<EntryEntity> _entity;
+        private GameManager _gm;
         private LinkedList<Entity> _active;
 
-        public IRegistry<EntryEntity> EntityEntry => _entity;
         public ICollection<Entity> ActiveEntity => _active;
 
-        public event Action<IRegistry<EntryEntity>> Register;
-        public event Action PostRegister;
-
-        public void Init()
+        public void Init(GameManager gm)
         {
-            _entity = new StageRegistry<EntryEntity>("entity");
+            _gm = gm;
             _active = new LinkedList<Entity>();
-            GameManager.Instance.Init += OnGameInit;
-            GameManager.Instance.PostInit += OnGamePostInit;
-        }
-
-        private void OnGameInit()
-        {
-            foreach (var info in GameManager.MetaData.EntityInfo)
-            {
-                var it = GameManager.TempData.Query<EntryEntity>(GameManager.GetDataPath(info.Path));
-                try
-                {
-                    foreach (var entity in it)
-                    {
-                        _entity.AddToWaitRegister(entity);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
-            }
-
-            Register?.Invoke(_entity);
-        }
-
-        private void OnGamePostInit()
-        {
-            _entity.RegisterAll();
-            PostRegister?.Invoke();
-            Register = null;
-            PostRegister = null;
         }
 
         public Entity SpawnEntity(int id)
         {
-            var entry = _entity[id];
+            var entry = GetEntry()[id];
             return SpawnEntity(entry);
         }
 
@@ -62,7 +27,7 @@ namespace KSGFK
 
         public Entity SpawnEntity(string registerName)
         {
-            var entry = _entity[registerName];
+            var entry = GetEntry()[registerName];
             return SpawnEntity(entry);
         }
 
@@ -99,9 +64,12 @@ namespace KSGFK
                 return;
             }
 
-            var entry = _entity[entity.RuntimeId];
+            var entry = GetEntry()[entity.RuntimeId];
             _active.Remove(entity.Node);
             entry.Destroy(entity);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IRegistry<EntryEntity> GetEntry() { return _gm.Register.Entity; }
     }
 }

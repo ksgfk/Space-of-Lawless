@@ -19,7 +19,7 @@ namespace KSGFK
         {
             if (moveDir != Vector2.zero)
             {
-                Vector2 targetPos = GameManager.MainCamera.ScreenToWorldPoint(pointerPos);
+                Vector2 targetPos = GameManager.Instance.MainCamera.ScreenToWorldPoint(pointerPos);
                 Vector2 nowPos = player.transform.position;
                 var dir = (targetPos - nowPos).normalized;
                 var result = MathExt.ConvertCoord(dir, moveDir);
@@ -29,7 +29,7 @@ namespace KSGFK
 
         private void OnDestroy()
         {
-            var ctrl = GameManager.Input;
+            var ctrl = GameManager.Instance.Input;
             if (_mouseMove != null)
             {
                 ctrl.Player.Point.performed -= _mouseMove;
@@ -51,7 +51,7 @@ namespace KSGFK
             player = entity;
             if (player.TryGetComponent(out cc2d))
             {
-                var ctrl = GameManager.Input;
+                var ctrl = GameManager.Instance.Input;
                 _mouseMove = MousePos;
                 _playerStartMove = StartMove;
                 _playerStopMove = StopMove;
