@@ -14,5 +14,11 @@
       "Path": "job.csv",
       "Type": "KSGFK.EntryJob"
     }
+  ],
+  "ItemInfo": [
+    {
+      "Path": "item_gun.csv",
+      "Type": "KSGFK.EntryItemGun"
+    }
   ]
 }

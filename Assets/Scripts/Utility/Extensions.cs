@@ -58,6 +58,6 @@ namespace KSGFK
         public static Vector3 ToVec3(this Vector2 vec2, float z) { return new Vector3(vec2.x, vec2.y, z); }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsZero(this float f) { return math.abs(f) <= 0.0000001f; }
+        public static bool IsZero(this float f) { return MathExt.IsEqual(f, 0f); }
     }
 }

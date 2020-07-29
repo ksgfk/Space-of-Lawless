@@ -11,6 +11,7 @@ namespace KSGFK
         private int _lastEntityCount;
         public InputField spawnEntityName;
         public Player player;
+        public InputField createItemName;
 
         public void Init() { StartCoroutine(OnUpdate()); }
 
@@ -68,5 +69,7 @@ namespace KSGFK
         public void OnDestroyEntityBtnPress() { }
 
         public void OnDestroyAllEntityBtnPress() { }
+
+        public void OnCreateItemBtnPress() { }
     }
 }

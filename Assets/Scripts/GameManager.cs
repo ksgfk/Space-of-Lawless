@@ -41,7 +41,7 @@ namespace KSGFK
         public static PoolCenter Pool => Instance._pool;
         public static Canvas UiCanvas => Instance.uiCanvas;
         public static GameState NowState => Instance.nowState;
-        public static GameMetaData MetaData => Instance._meta;
+        public static MetaData MetaData => Instance._meta;
 
         [SerializeField] private GameState nowState = GameState.PreInit;
         [SerializeField] private AssetReference playerInputAddr = null;
@@ -55,7 +55,7 @@ namespace KSGFK
         private InputCenter _input;
         [SerializeField] private InputActionAsset playerInput = null;
         private PoolCenter _pool;
-        private GameMetaData _meta;
+        private MetaData _meta;
 
         /// <summary>
         /// 读取游戏数据
@@ -84,7 +84,7 @@ namespace KSGFK
             using (var reader = new StreamReader(Path.Combine(Application.streamingAssetsPath, "metadata.json")))
             {
                 var str = reader.ReadToEnd();
-                _meta = JsonUtility.FromJson<GameMetaData>(str);
+                _meta = JsonUtility.FromJson<MetaData>(str);
             }
 
             _load = GetComponent<LoadManager>();

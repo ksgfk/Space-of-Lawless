@@ -175,5 +175,8 @@ namespace KSGFK
                 vec2.y = 0f;
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEqual(float val, float tar) { return abs(val - tar) <= 0.0000001f; }
     }
 }

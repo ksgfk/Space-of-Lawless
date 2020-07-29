@@ -1,6 +1,7 @@
 namespace KSGFK
 {
-    public class Item : IdentityObject
+    public abstract class Item : IdentityObject
     {
+        public abstract void OnUse(EntityLiving user);
     }
 }

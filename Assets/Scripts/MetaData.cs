@@ -3,22 +3,23 @@ using System;
 namespace KSGFK
 {
     [Serializable]
-    public class GameMetaData
+    public class MetaData
     {
         [Serializable]
-        public class DataInfo
+        public class Info
         {
             public string Path;
             public string Type;
 
-            public DataInfo(string path, string type)
+            public Info(string path, string type)
             {
                 Path = path;
                 Type = type;
             }
         }
 
-        public DataInfo[] EntityInfo;
-        public DataInfo[] JobInfo;
+        public Info[] EntityInfo;
+        public Info[] JobInfo;
+        public Info[] ItemInfo;
     }
 }

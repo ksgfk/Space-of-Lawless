@@ -21,32 +21,34 @@ MonoBehaviour:
     m_Address: default_ship_action
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: -944628639613478452, guid: 450286639d85b5a45a602661cdbec4ea,
-      type: 3}
-    m_TargetAsset: {fileID: -944628639613478452, guid: 450286639d85b5a45a602661cdbec4ea,
-      type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: a97af05116407f045a870bde147d2843
     m_Address: panel.debug
     m_ReadOnly: 0
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
+  - m_GUID: b4e6ef35c91269e4e99b0355bd3068b4
+    m_Address: item.desert_eagle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 1938431336315197534, guid: b4e6ef35c91269e4e99b0355bd3068b4,
+      type: 3}
+    m_TargetAsset: {fileID: 1938431336315197534, guid: b4e6ef35c91269e4e99b0355bd3068b4,
+      type: 3}
   - m_GUID: c2e187838124b32489defd5b17380f84
     m_Address: entity.slime
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 6681522160728325772, guid: c2e187838124b32489defd5b17380f84,
-      type: 3}
-    m_TargetAsset: {fileID: 6681522160728325772, guid: c2e187838124b32489defd5b17380f84,
-      type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: c81c1236238b285428fab8efdb8ebaf6
     m_Address: entity.bullet_normal
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 529855131050523793, guid: c81c1236238b285428fab8efdb8ebaf6,
-      type: 3}
-    m_TargetAsset: {fileID: 529855131050523793, guid: c81c1236238b285428fab8efdb8ebaf6,
-      type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 328a6f60c8323a446b301c6173e1364f, type: 2}
   m_SchemaSet:

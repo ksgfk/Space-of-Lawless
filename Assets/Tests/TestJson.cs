@@ -19,7 +19,7 @@ namespace Tests
             // var str = JsonUtility.ToJson(o);
             // Debug.Log(str);
 
-            var o = JsonUtility.FromJson<GameMetaData>("{\"DataFiles\":[{\"Path\":\"a\",\"Type\":\"System.String\"}]}");
+            var o = JsonUtility.FromJson<MetaData>("{\"DataFiles\":[{\"Path\":\"a\",\"Type\":\"System.String\"}]}");
             Assert.IsTrue(o.EntityInfo.Length == 1);
         }
     }
