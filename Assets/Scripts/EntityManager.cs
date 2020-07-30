@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace KSGFK
 {
+    [Obsolete]
     public class EntityManager : MonoBehaviour
     {
         private GameManager _gm;

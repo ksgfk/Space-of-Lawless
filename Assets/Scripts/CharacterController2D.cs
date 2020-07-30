@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class CharacterController2D : MonoBehaviour
     {

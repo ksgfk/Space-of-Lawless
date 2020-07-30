@@ -118,5 +118,7 @@ namespace KSGFK
             _requestQueue = null;
             nowState = LoadState.Sleep;
         }
+
+        public bool CanLoad() { return NowState == LoadState.Ready; }
     }
 }

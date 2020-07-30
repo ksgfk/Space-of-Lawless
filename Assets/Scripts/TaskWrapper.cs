@@ -21,7 +21,5 @@ namespace KSGFK
         }
 
         public void OnComplete() { _callback?.Invoke(_result.Result); }
-
-        public static TaskWrapper<T> Build(Task<T> t, Action<T> callback) { return new TaskWrapper<T>(t, callback); }
     }
 }

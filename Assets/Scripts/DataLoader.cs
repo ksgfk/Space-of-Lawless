@@ -26,11 +26,8 @@ namespace KSGFK
         /// </summary>
         /// <param name="type">数据类型</param>
         /// <param name="path">数据索引</param>
-        /// <param name="result">数据储存,key是数据索引,value是所有数据</param>
+        /// <param name="collection">数据储存,将加载完毕的数据存入集合</param>
         /// <returns>加载请求</returns>
-        public abstract IAsyncHandleWrapper StartLoad(
-            Type type,
-            string path,
-            Dictionary<string, IReadOnlyList<object>> result);
+        public abstract IAsyncHandleWrapper StartLoad(Type type, string path, RawDataCollection collection);
     }
 }

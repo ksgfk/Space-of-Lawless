@@ -87,5 +87,15 @@ namespace KSGFK
                 where info.GetCustomAttribute<ReflectionInjectAttribute>() != null
                 select info;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryAddValue(int raw, int delta, int max, out int result, out int overflow)
+        {
+            var added = raw + delta;
+            var isOverflow = added > max;
+            result = isOverflow ? max : added;
+            overflow = isOverflow ? added - max : 0;
+            return isOverflow;
+        }
     }
 }

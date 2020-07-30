@@ -60,13 +60,10 @@ namespace KSGFK
 
         public CsvWinLoader() : base("WindowsPlayer", "csv") { }
 
-        public override IAsyncHandleWrapper StartLoad(
-            Type type,
-            string path,
-            Dictionary<string, IReadOnlyList<object>> result)
+        public override IAsyncHandleWrapper StartLoad(Type type, string path, RawDataCollection collection)
         {
             var task = Read(type, path);
-            return new TaskWrapper<IEnumerable<object>>(task, loaded => result.Add(path, loaded.ToArray()));
+            return new TaskWrapper<IEnumerable<object>>(task, loaded => collection.Push(path, type, loaded));
         }
 
         private static async Task<IEnumerable<object>> Read(Type type, string path)

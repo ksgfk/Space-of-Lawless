@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public class EntryItem : EntryIdentity<Item>
+    public class EntryItem : EntryEntity
     {
         [ReflectionInject] protected string addr = null;
         private GameObject _prefab;
@@ -19,6 +19,6 @@ namespace KSGFK
             return res && com;
         }
 
-        protected override Item InstantiateBehavior() { return Object.Instantiate(Prefab).GetComponent<Item>(); }
+        protected override Entity SpawnEntity() { return Object.Instantiate(Prefab).GetComponent<Item>(); }
     }
 }

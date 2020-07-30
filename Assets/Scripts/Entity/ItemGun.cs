@@ -27,7 +27,5 @@ namespace KSGFK
             get => _capacity;
             set => _capacity = Helper.SingleAssign(value, MathExt.IsEqual(value, -1f));
         }
-
-        public override void OnUse(EntityLiving user) {}
     }
 }

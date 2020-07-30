@@ -17,9 +17,9 @@ namespace KSGFK
             return res && com;
         }
 
-        protected override Item InstantiateBehavior()
+        protected override Entity SpawnEntity()
         {
-            var result = (ItemGun) base.InstantiateBehavior();
+            var result = (ItemGun) base.SpawnEntity();
             result.Damage = damage;
             result.FiringRate = firing_rate;
             result.Capacity = capacity;

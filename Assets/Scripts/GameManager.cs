@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -21,6 +18,7 @@ namespace KSGFK
     }
 
     /// <summary>
+    /// TODO:将DataCenter职能并入RegisterCenter
     /// TODO:World管理场景中实体，而不是用EntityManager
     /// </summary>
     public class GameManager : MonoBehaviour
@@ -29,7 +27,6 @@ namespace KSGFK
         public static GameManager Instance { get; private set; }
         public LoadManager Load => _load;
         public JobCenter Job => _job;
-        public DataCenter TempData => _data;
         public Camera MainCamera => mainCamera;
         public InputActionAsset InputAsset => playerInput;
         public EntityManager Entity => _entity;
@@ -47,7 +44,6 @@ namespace KSGFK
         [SerializeField] private Canvas uiCanvas = null;
         private LoadManager _load;
         private JobCenter _job;
-        private DataCenter _data;
         private EntityManager _entity;
         private InputCenter _input;
         [SerializeField] private InputActionAsset playerInput = null;
@@ -86,11 +82,8 @@ namespace KSGFK
 
             _load = GetComponent<LoadManager>();
             _job = new JobCenter(this);
-            _data = new DataCenter(this);
             _pool = new PoolCenter();
-            _data.AddDataLoader(new CsvWinLoader());
             _entity = GetComponent<EntityManager>();
-            AddAllDataPath();
             _register = new RegisterCenter(this);
 
             InvokePerInit();
@@ -111,6 +104,8 @@ namespace KSGFK
                     break;
             }
         }
+        
+        private void OnDestroy() { _job.Dispose(); }
 
         public static void SetCameraFollowTarget(Transform target) { Instance.virtualCamera.Follow = target; }
 
@@ -120,8 +115,7 @@ namespace KSGFK
             _load.Ready();
             _entity.Init(this);
             PerInit?.Invoke(this);
-            _load.Complete += () => nowState = GameState.Init;
-            _data.StartLoad();
+            _load.Complete += () => Instance.nowState = GameState.Init;
             _load.Work();
         }
 
@@ -129,7 +123,7 @@ namespace KSGFK
         {
             _load.Ready();
             LoadPlayerInput();
-            _load.Complete += () => nowState = GameState.PostInit;
+            _load.Complete += () => Instance.nowState = GameState.PostInit;
             Init?.Invoke(this);
             _load.Request("panel.debug",
                 (GameObject prefab) =>
@@ -150,43 +144,25 @@ namespace KSGFK
             PerInit = null;
             Init = null;
             PostInit = null;
-            _data = null;
         }
 
         private void LoadPlayerInput()
         {
             var req = playerInputAddr.LoadAssetAsync<InputActionAsset>();
-            req.Completed += request => playerInput = request.Result;
+            req.Completed += request => Instance.playerInput = request.Result;
             _load.Request(req);
         }
 
-        private void AddAllDataPath()
-        {
-            var metadataType = typeof(MetaData);
-            var publicFields = metadataType.GetFields(BindingFlags.Instance | BindingFlags.Public);
-            foreach (var field in publicFields.Where(field => field.FieldType == typeof(MetaData.Info[])))
-            {
-                AddDataPath((MetaData.Info[]) field.GetValue(_meta));
-            }
-        }
-
-        private void AddDataPath(IEnumerable<MetaData.Info> infos)
-        {
-            foreach (var info in infos)
-            {
-                try
-                {
-                    _data.AddPath(Type.GetType(info.Type), GetDataPath(info.Path));
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
-            }
-        }
-
-        private void OnDestroy() { _job.Dispose(); }
-
         public static string GetDataPath(string fileName) { return Path.Combine(DataRoot, fileName); }
+
+        public static string GetPlatform()
+        {
+#if UNITY_EDITOR_WIN
+            var platform = RuntimePlatform.WindowsPlayer.ToString();
+#else
+            var platform = Application.platform.ToString();
+#endif
+            return platform;
+        }
     }
 }
