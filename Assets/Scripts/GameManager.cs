@@ -2,8 +2,7 @@
 using System.IO;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.InputSystem;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace KSGFK
 {
@@ -18,7 +17,6 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:将DataCenter职能并入RegisterCenter
     /// TODO:World管理场景中实体，而不是用EntityManager
     /// </summary>
     public class GameManager : MonoBehaviour
@@ -28,7 +26,6 @@ namespace KSGFK
         public LoadManager Load => _load;
         public JobCenter Job => _job;
         public Camera MainCamera => mainCamera;
-        public InputActionAsset InputAsset => playerInput;
         public EntityManager Entity => _entity;
         public InputCenter Input => _input;
         public PoolCenter Pool => _pool;
@@ -38,7 +35,6 @@ namespace KSGFK
         public RegisterCenter Register => _register;
 
         [SerializeField] private GameState nowState = GameState.PreInit;
-        [SerializeField] private AssetReference playerInputAddr = null;
         [SerializeField] private Camera mainCamera = null;
         [SerializeField] private CinemachineVirtualCamera virtualCamera = null;
         [SerializeField] private Canvas uiCanvas = null;
@@ -46,10 +42,14 @@ namespace KSGFK
         private JobCenter _job;
         private EntityManager _entity;
         private InputCenter _input;
-        [SerializeField] private InputActionAsset playerInput = null;
         private PoolCenter _pool;
         private MetaData _meta;
         private RegisterCenter _register;
+
+        /// <summary>
+        /// 在各模块初始化完毕，未开始PreInit时设置事件回调
+        /// </summary>
+        public event Action SetCallbackBeforePreInit;
 
         /// <summary>
         /// 读取游戏数据
@@ -85,8 +85,11 @@ namespace KSGFK
             _pool = new PoolCenter();
             _entity = GetComponent<EntityManager>();
             _register = new RegisterCenter(this);
+            _input = new InputCenter();
+            SetCallbackBeforePreInit?.Invoke();
+            SetCallbackBeforePreInit = null;
 
-            InvokePerInit();
+            StartPerInit();
         }
 
         private void Update()
@@ -97,60 +100,52 @@ namespace KSGFK
                     _job.OnUpdate();
                     break;
                 case GameState.Init when _load.NowState == LoadState.Sleep:
-                    OnPerInitComplete();
+                    CompletePerInit();
                     break;
                 case GameState.PostInit when _load.NowState == LoadState.Sleep:
-                    OnInitComplete();
+                    CompleteInit();
                     break;
             }
         }
-        
+
         private void OnDestroy() { _job.Dispose(); }
 
         public static void SetCameraFollowTarget(Transform target) { Instance.virtualCamera.Follow = target; }
 
-        private void InvokePerInit()
+        private void StartPerInit()
         {
             _load.Init();
             _load.Ready();
             _entity.Init(this);
             PerInit?.Invoke(this);
-            _load.Complete += () => Instance.nowState = GameState.Init;
+            _load.AddCompleteCallback(() => Instance.nowState = GameState.Init);
             _load.Work();
         }
 
-        private void OnPerInitComplete()
+        private void CompletePerInit()
         {
             _load.Ready();
-            LoadPlayerInput();
-            _load.Complete += () => Instance.nowState = GameState.PostInit;
+            _load.AddCompleteCallback(() => Instance.nowState = GameState.PostInit);
             Init?.Invoke(this);
             _load.Request("panel.debug",
-                (GameObject prefab) =>
+                (AsyncOperationHandle<GameObject> handle) =>
                 {
-                    var go = Instantiate(prefab, Instance.uiCanvas.transform);
-                    var debug = go.GetComponent<PanelDebug>();
-                    debug.Init();
+                    Helper.GetAsyncOpResult(handle)
+                        ?.Instantiate(Instance.UiCanvas.transform)
+                        ?.GetComponent<PanelDebug>()
+                        .Init();
                 });
             _load.Work();
         }
 
-        private void OnInitComplete()
+        private void CompleteInit()
         {
             PostInit?.Invoke(this);
-            _input = new InputCenter();
             nowState = GameState.Running;
             _input.Enable();
             PerInit = null;
             Init = null;
             PostInit = null;
-        }
-
-        private void LoadPlayerInput()
-        {
-            var req = playerInputAddr.LoadAssetAsync<InputActionAsset>();
-            req.Completed += request => Instance.playerInput = request.Result;
-            _load.Request(req);
         }
 
         public static string GetDataPath(string fileName) { return Path.Combine(DataRoot, fileName); }

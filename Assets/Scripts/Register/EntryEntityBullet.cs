@@ -8,21 +8,20 @@ namespace KSGFK
     {
         [ReflectionInject] private string addr = null;
         [ReflectionInject] private int pool_count = -1;
-        private GameObject _asset;
+        private GameObject _prefab;
         private int _poolId;
 
         public string Addr => addr;
         public int PoolCount => pool_count;
         public int PoolId => _poolId;
-
-        public GameObject Asset { get => _asset; private set => _asset = Helper.SingleAssign(value, _asset && value); }
+        public GameObject Prefab => _prefab;
 
         protected override Entity SpawnEntity()
         {
             EntityBullet result;
             if (PoolCount < 0)
             {
-                result = UnityEngine.Object.Instantiate(Asset).GetComponent<EntityBullet>();
+                result = UnityEngine.Object.Instantiate(Prefab).GetComponent<EntityBullet>();
                 result.PoolObjectId = -1;
             }
             else
@@ -59,22 +58,25 @@ namespace KSGFK
             }
         }
 
-        public override void PerProcess() { GameManager.Instance.Load.Request<GameObject>(Addr, ass => Asset = ass); }
+        public override void PerProcess()
+        {
+            GameManager.Instance.Load.Request<GameObject>(Addr, handle => _prefab = Helper.GetAsyncOpResult(handle));
+        }
 
         public override void Process()
         {
-            if (!Asset.TryGetComponent<EntityBullet>(out _))
+            if (!Prefab.TryGetComponent<EntityBullet>(out _))
             {
                 Debug.Log($"子弹{RegisterName}不存在{typeof(EntityBullet)}组件");
                 return;
             }
 
-            _poolId = GameManager.Instance.Pool.Allocate(Asset, RegisterName, PoolCount, newId => _poolId = newId);
+            _poolId = GameManager.Instance.Pool.Allocate(Prefab, RegisterName, PoolCount, newId => _poolId = newId);
         }
 
         public override bool Check(out string info)
         {
-            var result = Helper.CheckResource(Asset, Addr, out var reason);
+            var result = Helper.CheckResource(Prefab, Addr, out var reason);
             if (!GameManager.Instance.Pool.IsAllocated(RegisterName))
             {
                 reason += $" 未成功分配资源池{RegisterName},忽略";

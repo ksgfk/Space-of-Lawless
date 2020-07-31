@@ -24,12 +24,27 @@ namespace KSGFK
             _waitList.Add(registerEntry);
         }
 
+        public void AddToWaitRegister(object obj)
+        {
+            if (obj is T entry)
+            {
+                AddToWaitRegister(entry);
+            }
+            else
+            {
+                throw new InvalidOperationException($"类型不匹配,需要{typeof(T).FullName},传入{obj.GetType().FullName}");
+            }
+        }
+
+        public override void Register(T registerEntry) { AddToWaitRegister(registerEntry); }
+
+        public override void Register(object obj) { AddToWaitRegister(obj); }
+
         /// <summary>
         /// 检查所有注册队列的项，并注册符合条件的项
         /// </summary>
         public void RegisterAll()
         {
-            var successCount = 0;
             foreach (var entry in _waitList)
             {
                 try
@@ -41,8 +56,7 @@ namespace KSGFK
                         continue;
                     }
 
-                    Register(entry);
-                    successCount += 1;
+                    base.Register(entry);
                 }
                 catch (Exception e)
                 {
@@ -50,7 +64,6 @@ namespace KSGFK
                 }
             }
 
-            Debug.LogFormat("[注册表:{0}][数量:{1}]", RegistryName, successCount);
             _waitList = null;
         }
     }

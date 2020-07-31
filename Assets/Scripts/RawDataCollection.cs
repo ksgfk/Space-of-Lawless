@@ -23,6 +23,8 @@ namespace KSGFK
     {
         private readonly Dictionary<string, (Type, List<object>)> _collection;
 
+        internal Dictionary<string, (Type, List<object>)> RawDataStruct => _collection;
+
         public RawDataCollection() { _collection = new Dictionary<string, (Type, List<object>)>(); }
 
         public void Push(string path, Type type, object data)
@@ -77,5 +79,15 @@ namespace KSGFK
         }
 
         IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+
+        public IEnumerable<object> Query(string path)
+        {
+            if (_collection.TryGetValue(path, out var pair))
+            {
+                return pair.Item2;
+            }
+
+            return Array.Empty<object>();
+        }
     }
 }

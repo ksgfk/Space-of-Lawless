@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace KSGFK
 {
@@ -96,6 +97,25 @@ namespace KSGFK
             result = isOverflow ? max : added;
             overflow = isOverflow ? added - max : 0;
             return isOverflow;
+        }
+
+        /// <summary>
+        /// 获取异步操作的结果，返回值可能是null
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetAsyncOpResult<T>(AsyncOperationHandle<T> handle) where T : UnityEngine.Object
+        {
+            switch (handle.Status)
+            {
+                case AsyncOperationStatus.None:
+                    return null;
+                case AsyncOperationStatus.Succeeded:
+                    return handle.Result;
+                case AsyncOperationStatus.Failed:
+                    return null;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

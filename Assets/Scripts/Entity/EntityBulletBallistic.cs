@@ -36,8 +36,17 @@ namespace KSGFK
         public override void OnSpawn()
         {
             base.OnSpawn();
-            _moveJob = GameManager.Instance.Job.GetJob<JobMoveForTransformInitReq, DataMoveForTransform>(moveJobName);
-            _taskJob = GameManager.Instance.Job.GetJob<JobTimingTaskInitReq, float>(taskJobName);
+            if (_moveJob == null)
+            {
+                _moveJob = GameManager.Instance
+                    .Job
+                    .GetJob<JobMoveForTransformInitReq, DataMoveForTransform>(moveJobName);
+            }
+
+            if (_taskJob == null)
+            {
+                _taskJob = GameManager.Instance.Job.GetJob<JobTimingTaskInitReq, float>(taskJobName);
+            }
         }
 
         public override void OnRemoveFromWorld()

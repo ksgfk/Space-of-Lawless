@@ -14,28 +14,19 @@ namespace KSGFK
         public JobCenter(GameManager gm)
         {
             _gm = gm;
-            gm.PostInit += OnGamePostInit;
+            gm.SetCallbackBeforePreInit += OnRegisterComplete;
         }
 
-        private void OnGamePostInit(GameManager gm)
+        private void OnRegisterComplete()
         {
-            _jobList = gm.Register.Job.Select(info =>
-                {
-                    var type = Type.GetType(info.FullTypeName);
-                    if (type == null)
-                    {
-                        throw new ArgumentException();
-                    }
-
-                    if (!typeof(IJobWrapper).IsAssignableFrom(type))
-                    {
-                        throw new ArgumentException();
-                    }
-
-                    var instance = Activator.CreateInstance(type);
-                    return instance as IJobWrapper;
-                })
-                .ToList();
+            _gm.Register.RegisterComplete += () =>
+            {
+                _jobList = GameManager.Instance
+                    .Register
+                    .Job
+                    .Select(entryJob => (IJobWrapper) Activator.CreateInstance(entryJob.JobType))
+                    .ToList();
+            };
         }
 
         public void OnUpdate()

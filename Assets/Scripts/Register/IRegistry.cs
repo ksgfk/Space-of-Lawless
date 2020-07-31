@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,8 @@ namespace KSGFK
         T this[string name] { get; }
 
         void Register(T registerEntry);
+
+        void Register(object obj);
     }
 
     public class RegistryImpl<T> : IRegistry<T> where T : IRegisterEntry
@@ -52,7 +55,7 @@ namespace KSGFK
             _index = new Dictionary<string, int>();
         }
 
-        public void Register(T registerEntry)
+        public virtual void Register(T registerEntry)
         {
             if (_index.ContainsKey(registerEntry.RegisterName))
             {
@@ -64,6 +67,18 @@ namespace KSGFK
             registerEntry.RuntimeId = id;
             _entries.Add(registerEntry);
             _index.Add(registerEntry.RegisterName, id);
+        }
+
+        public virtual void Register(object obj)
+        {
+            if (obj is T entry)
+            {
+                Register(entry);
+            }
+            else
+            {
+                throw new InvalidOperationException($"类型不匹配,需要{typeof(T).FullName},传入{obj.GetType().FullName}");
+            }
         }
 
         public IEnumerator<T> GetEnumerator() { return ((IEnumerable<T>) _entries).GetEnumerator(); }

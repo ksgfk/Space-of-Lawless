@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Mathematics;
@@ -59,5 +60,12 @@ namespace KSGFK
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsZero(this float f) { return MathExt.IsEqual(f, 0f); }
+
+        public static GameObject Instantiate(this GameObject prefab) { return UnityEngine.Object.Instantiate(prefab); }
+
+        public static GameObject Instantiate(this GameObject prefab, Transform parent)
+        {
+            return UnityEngine.Object.Instantiate(prefab, parent);
+        }
     }
 }

@@ -23,20 +23,7 @@ namespace KSGFK
         private Action _completeCallback;
 
         public LoadState NowState => nowState;
-
-        public event Action Complete
-        {
-            add
-            {
-                if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能添加回调");
-                _completeCallback += value;
-            }
-            remove
-            {
-                if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能删除回调");
-                _completeCallback = (Action) Delegate.Remove(_completeCallback, value);
-            }
-        }
+        public bool CanRequest => NowState == LoadState.Ready;
 
         public void Init() { nowState = LoadState.Sleep; }
 
@@ -47,10 +34,10 @@ namespace KSGFK
             nowState = LoadState.Ready;
         }
 
-        public void Request<T>(string address, Action<T> callback) where T : UnityEngine.Object
+        public void Request<T>(string address, Action<AsyncOperationHandle<T>> callback) where T : UnityEngine.Object
         {
             var handle = Addressables.LoadAssetAsync<T>(address);
-            handle.Completed += handleCallback => { callback?.Invoke(handleCallback.Result); };
+            handle.Completed += callback;
             Request(handle);
         }
 
@@ -119,6 +106,10 @@ namespace KSGFK
             nowState = LoadState.Sleep;
         }
 
-        public bool CanLoad() { return NowState == LoadState.Ready; }
+        public void AddCompleteCallback(Action callback)
+        {
+            if (nowState != LoadState.Ready) throw new InvalidOperationException("准备状态才能添加回调");
+            _completeCallback += callback;
+        }
     }
 }
