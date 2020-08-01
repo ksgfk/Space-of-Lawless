@@ -20,5 +20,11 @@
       "Path": "item_gun.csv",
       "Type": "KSGFK.EntryItemGun"
     }
+  ],
+  "MapInfo": [
+    {
+      "Path": "map.csv",
+      "Type": "KSGFK.EntryMap"
+    }
   ]
 }

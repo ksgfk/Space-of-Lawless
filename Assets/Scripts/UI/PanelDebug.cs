@@ -14,6 +14,7 @@ namespace KSGFK
         public InputField spawnEntityName;
         public Player player;
         public InputField createItemName;
+        public InputField mapName;
 
         public void Init() { StartCoroutine(OnUpdate()); }
 
@@ -75,5 +76,19 @@ namespace KSGFK
         public void OnDestroyAllEntityBtnPress() { }
 
         public void OnCreateItemBtnPress() { }
+
+        public void OnLoadMapBtnPress()
+        {
+            var em = GameManager.Instance;
+            var txt = mapName.text;
+            if (_idNum.IsMatch(txt))
+            {
+                em.LoadMap(int.Parse(txt.Substring(3)));
+            }
+            else
+            {
+                em.LoadMap(txt);
+            }
+        }
     }
 }

@@ -9,8 +9,15 @@ namespace KSGFK
     {
         string RegistryName { get; }
 
+        /// <summary>
+        /// 使用数字id查询，返回值可能是null
+        /// </summary>
         T this[int id] { get; }
 
+        /// <summary>
+        /// 使用字符串id查询，返回值可能是null
+        /// </summary>
+        /// <param name="name"></param>
         T this[string name] { get; }
 
         void Register(T registerEntry);
@@ -25,7 +32,18 @@ namespace KSGFK
 
         public string RegistryName { get; }
 
-        public T this[int id] => _entries[id];
+        public T this[int id]
+        {
+            get
+            {
+                if (!_entries.TryIndex(id, out var entry))
+                {
+                    Debug.LogWarningFormat("[注册表:{0}]不存在Id:{1}", RegistryName, id);
+                }
+
+                return entry;
+            }
+        }
 
         public T this[string name]
         {

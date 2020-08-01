@@ -26,6 +26,7 @@ namespace KSGFK
 
         public LoadState NowState => nowState;
         public bool CanRequest => NowState == LoadState.Ready;
+        public bool CanReady => NowState == LoadState.Sleep;
 
         public void Init() { nowState = LoadState.Sleep; }
 

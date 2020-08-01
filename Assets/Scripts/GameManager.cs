@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.EventSystems;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 
@@ -155,6 +155,85 @@ namespace KSGFK
             PerInit = null;
             Init = null;
             PostInit = null;
+        }
+
+        public void LoadMap(int mapId)
+        {
+            var entryMap = Register.Map[mapId];
+            if (entryMap == null)
+            {
+                return;
+            }
+
+            LoadMap(entryMap);
+        }
+
+        public void LoadMap(string mapId)
+        {
+            var entryMap = Register.Map[mapId];
+            if (entryMap == null)
+            {
+                return;
+            }
+
+            LoadMap(entryMap);
+        }
+
+        private void LoadMap(EntryMap entryMap)
+        {
+            if (World.HasValue)
+            {
+                Debug.LogWarning("已经有地图被加载");
+                return;
+            }
+
+            if (!Load.CanReady)
+            {
+                Debug.LogWarning("现在不能加载地图");
+                return;
+            }
+
+            _nowState = GameState.Pause;
+            Load.Ready();
+            var handle = Addressables.LoadSceneAsync(entryMap.Addr, LoadSceneMode.Additive, false);
+            handle.Completed += h =>
+            {
+                if (h.Status != AsyncOperationStatus.Succeeded)
+                {
+                    Debug.LogError("加载场景失败");
+                    return;
+                }
+
+                var result = h.Result;
+                result.ActivateAsync().completed += op =>
+                {
+                    var objs = result.Scene
+                        .GetRootGameObjects()
+                        .FirstOrDefault(obj => obj.CompareTag("WorldCenter"));
+                    if (objs == null)
+                    {
+                        Debug.LogError("找不到WorldCenter，不是标准场景");
+                        Addressables.UnloadSceneAsync(result);
+                    }
+                    else
+                    {
+                        if (!objs.TryGetComponent<World>(out var world))
+                        {
+                            Debug.LogError("找不到World组件，不是标准场景");
+                            Addressables.UnloadSceneAsync(result);
+                        }
+                        else
+                        {
+                            Instance._world = world;
+                            SceneManager.SetActiveScene(result.Scene);
+                        }
+                    }
+
+                    Instance._nowState = GameState.Running;
+                };
+            };
+            Load.Request(handle);
+            Load.Work();
         }
 
         public static string GetDataPath(string fileName) { return Path.Combine(DataRoot, fileName); }

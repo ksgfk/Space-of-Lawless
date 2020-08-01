@@ -12,6 +12,7 @@ namespace KSGFK
         private readonly StageRegistry<EntryEntity> _entities;
         private readonly StageRegistry<EntryJob> _jobs;
         private readonly StageRegistry<EntryItem> _items;
+        private readonly StageRegistry<EntryMap> _maps;
 
         /// <summary>
         /// 生命周期在RegisterComplete事件发布后结束
@@ -21,6 +22,7 @@ namespace KSGFK
         public IRegistry<EntryEntity> Entity => _entities;
         public IRegistry<EntryJob> Job => _jobs;
         public IRegistry<EntryItem> Item => _items;
+        public IRegistry<EntryMap> Map => _maps;
 
         /// <summary>
         /// PreInit阶段，添加数据加载器
@@ -48,6 +50,11 @@ namespace KSGFK
         public event Action<IRegistry<EntryJob>> RegisterJob;
 
         /// <summary>
+        /// Init阶段，注册Map
+        /// </summary>
+        public event Action<IRegistry<EntryMap>> RegisterMap;
+
+        /// <summary>
         /// PostInit阶段，所有注册工作完成后
         /// </summary>
         public event Action RegisterComplete;
@@ -57,6 +64,7 @@ namespace KSGFK
             _entities = new StageRegistry<EntryEntity>("entity");
             _jobs = new StageRegistry<EntryJob>("job");
             _items = new StageRegistry<EntryItem>("item");
+            _maps = new StageRegistry<EntryMap>("map");
             _rawData = new RawDataCollection();
             gm.PerInit += LoadData;
             gm.Init += PerRegisterEntries;
@@ -111,6 +119,9 @@ namespace KSGFK
             WaitRegister(gm.MetaData.JobInfo, _jobs);
             RegisterJob?.Invoke(_jobs);
 
+            WaitRegister(gm.MetaData.MapInfo, _maps);
+            RegisterMap?.Invoke(_maps);
+
             RegisterEntity = null;
             RegisterItem = null;
             RegisterJob = null;
@@ -121,6 +132,7 @@ namespace KSGFK
             _jobs.RegisterAll();
             _entities.RegisterAll();
             _items.RegisterAll();
+            _maps.RegisterAll();
             RegisterComplete?.Invoke();
             RegisterComplete = null;
             _rawData = null;
@@ -128,6 +140,7 @@ namespace KSGFK
             PrintRegistryCount(_entities);
             PrintRegistryCount(_items);
             PrintRegistryCount(_jobs);
+            PrintRegistryCount(_maps);
         }
 
         private void WaitRegister<T>(IEnumerable<MetaData.Info> infos, StageRegistry<T> stageRegistry)

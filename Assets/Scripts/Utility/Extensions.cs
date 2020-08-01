@@ -67,5 +67,17 @@ namespace KSGFK
         {
             return UnityEngine.Object.Instantiate(prefab, parent);
         }
+
+        public static T SafeIndexer<T>(this IList<T> list, int index)
+        {
+            return index < 0 || index >= list.Count ? default : list[index];
+        }
+
+        public static bool TryIndex<T>(this IList<T> list, int index, out T value)
+        {
+            var isInRange = index >= 0 && index < list.Count;
+            value = isInRange ? list[index] : default;
+            return isInRange;
+        }
     }
 }
