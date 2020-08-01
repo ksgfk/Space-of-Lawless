@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace KSGFK
@@ -116,6 +117,15 @@ namespace KSGFK
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        /// <summary>
+        /// 检查可寻址资源是否存在
+        /// </summary>
+        public static bool IsResourceExist<T>(string address)
+        {
+            var locators = Addressables.ResourceLocators;
+            return locators.Any(locator => locator.Locate(address, typeof(T), out _));
         }
     }
 }

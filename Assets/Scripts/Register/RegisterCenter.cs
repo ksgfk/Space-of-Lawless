@@ -9,11 +9,14 @@ namespace KSGFK
 {
     public class RegisterCenter
     {
-        private readonly GameManager _gm;
         private readonly StageRegistry<EntryEntity> _entities;
         private readonly StageRegistry<EntryJob> _jobs;
         private readonly StageRegistry<EntryItem> _items;
-        private readonly RawDataCollection _rawData;
+
+        /// <summary>
+        /// 生命周期在RegisterComplete事件发布后结束
+        /// </summary>
+        private RawDataCollection _rawData;
 
         public IRegistry<EntryEntity> Entity => _entities;
         public IRegistry<EntryJob> Job => _jobs;
@@ -51,7 +54,6 @@ namespace KSGFK
 
         public RegisterCenter(GameManager gm)
         {
-            _gm = gm;
             _entities = new StageRegistry<EntryEntity>("entity");
             _jobs = new StageRegistry<EntryJob>("job");
             _items = new StageRegistry<EntryItem>("item");
@@ -121,6 +123,7 @@ namespace KSGFK
             _items.RegisterAll();
             RegisterComplete?.Invoke();
             RegisterComplete = null;
+            _rawData = null;
 
             PrintRegistryCount(_entities);
             PrintRegistryCount(_items);

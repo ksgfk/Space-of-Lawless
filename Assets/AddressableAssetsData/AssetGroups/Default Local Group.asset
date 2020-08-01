@@ -37,6 +37,12 @@ MonoBehaviour:
       type: 3}
     m_TargetAsset: {fileID: 1938431336315197534, guid: b4e6ef35c91269e4e99b0355bd3068b4,
       type: 3}
+  - m_GUID: b694f4a1a7da15f46bc9d9c4e47eda31
+    m_Address: map.1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 102900000, guid: b694f4a1a7da15f46bc9d9c4e47eda31, type: 3}
+    m_TargetAsset: {fileID: 102900000, guid: b694f4a1a7da15f46bc9d9c4e47eda31, type: 3}
   - m_GUID: c2e187838124b32489defd5b17380f84
     m_Address: entity.slime
     m_ReadOnly: 0

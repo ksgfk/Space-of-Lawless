@@ -2,7 +2,10 @@
 using System.IO;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.EventSystems;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 
 namespace KSGFK
 {
@@ -17,27 +20,20 @@ namespace KSGFK
     }
 
     /// <summary>
+    /// TODO:加载World
+    /// TODO:PoolCenter移入World中，随World一起释放
     /// TODO:World管理场景中实体，而不是用EntityManager
     /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static readonly string DataRoot = Path.Combine(Application.streamingAssetsPath, "Data");
         public static GameManager Instance { get; private set; }
-        public LoadManager Load => _load;
-        public JobCenter Job => _job;
-        public Camera MainCamera => mainCamera;
-        public EntityManager Entity => _entity;
-        public InputCenter Input => _input;
-        public PoolCenter Pool => _pool;
-        public Canvas UiCanvas => uiCanvas;
-        public GameState NowState => nowState;
-        public MetaData MetaData => _meta;
-        public RegisterCenter Register => _register;
 
-        [SerializeField] private GameState nowState = GameState.PreInit;
-        [SerializeField] private Camera mainCamera = null;
-        [SerializeField] private CinemachineVirtualCamera virtualCamera = null;
-        [SerializeField] private Canvas uiCanvas = null;
+        [SerializeField] private GameState _nowState = GameState.PreInit;
+        [SerializeField] private Camera _mainCamera = null;
+        [SerializeField] private CinemachineVirtualCamera _virtualCamera = null;
+        [SerializeField] private Canvas _uiCanvas = null;
+        [SerializeField] private World _world = null;
         private LoadManager _load;
         private JobCenter _job;
         private EntityManager _entity;
@@ -45,6 +41,18 @@ namespace KSGFK
         private PoolCenter _pool;
         private MetaData _meta;
         private RegisterCenter _register;
+
+        public LoadManager Load => _load;
+        public JobCenter Job => _job;
+        public Camera MainCamera => _mainCamera;
+        public EntityManager Entity => _entity;
+        public InputCenter Input => _input;
+        public PoolCenter Pool => _pool;
+        public Canvas UiCanvas => _uiCanvas;
+        public GameState NowState => _nowState;
+        public MetaData MetaData => _meta;
+        public RegisterCenter Register => _register;
+        public Nullable<World> World => new Nullable<World>(_world);
 
         /// <summary>
         /// 在各模块初始化完毕，未开始PreInit时设置事件回调
@@ -66,7 +74,7 @@ namespace KSGFK
         /// </summary>
         public event Action<GameManager> PostInit;
 
-        private void Awake()
+        private async void Awake()
         {
             if (!Instance)
             {
@@ -76,10 +84,11 @@ namespace KSGFK
 
             using (var reader = new StreamReader(Path.Combine(Application.streamingAssetsPath, "metadata.json")))
             {
-                var str = reader.ReadToEnd();
+                var str = await reader.ReadToEndAsync();
                 _meta = JsonUtility.FromJson<MetaData>(str);
             }
 
+            await Addressables.InitializeAsync().Task;
             _load = GetComponent<LoadManager>();
             _job = new JobCenter(this);
             _pool = new PoolCenter();
@@ -94,7 +103,7 @@ namespace KSGFK
 
         private void Update()
         {
-            switch (nowState)
+            switch (_nowState)
             {
                 case GameState.Running:
                     _job.OnUpdate();
@@ -108,9 +117,9 @@ namespace KSGFK
             }
         }
 
-        private void OnDestroy() { _job.Dispose(); }
+        private void OnDestroy() { _job?.Dispose(); }
 
-        public static void SetCameraFollowTarget(Transform target) { Instance.virtualCamera.Follow = target; }
+        public static void SetCameraFollowTarget(Transform target) { Instance._virtualCamera.Follow = target; }
 
         private void StartPerInit()
         {
@@ -118,14 +127,14 @@ namespace KSGFK
             _load.Ready();
             _entity.Init(this);
             PerInit?.Invoke(this);
-            _load.AddCompleteCallback(() => Instance.nowState = GameState.Init);
+            _load.AddCompleteCallback(() => Instance._nowState = GameState.Init);
             _load.Work();
         }
 
         private void CompletePerInit()
         {
             _load.Ready();
-            _load.AddCompleteCallback(() => Instance.nowState = GameState.PostInit);
+            _load.AddCompleteCallback(() => Instance._nowState = GameState.PostInit);
             Init?.Invoke(this);
             _load.Request("panel.debug",
                 (AsyncOperationHandle<GameObject> handle) =>
@@ -141,7 +150,7 @@ namespace KSGFK
         private void CompleteInit()
         {
             PostInit?.Invoke(this);
-            nowState = GameState.Running;
+            _nowState = GameState.Running;
             _input.Enable();
             PerInit = null;
             Init = null;
