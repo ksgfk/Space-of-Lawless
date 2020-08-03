@@ -157,29 +157,29 @@ namespace KSGFK
             PostInit = null;
         }
 
-        public void LoadMap(int mapId)
+        public void StartLoadWorld(int worldId, Action callback = null)
         {
-            var entryMap = Register.Map[mapId];
+            var entryMap = Register.Map[worldId];
             if (entryMap == null)
             {
                 return;
             }
 
-            LoadMap(entryMap);
+            StartLoadWorld(entryMap, callback);
         }
 
-        public void LoadMap(string mapId)
+        public void StartLoadWorld(string worldId, Action callback = null)
         {
-            var entryMap = Register.Map[mapId];
+            var entryMap = Register.Map[worldId];
             if (entryMap == null)
             {
                 return;
             }
 
-            LoadMap(entryMap);
+            StartLoadWorld(entryMap, callback);
         }
 
-        private void LoadMap(EntryMap entryMap)
+        private void StartLoadWorld(EntryWorld entryWorld, Action callback)
         {
             if (World.HasValue)
             {
@@ -195,7 +195,7 @@ namespace KSGFK
 
             _nowState = GameState.Pause;
             Load.Ready();
-            var handle = Addressables.LoadSceneAsync(entryMap.Addr, LoadSceneMode.Additive, false);
+            var handle = Addressables.LoadSceneAsync(entryWorld.Addr, LoadSceneMode.Additive, false);
             handle.Completed += h =>
             {
                 if (h.Status != AsyncOperationStatus.Succeeded)
@@ -226,6 +226,7 @@ namespace KSGFK
                         {
                             Instance._world = world;
                             SceneManager.SetActiveScene(result.Scene);
+                            world.Scene = result;
                         }
                     }
 
@@ -233,7 +234,34 @@ namespace KSGFK
                 };
             };
             Load.Request(handle);
+            Load.AddCompleteCallback(callback);
             Load.Work();
+        }
+
+        public void UnloadWorld(Action callback = null)
+        {
+            if (!World.HasValue)
+            {
+                Debug.LogWarning("没有地图被加载");
+                return;
+            }
+
+            var world = World.Value;
+            if (world.Scene == null)
+            {
+                Debug.LogError("world不是null，但Scene却是null，不可预料的错误，可能有bug");
+                return;
+            }
+
+            var sceneIns = world.Scene.Value;
+            world.Dispose();
+            _world = null;
+            var op = Addressables.UnloadSceneAsync(sceneIns);
+            op.Completed += handle =>
+            {
+                SceneManager.SetActiveScene(SceneManager.GetSceneAt(0));
+                callback?.Invoke();
+            };
         }
 
         public static string GetDataPath(string fileName) { return Path.Combine(DataRoot, fileName); }

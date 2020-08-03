@@ -36,7 +36,7 @@ MonoBehaviour:
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
   - m_GUID: b694f4a1a7da15f46bc9d9c4e47eda31
-    m_Address: map.test
+    m_Address: world.test
     m_ReadOnly: 0
     m_SerializedLabels: []
     m_MainAsset: {fileID: 102900000, guid: b694f4a1a7da15f46bc9d9c4e47eda31, type: 3}

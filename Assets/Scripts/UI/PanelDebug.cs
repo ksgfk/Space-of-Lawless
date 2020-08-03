@@ -77,18 +77,20 @@ namespace KSGFK
 
         public void OnCreateItemBtnPress() { }
 
-        public void OnLoadMapBtnPress()
+        public void OnLoadWorldBtnPress()
         {
             var em = GameManager.Instance;
             var txt = mapName.text;
             if (_idNum.IsMatch(txt))
             {
-                em.LoadMap(int.Parse(txt.Substring(3)));
+                em.StartLoadWorld(int.Parse(txt.Substring(3)));
             }
             else
             {
-                em.LoadMap(txt);
+                em.StartLoadWorld(txt);
             }
         }
+
+        public void OnUnloadWorldBtnPress() { GameManager.Instance.UnloadWorld(); }
     }
 }

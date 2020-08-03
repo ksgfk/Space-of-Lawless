@@ -21,10 +21,10 @@
       "Type": "KSGFK.EntryItemGun"
     }
   ],
-  "MapInfo": [
+  "WorldInfo": [
     {
-      "Path": "map.csv",
-      "Type": "KSGFK.EntryMap"
+      "Path": "world.csv",
+      "Type": "KSGFK.EntryWorld"
     }
   ]
 }

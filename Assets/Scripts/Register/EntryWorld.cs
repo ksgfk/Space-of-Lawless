@@ -4,7 +4,7 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 namespace KSGFK
 {
     [Serializable]
-    public class EntryMap : IStageProcessEntry
+    public class EntryWorld : IStageProcessEntry
     {
         private int _runtimeId = int.MinValue;
         [ReflectionInject] private string name = null;

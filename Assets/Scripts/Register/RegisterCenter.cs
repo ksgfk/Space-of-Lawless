@@ -12,7 +12,7 @@ namespace KSGFK
         private readonly StageRegistry<EntryEntity> _entities;
         private readonly StageRegistry<EntryJob> _jobs;
         private readonly StageRegistry<EntryItem> _items;
-        private readonly StageRegistry<EntryMap> _maps;
+        private readonly StageRegistry<EntryWorld> _maps;
 
         /// <summary>
         /// 生命周期在RegisterComplete事件发布后结束
@@ -22,7 +22,7 @@ namespace KSGFK
         public IRegistry<EntryEntity> Entity => _entities;
         public IRegistry<EntryJob> Job => _jobs;
         public IRegistry<EntryItem> Item => _items;
-        public IRegistry<EntryMap> Map => _maps;
+        public IRegistry<EntryWorld> Map => _maps;
 
         /// <summary>
         /// PreInit阶段，添加数据加载器
@@ -52,7 +52,7 @@ namespace KSGFK
         /// <summary>
         /// Init阶段，注册Map
         /// </summary>
-        public event Action<IRegistry<EntryMap>> RegisterMap;
+        public event Action<IRegistry<EntryWorld>> RegisterMap;
 
         /// <summary>
         /// PostInit阶段，所有注册工作完成后
@@ -64,7 +64,7 @@ namespace KSGFK
             _entities = new StageRegistry<EntryEntity>("entity");
             _jobs = new StageRegistry<EntryJob>("job");
             _items = new StageRegistry<EntryItem>("item");
-            _maps = new StageRegistry<EntryMap>("map");
+            _maps = new StageRegistry<EntryWorld>("map");
             _rawData = new RawDataCollection();
             gm.PerInit += LoadData;
             gm.Init += PerRegisterEntries;
@@ -119,7 +119,7 @@ namespace KSGFK
             WaitRegister(gm.MetaData.JobInfo, _jobs);
             RegisterJob?.Invoke(_jobs);
 
-            WaitRegister(gm.MetaData.MapInfo, _maps);
+            WaitRegister(gm.MetaData.WorldInfo, _maps);
             RegisterMap?.Invoke(_maps);
 
             RegisterEntity = null;
