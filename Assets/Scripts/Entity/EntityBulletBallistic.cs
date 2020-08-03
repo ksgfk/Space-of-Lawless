@@ -28,7 +28,7 @@ namespace KSGFK
             trans.position = startPos;
             taskInfo = _taskJob.AddData(new JobTimingTaskInitReq
             {
-                Task = () => GameManager.Instance.Entity.DestroyEntity(this),
+                Task = () => GameManager.Instance.World.Value.DestroyEntity(this),
                 Duration = duration
             });
         }

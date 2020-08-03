@@ -20,9 +20,7 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:加载World
     /// TODO:PoolCenter移入World中，随World一起释放
-    /// TODO:World管理场景中实体，而不是用EntityManager
     /// </summary>
     public class GameManager : MonoBehaviour
     {
@@ -36,7 +34,6 @@ namespace KSGFK
         [SerializeField] private World _world = null;
         private LoadManager _load;
         private JobCenter _job;
-        private EntityManager _entity;
         private InputCenter _input;
         private PoolCenter _pool;
         private MetaData _meta;
@@ -45,7 +42,6 @@ namespace KSGFK
         public LoadManager Load => _load;
         public JobCenter Job => _job;
         public Camera MainCamera => _mainCamera;
-        public EntityManager Entity => _entity;
         public InputCenter Input => _input;
         public PoolCenter Pool => _pool;
         public Canvas UiCanvas => _uiCanvas;
@@ -92,7 +88,6 @@ namespace KSGFK
             _load = GetComponent<LoadManager>();
             _job = new JobCenter(this);
             _pool = new PoolCenter();
-            _entity = GetComponent<EntityManager>();
             _register = new RegisterCenter(this);
             _input = new InputCenter();
             SetCallbackBeforePreInit?.Invoke();
@@ -125,7 +120,6 @@ namespace KSGFK
         {
             _load.Init();
             _load.Ready();
-            _entity.Init(this);
             PerInit?.Invoke(this);
             _load.AddCompleteCallback(() => Instance._nowState = GameState.Init);
             _load.Work();
@@ -226,7 +220,7 @@ namespace KSGFK
                         {
                             Instance._world = world;
                             SceneManager.SetActiveScene(result.Scene);
-                            world.Scene = result;
+                            world.Init(this, in result);
                         }
                     }
 
@@ -247,13 +241,7 @@ namespace KSGFK
             }
 
             var world = World.Value;
-            if (world.Scene == null)
-            {
-                Debug.LogError("world不是null，但Scene却是null，不可预料的错误，可能有bug");
-                return;
-            }
-
-            var sceneIns = world.Scene.Value;
+            var sceneIns = world.Scene;
             world.Dispose();
             _world = null;
             var op = Addressables.UnloadSceneAsync(sceneIns);

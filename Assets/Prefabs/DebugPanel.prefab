@@ -281,7 +281,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -100, y: 0}
+  m_AnchoredPosition: {x: -300, y: 0}
   m_SizeDelta: {x: -600, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4789102531282452035
@@ -1111,6 +1111,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b36deb8292344fe09227c553ae314707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loadWorld: {fileID: 1059444507808051622}
+  unloadWorld: {fileID: 8134113587955967208}
+  spawnEntity: {fileID: 8132471036618228458}
+  destroyEntity: {fileID: 8796800312311685196}
+  createItem: {fileID: 6570094640949817919}
   entityCountTxt: {fileID: 3573169816784438193}
   spawnEntityName: {fileID: 6265890987977793885}
   player: {fileID: 0}
@@ -2039,7 +2044,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7391726148629892419
 RectTransform:
   m_ObjectHideFlags: 0

@@ -58,7 +58,7 @@ namespace KSGFK
             };
         }
 
-        public CsvWinLoader() : base("WindowsPlayer", "csv") { }
+        public CsvWinLoader() : base(RuntimePlatform.WindowsPlayer.ToString(), "csv") { }
 
         public override IAsyncHandleWrapper StartLoad(Type type, string path, RawDataCollection collection)
         {

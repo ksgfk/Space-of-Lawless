@@ -1,5 +1,5 @@
-using System;
 using System.Collections;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +9,13 @@ namespace KSGFK
     public class PanelDebug : MonoBehaviour
     {
         private GameManager _gm;
+
+        public GameObject loadWorld;
+        public GameObject unloadWorld;
+        public GameObject spawnEntity;
+        public GameObject destroyEntity;
+        public GameObject createItem;
+
         public Text entityCountTxt;
         private int _lastEntityCount;
         public InputField spawnEntityName;
@@ -18,21 +25,36 @@ namespace KSGFK
 
         public void Init() { StartCoroutine(OnUpdate()); }
 
-        private void Awake() { _gm = GameManager.Instance; }
+        private void Awake()
+        {
+            _gm = GameManager.Instance;
+            loadWorld.SetActive(true);
+            unloadWorld.SetActive(true);
+        }
 
         private IEnumerator OnUpdate()
         {
             while (true)
             {
+                var world = _gm.World;
                 switch (_gm.NowState)
                 {
-                    case GameState.Running:
-                        if (_gm.Entity.ActiveEntity.Count != _lastEntityCount)
+                    case GameState.Running when world.HasValue:
+                        spawnEntity.SetActive(true);
+                        destroyEntity.SetActive(true);
+                        createItem.SetActive(true);
+                        World w = world;
+                        if (w.ActiveEntity.Count() != _lastEntityCount)
                         {
-                            _lastEntityCount = _gm.Entity.ActiveEntity.Count;
+                            _lastEntityCount = w.ActiveEntity.Count();
                             entityCountTxt.text = _lastEntityCount.ToString();
                         }
 
+                        break;
+                    case GameState.Running when !world.HasValue:
+                        spawnEntity.SetActive(false);
+                        destroyEntity.SetActive(false);
+                        createItem.SetActive(false);
                         break;
                     case GameState.Exit:
                         yield break;
@@ -46,7 +68,7 @@ namespace KSGFK
 
         private Entity SpawnEntity()
         {
-            var em = _gm.Entity;
+            World em = _gm.World;
             var txt = spawnEntityName.text;
             var e = _idNum.IsMatch(txt) ? em.SpawnEntity(int.Parse(txt.Substring(3))) : em.SpawnEntity(txt);
             return e;
@@ -73,9 +95,28 @@ namespace KSGFK
 
         public void OnDestroyEntityBtnPress() { }
 
-        public void OnDestroyAllEntityBtnPress() { }
+        public void OnDestroyAllEntityBtnPress()
+        {
+            World em = _gm.World;
+            foreach (var entity in em.ActiveEntity)
+            {
+                em.DestroyEntity(entity);
+            }
+        }
 
-        public void OnCreateItemBtnPress() { }
+        public void OnCreateItemBtnPress()
+        {
+            World em = _gm.World;
+            var txt = createItemName.text;
+            if (_idNum.IsMatch(txt))
+            {
+                em.CreateItem(int.Parse(txt.Substring(3)));
+            }
+            else
+            {
+                em.CreateItem(txt);
+            }
+        }
 
         public void OnLoadWorldBtnPress()
         {
