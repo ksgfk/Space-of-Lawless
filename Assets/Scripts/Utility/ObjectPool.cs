@@ -4,28 +4,46 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    /// <summary>
+    /// 简易对象池
+    /// </summary>
     public class ObjectPool
     {
         private readonly GameObject _template;
         private readonly List<GameObject> _pool;
         private readonly Stack<int> _usable;
+        private readonly List<bool> _isUsed;
 
-        public string Symbol { get; }
+        /// <summary>
+        /// 唯一标识符
+        /// </summary>
+        public string UniqueId { get; }
 
+        /// <summary>
+        /// 内部容器
+        /// </summary>
         public IReadOnlyList<GameObject> Container => _pool;
 
-        public ObjectPool(GameObject template, int initCount, string symbol = null)
+        /// <summary>
+        /// 对象模板
+        /// </summary>
+        public GameObject Template => _template;
+
+        public ObjectPool(GameObject template, int initCount = 0, string uniqueId = "")
         {
             _template = template;
-            Symbol = symbol;
+            UniqueId = uniqueId;
             _pool = new List<GameObject>(initCount);
             _usable = new Stack<int>(initCount);
+            _isUsed = new List<bool>(initCount);
             for (var i = 0; i < initCount; i++)
             {
-                var go = Instantiate();
-                var ptr = _pool.Count;
-                _pool.Add(go);
-                Return(ptr);
+                Get();
+            }
+
+            for (var i = 0; i < initCount; i++)
+            {
+                Return(i);
             }
         }
 
@@ -40,6 +58,7 @@ namespace KSGFK
                 go = Instantiate();
                 ptr = _pool.Count;
                 _pool.Add(go);
+                _isUsed.Add(false);
             }
             else
             {
@@ -47,16 +66,22 @@ namespace KSGFK
                 go = _pool[ptr];
             }
 
+            _isUsed[ptr] = true;
             go.SetActive(true);
             return ptr;
         }
 
         public void Return(int ptr)
         {
-            if (ptr >= _pool.Count) throw new ArgumentException();
+            if (!_isUsed[ptr])
+            {
+                throw new InvalidOperationException($"[池:{UniqueId}]:对象{ptr}已回收");
+            }
+
             _usable.Push(ptr);
             var go = _pool[ptr];
             go.SetActive(false);
+            _isUsed[ptr] = false;
         }
 
         public int Get(Transform parent)
@@ -93,20 +118,38 @@ namespace KSGFK
             return ptr;
         }
 
-        public void ReAllocate(int count)
+        /// <summary>
+        /// 释放池中所有对象
+        /// </summary>
+        public void Release(bool uncheck = false, Action<GameObject> releaseAction = null)
         {
-            if (_pool.Count > count)
+            if (!uncheck)
             {
-                var m = Math.Max(0, count - 1);
-                _pool.RemoveRange(m, _pool.Count - m);
-            }
-            else if (_pool.Count < count)
-            {
-                for (var i = 0; i < count - _pool.Count; i++)
+                if (_pool.Count != _usable.Count)
                 {
-                    _pool.Add(Instantiate());
+                    throw new InvalidOperationException(
+                        $"[池:{UniqueId}]:对象未全部回收,当前池内:{_usable.Count},共分配{_pool.Count}");
                 }
             }
+
+            if (releaseAction == null)
+            {
+                foreach (var go in _pool)
+                {
+                    UnityEngine.Object.Destroy(go);
+                }
+            }
+            else
+            {
+                foreach (var go in _pool)
+                {
+                    releaseAction(go);
+                }
+            }
+
+            _pool.Clear();
+            _usable.Clear();
+            _isUsed.Clear();
         }
     }
 }

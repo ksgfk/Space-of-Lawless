@@ -5,21 +5,24 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace KSGFK
 {
+    [DisallowMultipleComponent]
     public class World : MonoBehaviour, IDisposable
     {
         protected GameManager _gm;
         private SceneInstance _sceneInstance;
         private LinkedList<Entity> _activeEntity;
+        private PoolCenter _pool;
 
         public SceneInstance Scene => _sceneInstance;
-
         public IEnumerable<Entity> ActiveEntity => _activeEntity;
+        public PoolCenter Pool => _pool;
 
         public virtual void Init(GameManager gm, in SceneInstance sceneInstance)
         {
             _gm = gm;
             _sceneInstance = sceneInstance;
             _activeEntity = new LinkedList<Entity>();
+            _pool = new PoolCenter();
         }
 
         protected virtual Entity SpawnEntity(EntryEntity entry)
@@ -98,6 +101,6 @@ namespace KSGFK
 
         protected virtual IRegistry<EntryItem> GetItemRegistry() { return _gm.Register.Item; }
 
-        public void Dispose() { }
+        public void Dispose() { Pool.Dispose(); }
     }
 }

@@ -20,7 +20,8 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:PoolCenter移入World中，随World一起释放
+    /// TODO:修复世界卸载后，池Id没有更改的bug
+    /// TODO:捡起物品
     /// </summary>
     public class GameManager : MonoBehaviour
     {
@@ -35,7 +36,6 @@ namespace KSGFK
         private LoadManager _load;
         private JobCenter _job;
         private InputCenter _input;
-        private PoolCenter _pool;
         private MetaData _meta;
         private RegisterCenter _register;
 
@@ -43,7 +43,6 @@ namespace KSGFK
         public JobCenter Job => _job;
         public Camera MainCamera => _mainCamera;
         public InputCenter Input => _input;
-        public PoolCenter Pool => _pool;
         public Canvas UiCanvas => _uiCanvas;
         public GameState NowState => _nowState;
         public MetaData MetaData => _meta;
@@ -87,7 +86,6 @@ namespace KSGFK
             await Addressables.InitializeAsync().Task;
             _load = GetComponent<LoadManager>();
             _job = new JobCenter(this);
-            _pool = new PoolCenter();
             _register = new RegisterCenter(this);
             _input = new InputCenter();
             SetCallbackBeforePreInit?.Invoke();

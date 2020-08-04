@@ -42,6 +42,7 @@ namespace KSGFK
             transform.position += (Vector3) move;
             if (_isSpeedUp)
             {
+                _velocity = move / fixedTime;
                 _isSpeedUp = false;
             }
             else

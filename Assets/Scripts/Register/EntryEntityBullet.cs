@@ -7,54 +7,66 @@ namespace KSGFK
     public class EntryEntityBullet : EntryEntity
     {
         [ReflectionInject] private string addr = null;
-        [ReflectionInject] private int pool_count = -1;
+        [ReflectionInject] private bool is_pool = false;
         private GameObject _prefab;
-        private int _poolId;
+        private int _poolId = -1;
 
         public string Addr => addr;
-        public int PoolCount => pool_count;
+        public bool IsToPool => is_pool;
         public int PoolId => _poolId;
         public GameObject Prefab => _prefab;
 
         protected override Entity SpawnEntity()
         {
             EntityBullet result;
-            if (PoolCount < 0)
+            World world = GameManager.Instance.World;
+            var poolObjId = -1;
+            if (IsToPool)
             {
-                result = UnityEngine.Object.Instantiate(Prefab).GetComponent<EntityBullet>();
-                result.PoolObjectId = -1;
+                if (PoolId <= -1)
+                {
+                    
+                    _poolId = world.Pool.Allocate(Prefab, RegisterName, 1);
+                }
+
+                var pool = world.Pool[PoolId];
+                poolObjId = pool.Get();
+                var go = pool.Container[poolObjId];
+                result = go.GetComponent<EntityBullet>();
             }
             else
             {
-                var myPool = GameManager.Instance.Pool.Pools[PoolId];
-                var ptr = myPool.Get();
-                var go = myPool.Container[ptr];
-                var b = go.GetComponent<EntityBullet>();
-                b.PoolObjectId = ptr;
-                result = b;
+                result = UnityEngine.Object.Instantiate(Prefab).GetComponent<EntityBullet>();
             }
 
+            result.PoolObjectId = poolObjId;
             return result;
         }
 
-        protected sealed override void DestroyEntity(Entity instance)
+        protected override void DestroyEntity(Entity instance)
         {
             var bullet = (EntityBullet) instance;
-            if (PoolCount < 0)
+            World world = GameManager.Instance.World;
+            if (IsToPool)
             {
-                UnityEngine.Object.Destroy(instance.gameObject);
-            }
-            else
-            {
-                if (bullet.PoolObjectId < 0)
+                if (PoolId <= -1)
+                {
+                    throw new ArgumentException("非法的池Id，可能有bug");
+                }
+
+                if (bullet.PoolObjectId <= -1)
                 {
                     throw new InvalidOperationException($"{RegisterName}:{PoolId}不能回收无id的子弹{instance}");
                 }
 
-                GameManager.Instance.Pool.Return(PoolId, bullet.PoolObjectId);
+                world.Pool.Return(PoolId, bullet.PoolObjectId);
                 bullet.PoolObjectId = -1;
                 bullet.RuntimeId = -1;
                 bullet.Node = null;
+            }
+            else
+            {
+                base.DestroyEntity(instance);
             }
         }
 
@@ -63,28 +75,12 @@ namespace KSGFK
             GameManager.Instance.Load.Request<GameObject>(Addr, handle => _prefab = Helper.GetAsyncOpResult(handle));
         }
 
-        public override void Process()
-        {
-            if (!Prefab.TryGetComponent<EntityBullet>(out _))
-            {
-                Debug.Log($"子弹{RegisterName}不存在{typeof(EntityBullet)}组件");
-                return;
-            }
-
-            _poolId = GameManager.Instance.Pool.Allocate(Prefab, RegisterName, PoolCount, newId => _poolId = newId);
-        }
-
         public override bool Check(out string info)
         {
-            var result = Helper.CheckResource(Prefab, Addr, out var reason);
-            if (!GameManager.Instance.Pool.IsAllocated(RegisterName))
-            {
-                reason += $" 未成功分配资源池{RegisterName},忽略";
-                result = false;
-            }
-
-            info = reason;
-            return result;
+            var result = Helper.CheckResource(Prefab, Addr, out var resReason);
+            var comp = Helper.CheckComponent<EntityBullet>(Prefab, out var compReason);
+            info = $"[{resReason}|{compReason}]";
+            return result && comp;
         }
     }
 }

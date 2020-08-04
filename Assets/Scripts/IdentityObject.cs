@@ -12,7 +12,7 @@ namespace KSGFK
             get => runtimeId;
             set
             {
-                if (runtimeId == -1)
+                if (runtimeId <= -1)
                 {
                     runtimeId = value;
                 }
