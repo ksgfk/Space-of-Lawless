@@ -17,6 +17,11 @@ namespace KSGFK
         public IEnumerable<Entity> ActiveEntity => _activeEntity;
         public PoolCenter Pool => _pool;
 
+        /// <summary>
+        /// 世界被卸载时触发事件
+        /// </summary>
+        public event Action<World> Unload;
+
         public virtual void Init(GameManager gm, in SceneInstance sceneInstance)
         {
             _gm = gm;
@@ -101,6 +106,10 @@ namespace KSGFK
 
         protected virtual IRegistry<EntryItem> GetItemRegistry() { return _gm.Register.Item; }
 
-        public void Dispose() { Pool.Dispose(); }
+        public void Dispose()
+        {
+            Unload?.Invoke(this);
+            Pool.Dispose();
+        }
     }
 }

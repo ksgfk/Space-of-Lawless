@@ -25,8 +25,8 @@ namespace KSGFK
             {
                 if (PoolId <= -1)
                 {
-                    
                     _poolId = world.Pool.Allocate(Prefab, RegisterName, 1);
+                    world.Unload += _ => _poolId = -1;
                 }
 
                 var pool = world.Pool[PoolId];
