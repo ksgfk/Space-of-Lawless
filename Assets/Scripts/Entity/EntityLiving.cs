@@ -13,7 +13,7 @@ namespace KSGFK
         [SerializeField] protected ulong nowHealth;
         private Rigidbody2D _rigid;
         private Collider2D _coll;
-        [SerializeField] private Inventory _inventory;
+        [SerializeField] private Inventory _inventory = null;
 
         public ulong MaxHealth
         {
@@ -31,7 +31,10 @@ namespace KSGFK
             nowHealth = maxHealth;
             _rigid = GetComponent<Rigidbody2D>();
             _coll = GetComponent<Collider2D>();
-            _inventory = GetComponent<Inventory>();
+            if (_inventory)
+            {
+                _inventory.Init(this);
+            }
         }
     }
 }

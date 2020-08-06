@@ -20,7 +20,8 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:修复世界卸载后，池Id没有更改的bug
+    /// TODO:未被捡起的物品也是世界活动中实体
+    /// TODO:物品的合并堆叠
     /// TODO:捡起物品
     /// </summary>
     public class GameManager : MonoBehaviour
@@ -38,6 +39,7 @@ namespace KSGFK
         private InputCenter _input;
         private MetaData _meta;
         private RegisterCenter _register;
+        private EventCenter _event;
 
         public LoadManager Load => _load;
         public JobCenter Job => _job;
@@ -48,11 +50,12 @@ namespace KSGFK
         public MetaData MetaData => _meta;
         public RegisterCenter Register => _register;
         public Nullable<World> World => new Nullable<World>(_world);
+        public EventCenter Event => _event;
 
         /// <summary>
         /// 在各模块初始化完毕，未开始PreInit时设置事件回调
         /// </summary>
-        public event Action SetCallbackBeforePreInit;
+        public event Action BeforePreInit;
 
         /// <summary>
         /// 读取游戏数据
@@ -88,8 +91,9 @@ namespace KSGFK
             _job = new JobCenter(this);
             _register = new RegisterCenter(this);
             _input = new InputCenter();
-            SetCallbackBeforePreInit?.Invoke();
-            SetCallbackBeforePreInit = null;
+            _event = new EventCenter();
+            BeforePreInit?.Invoke();
+            BeforePreInit = null;
 
             StartPerInit();
         }

@@ -10,10 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1938431336315197528}
   - component: {fileID: 1938431336315197535}
-  - component: {fileID: 1938431336315197529}
-  m_Layer: 0
+  - component: {fileID: 2719145810024889547}
+  - component: {fileID: 635398729484619370}
+  m_Layer: 10
   m_Name: item_desert_eagle
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -82,7 +83,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1938431336315197529
+--- !u!58 &2719145810024889547
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938431336315197534}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.16
+--- !u!114 &635398729484619370
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,6 +112,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runtimeId: -1
+  maxStack: 0
+  nowStack: 0
   bulletInitPos: {x: 0.24, y: 0.1}
   _damage: -1
   _firingRate: -1

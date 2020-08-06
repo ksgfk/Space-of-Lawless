@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    [RequireComponent(typeof(Collider2D))]
     [DisallowMultipleComponent]
     public class Item : Entity
     {
@@ -49,18 +50,14 @@ namespace KSGFK
             }
         }
 
+        public override void OnSpawn() { GetComponent<Collider2D>().isTrigger = true; }
+
         public virtual void OnUse(EntityLiving user) { }
 
         public virtual int AddItem(int count)
         {
             var isOver = Helper.TryAddValue(nowStack, count, maxStack, out var result, out var overflow);
             nowStack = result;
-            if (isOver)
-            {
-                Debug.Log($"装不下啦，已经溢出来{overflow}啦~~~");
-                //TODO:扔出超过部分
-            }
-
             return overflow;
         }
     }

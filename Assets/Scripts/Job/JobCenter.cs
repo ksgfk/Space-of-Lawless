@@ -14,7 +14,7 @@ namespace KSGFK
         public JobCenter(GameManager gm)
         {
             _gm = gm;
-            gm.SetCallbackBeforePreInit += OnRegisterComplete;
+            gm.BeforePreInit += OnRegisterComplete;
         }
 
         private void OnRegisterComplete()
