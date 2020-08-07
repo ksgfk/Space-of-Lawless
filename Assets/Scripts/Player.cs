@@ -1,6 +1,6 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using InputCtx = System.Action<UnityEngine.InputSystem.InputAction.CallbackContext>;
 
 namespace KSGFK
 {
@@ -12,10 +12,6 @@ namespace KSGFK
         public Vector2 moveDir;
 
         private EntityLiving _living;
-
-        private InputCtx _mouseMove;
-        private InputCtx _playerStartMove;
-        private InputCtx _playerStopMove;
 
         private void Update()
         {
@@ -61,11 +57,6 @@ namespace KSGFK
                 var hasInv = _living.Inventory;
                 if (hasInv.HasValue)
                 {
-                    var inv = hasInv.Value;
-                    inv.TriggerItem += (inventory, item) =>
-                    {
-                        //TODO:捡物品逻辑
-                    };
                     ctrl.Player.Action.performed += StartAct;
                     ctrl.Player.Action.canceled += StopAct;
                 }
@@ -80,28 +71,10 @@ namespace KSGFK
 
         private void StartAct(InputAction.CallbackContext ctx)
         {
-            if (_living)
-            {
-                var hasInv = _living.Inventory;
-                if (hasInv.HasValue)
-                {
-                    var inv = hasInv.Value;
-                    inv.StartCheckRadius();
-                }
-            }
+            Inventory inv = _living.Inventory;
+            inv.PickRadiusItems();
         }
 
-        private void StopAct(InputAction.CallbackContext ctx)
-        {
-            if (_living)
-            {
-                var hasInv = _living.Inventory;
-                if (hasInv.HasValue)
-                {
-                    var inv = hasInv.Value;
-                    inv.StopCheckRadius();
-                }
-            }
-        }
+        private void StopAct(InputAction.CallbackContext ctx) { }
     }
 }

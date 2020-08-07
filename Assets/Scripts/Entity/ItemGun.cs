@@ -9,7 +9,7 @@ namespace KSGFK
         [SerializeField] private float _damage = -1;
         [SerializeField] private float _firingRate = -1;
         [SerializeField] private int _capacity = -2;
-        
+
         public float Damage
         {
             get => _damage;
@@ -26,6 +26,12 @@ namespace KSGFK
         {
             get => _capacity;
             set => _capacity = Helper.SingleAssign(value, MathExt.IsEqual(value, -1f));
+        }
+
+        public override void OnSpawn()
+        {
+            base.OnSpawn();
+            NowStack = MaxStack;
         }
     }
 }

@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runtimeId: -1
-  maxStack: 0
+  maxStack: 1
   nowStack: 0
   bulletInitPos: {x: 0.24, y: 0.1}
   _damage: -1

@@ -29,6 +29,8 @@ namespace KSGFK
                 }
             }
         }
+        
+        public bool IsInWorld => Node.List != null;
 
         public virtual void OnSpawn() { }
 

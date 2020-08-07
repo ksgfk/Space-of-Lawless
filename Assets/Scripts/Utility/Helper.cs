@@ -90,6 +90,15 @@ namespace KSGFK
                 select info;
         }
 
+        /// <summary>
+        /// 尝试将变化量加入原始数据
+        /// </summary>
+        /// <param name="raw">原始数据</param>
+        /// <param name="delta">变化量</param>
+        /// <param name="max">数据最大值</param>
+        /// <param name="result">添加后结果</param>
+        /// <param name="overflow">溢出结果</param>
+        /// <returns>是否有溢出结果</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryAddValue(int raw, int delta, int max, out int result, out int overflow)
         {

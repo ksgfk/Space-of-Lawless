@@ -20,9 +20,11 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:未被捡起的物品也是世界活动中实体
-    /// TODO:物品的合并堆叠
-    /// TODO:捡起物品
+    /// TODO:理清物品和实体的关系。物品和实体不属于同一注册表，不能统一处理
+    /// TODO:持有物品时,物品所在位置
+    /// TODO:物品的使用
+    /// TODO:使用Task代替手动状态机
+    /// TODO:可以指定物品生成坐标
     /// </summary>
     public class GameManager : MonoBehaviour
     {
