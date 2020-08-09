@@ -7,7 +7,13 @@
     }
   ],
   "JobInfo": [],
-  "ItemInfo": [],
+  "ItemInfo": [
+    {
+      "Path": "item_gun.csv",
+      "EntryType": "KSGFK.EntryItemGun",
+      "DataType": "KSGFK.ItemGunInfo"
+    }
+  ],
   "WorldInfo": [
     {
       "Path": "world.csv",

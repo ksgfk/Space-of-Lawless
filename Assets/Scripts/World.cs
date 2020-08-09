@@ -102,102 +102,6 @@ namespace KSGFK
 
         protected virtual Registry<EntryEntity> GetEntityRegistry() { return _gm.Register.Entity; }
 
-        /// <summary>
-        /// 创建物品,可能返回null
-        /// </summary>
-        public Item CreateItem(string itemId, bool spawnInWorld = true)
-        {
-            return CreateItem(GetItemRegistry()[itemId], spawnInWorld);
-        }
-
-        /// <summary>
-        /// 创建物品,可能返回null
-        /// </summary>
-        public Item CreateItem(int itemId, bool spawnInWorld = true)
-        {
-            return CreateItem(GetItemRegistry()[itemId], spawnInWorld);
-        }
-
-        /// <summary>
-        /// 创建物品,可能返回null
-        /// </summary>
-        public Item CreateItem(string itemId, Vector2 pos)
-        {
-            var item = CreateItem(GetItemRegistry()[itemId], true);
-            item.transform.position = pos;
-            return item;
-        }
-
-        /// <summary>
-        /// 创建物品,可能返回null
-        /// </summary>
-        public Item CreateItem(int itemId, Vector2 pos)
-        {
-            var item = CreateItem(GetItemRegistry()[itemId], true);
-            item.transform.position = pos;
-            return item;
-        }
-
-        /// <summary>
-        /// 销毁物品
-        /// </summary>
-        public void DestroyItem(Item item)
-        {
-            if (item.IsInWorld)
-            {
-                RemoveItemFromWorld(item);
-            }
-
-            GetItemRegistry()[item.RuntimeId].Destroy(item);
-        }
-
-        protected virtual Item CreateItem(EntryItem entryItem, bool spawnInWorld)
-        {
-            var instance = (Item) entryItem.Instantiate();
-            if (spawnInWorld)
-            {
-                AddToActiveEntity(instance);
-            }
-
-            return instance;
-        }
-
-        /// <summary>
-        /// 将物品扔到世界中
-        /// </summary>
-        public void DropItem(Item item)
-        {
-            if (item.IsInWorld)
-            {
-                throw new InvalidOperationException("物品已经在世界中，不能再扔出");
-            }
-
-            AddToActiveEntity(item);
-        }
-
-        /// <summary>
-        /// 将物品从世界中移除
-        /// </summary>
-        /// <param name="item"></param>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void RemoveItemFromWorld(Item item)
-        {
-            if (item.IsInWorld)
-            {
-                _activeEntity.Remove(item.Node);
-            }
-            else
-            {
-                throw new InvalidOperationException("物品不在世界中，不能将它从世界中移除");
-            }
-        }
-
-        protected virtual Registry<EntryItem> GetItemRegistry()
-        {
-            // return _gm.Register.Item;
-            return null;
-        }
-
         public void Dispose()
         {
             Unload?.Invoke(this);
@@ -218,6 +122,33 @@ namespace KSGFK
             }
 
             _activeEntity.AddLast(node);
+        }
+
+        protected virtual Registry<EntryItem> GetItemRegistry() { return _gm.Register.Item; }
+
+        public EntityItem CreateItemInWorld(int itemId, Entity creator = null)
+        {
+            return CreateItemInWorld(GetItemRegistry()[itemId], creator);
+        }
+
+        public EntityItem CreateItemInWorld(string itemName, Entity creator = null)
+        {
+            return CreateItemInWorld(GetItemRegistry()[itemName], creator);
+        }
+
+        private EntityItem CreateItemInWorld(EntryItem itemEntry, Entity creator)
+        {
+            if (itemEntry == null)
+            {
+                return null;
+            }
+
+            var item = itemEntry.Instantiate();
+            var ie = _gm.Register.NewEntityItem;
+            ie.SetHoldItem(item);
+            ie.SetThrower(creator);
+            AddToActiveEntity(ie);
+            return ie;
         }
     }
 }

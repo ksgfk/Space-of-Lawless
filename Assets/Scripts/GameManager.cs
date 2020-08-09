@@ -19,10 +19,11 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:实体物品
-    /// TODO:持有物品时,自动设定物品位置
+    /// TODO:捡物品
+    /// TODO:直接将物品塞入玩家背包
+    /// TODO:持有物品时,自动设定物品在实体身上的位置
     /// TODO:使用物品
-    /// TODO:可以指定物品生成坐标
+    /// TODO:可以在Debug面板指定物品生成坐标
     /// TODO:重写LoadManager
     /// TODO:自动释放一次性事件
     /// </summary>
@@ -113,6 +114,7 @@ namespace KSGFK
             Register.Register();
             Register.Remap();
             Register.Clean();
+            Register.LogStatistic();
             _nowState = GameState.Init;
         }
 

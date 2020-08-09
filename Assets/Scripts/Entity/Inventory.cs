@@ -99,19 +99,19 @@ namespace KSGFK
 
         private void DropOverWhenInsertItem(Item item)
         {
-            if (_container.Count >= _capacity)
-            {
-                if (!item.IsInWorld)
-                {
-                    item.ThrownOutIntoWorld();
-                }
-            }
-            else
-            {
-                _container.Add(item);
-                item.PickedUpFromWorld(_entity);
-                item.transform.SetParent(transform);
-            }
+            // if (_container.Count >= _capacity)
+            // {
+            //     if (!item.IsInWorld)
+            //     {
+            //         item.ThrownOutIntoWorld();
+            //     }
+            // }
+            // else
+            // {
+            //     _container.Add(item);
+            //     item.PickedUpFromWorld(_entity);
+            //     item.transform.SetParent(transform);
+            // }
         }
     }
 }

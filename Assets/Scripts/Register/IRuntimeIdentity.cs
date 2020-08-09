@@ -4,6 +4,6 @@ namespace KSGFK
     {
         int RuntimeId { get; }
 
-        void SetupId(int id);
+        void SetId(int id);
     }
 }

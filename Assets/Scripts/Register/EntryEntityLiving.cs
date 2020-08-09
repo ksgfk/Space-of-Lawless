@@ -37,7 +37,7 @@ namespace KSGFK
         {
             var go = UnityEngine.Object.Instantiate(_prefab);
             var entity = go.GetComponent<EntityLiving>();
-            entity.MaxHealth = MaxHealth;
+            entity.SetMaxHealth(MaxHealth);
             return entity;
         }
 
@@ -52,7 +52,7 @@ namespace KSGFK
         {
             var res = Helper.CheckResource(_prefab, AssetAddr, out var resInfo);
             var com = Helper.CheckComponent<EntityLiving>(_prefab, out var comInfo);
-            reason = $"{res}|{com}";
+            reason = $"{resInfo}|{comInfo}";
             return res && com;
         }
     }

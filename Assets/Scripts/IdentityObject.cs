@@ -5,21 +5,21 @@ namespace KSGFK
 {
     public class IdentityObject : MonoBehaviour, IRuntimeIdentity
     {
-        [SerializeField] private int runtimeId = -1;
+        [SerializeField] private int _runtimeId = -1;
 
-        public int RuntimeId => runtimeId;
+        public int RuntimeId => _runtimeId;
 
-        public void SetupId(int id)
+        public void SetId(int id)
         {
-            if (runtimeId <= -1)
+            if (_runtimeId <= -1)
             {
-                runtimeId = id;
+                _runtimeId = id;
             }
             else
             {
                 if (id < 0)
                 {
-                    runtimeId = -1;
+                    _runtimeId = -1;
                 }
                 else
                 {

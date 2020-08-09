@@ -9,7 +9,7 @@ namespace KSGFK
         public T Instantiate()
         {
             var instance = Construct();
-            instance.SetupId(RuntimeId);
+            instance.SetId(RuntimeId);
             return instance;
         }
     }

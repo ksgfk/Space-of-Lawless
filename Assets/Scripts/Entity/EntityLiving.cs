@@ -9,26 +9,22 @@ namespace KSGFK
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class EntityLiving : Entity
     {
-        [SerializeField] protected ulong maxHealth = ulong.MaxValue;
-        [SerializeField] protected ulong nowHealth;
+        [SerializeField] protected ulong _maxHealth = ulong.MaxValue;
+        [SerializeField] protected ulong _nowHealth;
         private Rigidbody2D _rigid;
         private Collider2D _coll;
         [SerializeField] private Inventory _inventory = null;
 
-        public ulong MaxHealth
-        {
-            get => maxHealth;
-            set => maxHealth = Helper.SingleAssign(value, maxHealth != ulong.MaxValue);
-        }
+        public ulong MaxHealth => _maxHealth;
 
-        public ulong NowHealth { get => nowHealth; set => nowHealth = value; }
+        public ulong NowHealth { get => _nowHealth; set => _nowHealth = value; }
         public Rigidbody2D Rigid => _rigid;
         public Collider2D Coll => _coll;
         public Nullable<Inventory> Inventory => new Nullable<Inventory>(_inventory);
 
         public override void OnSpawn()
         {
-            nowHealth = maxHealth;
+            _nowHealth = _maxHealth;
             _rigid = GetComponent<Rigidbody2D>();
             _coll = GetComponent<Collider2D>();
             if (_inventory)
@@ -36,5 +32,7 @@ namespace KSGFK
                 _inventory.Init(this);
             }
         }
+
+        public void SetMaxHealth(ulong health) { _maxHealth = health; }
     }
 }

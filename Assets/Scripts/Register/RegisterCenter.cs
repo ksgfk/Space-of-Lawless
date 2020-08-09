@@ -16,6 +16,9 @@ namespace KSGFK
         private readonly Registry<Registry> _registry;
         private readonly StageRegistry<EntryEntity> _entityRegistry;
         private readonly Registry<EntryWorld> _worldRegistry;
+        private readonly StageRegistry<EntryItem> _itemRegistry;
+
+        private EntryEntityItem _entryEntityItem;
 
         private RegisterDataCollection _registerData;
         private HashSet<string> _entryName;
@@ -24,6 +27,8 @@ namespace KSGFK
         public Registry<Registry> Registry => _registry;
         public Registry<EntryEntity> Entity => _entityRegistry;
         public Registry<EntryWorld> World => _worldRegistry;
+        public Registry<EntryItem> Item => _itemRegistry;
+        public EntityItem NewEntityItem => (EntityItem) _entryEntityItem.Instantiate();
 
         public RegisterCenter(GameManager gm)
         {
@@ -35,25 +40,35 @@ namespace KSGFK
             _registry = new Registry<Registry>("registry", _entryName);
             _entityRegistry = new StageRegistry<EntryEntity>("entity", _entryName);
             _worldRegistry = new Registry<EntryWorld>("world", _entryName);
+            _itemRegistry = new StageRegistry<EntryItem>("item", _entryName);
+
+            _gm.BeforePreInit += () =>
+            {
+                _gm.Event.Subscribe<EventRegister<EntryEntity>>((o, e) =>
+                {
+                    e.Registry.Register(new EntryEntityItem());
+                });
+            };
         }
 
         public void RegisterRegistry()
         {
             Registry.Register(_entityRegistry);
             Registry.Register(_worldRegistry);
+            Registry.Register(_itemRegistry);
         }
 
         public async Task GetRegisterEntryData()
         {
             _registerData = new RegisterDataCollection();
             await LoadDataFromCsv(_registerData);
-            _gm.Event.Post(this, new EventEditRegisterData(_registerData));
         }
 
         public async Task PreRegister()
         {
             RegisterIter(_entityRegistry, _gm.MetaData.EntityInfo);
             RegisterIter(_worldRegistry, _gm.MetaData.WorldInfo);
+            RegisterIter(_itemRegistry, _gm.MetaData.ItemInfo);
 
             foreach (var registry in Registry)
             {
@@ -85,6 +100,8 @@ namespace KSGFK
             {
                 registry.Remap(_registered, _queryDict);
             }
+
+            _entryEntityItem = (EntryEntityItem) Entity["entity_item"];
         }
 
         public void Clean()
@@ -96,7 +113,6 @@ namespace KSGFK
 
         private void ReleaseEvent()
         {
-            _gm.Event.Unsubscribe(typeof(EventEditRegisterData));
             foreach (var registry in Registry)
             {
                 _gm.Event.Unsubscribe(typeof(EventRegister<>).MakeGenericType(registry.EntryType));
@@ -193,6 +209,15 @@ namespace KSGFK
             }
 
             _gm.Event.Post(this, new EventRegister<T>(registry));
+        }
+
+        public void LogStatistic()
+        {
+            Debug.LogFormat("Registry:{0}", Registry.Count);
+            Debug.LogFormat("Entity:{0}", Entity.Count);
+            Debug.LogFormat("Item:{0}", Item.Count);
+            Debug.LogFormat("World:{0}", World.Count);
+            Debug.LogFormat("All:{0}", _registered.Count);
         }
     }
 }

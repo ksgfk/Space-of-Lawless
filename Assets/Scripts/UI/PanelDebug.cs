@@ -114,11 +114,11 @@ namespace KSGFK
             var txt = createItemName.text;
             if (_idNum.IsMatch(txt))
             {
-                em.CreateItem(int.Parse(txt.Substring(3)));
+                em.CreateItemInWorld(int.Parse(txt.Substring(3)));
             }
             else
             {
-                em.CreateItem(txt);
+                em.CreateItemInWorld(txt);
             }
         }
 
@@ -138,7 +138,7 @@ namespace KSGFK
 
         public void OnUnloadWorldBtnPress() { GameManager.Instance.UnloadWorld(); }
 
-        public void DefaultSet()
+        public void DefaultAction()
         {
             // GameManager.Instance.StartLoadWorld(0,
             //     () =>
