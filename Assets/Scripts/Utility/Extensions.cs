@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -78,6 +80,19 @@ namespace KSGFK
             var isInRange = index >= 0 && index < list.Count;
             value = isInRange ? list[index] : default;
             return isInRange;
+        }
+
+        public static Task ToTask(this IAsyncHandleWrapper wrapper)
+        {
+            return Task.Run(() =>
+            {
+                while (!wrapper.IsDone)
+                {
+                    Thread.Sleep(1);
+                }
+
+                wrapper.OnComplete();
+            });
         }
     }
 }

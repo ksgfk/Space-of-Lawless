@@ -3,196 +3,122 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KSGFK
 {
     public class RegisterCenter
     {
-        private readonly StageRegistry<EntryEntity> _entities;
-        private readonly StageRegistry<EntryJob> _jobs;
-        private readonly StageRegistry<EntryItem> _items;
-        private readonly StageRegistry<EntryWorld> _maps;
+        private readonly GameManager _gm;
+        private readonly List<RegisterEntry> _registered;
+        private readonly Dictionary<string, int> _queryDict;
+        private readonly Registry<Registry> _registry;
+        private readonly StageRegistry<EntryEntity> _entityRegistry;
+        private readonly Registry<EntryWorld> _worldRegistry;
 
-        /// <summary>
-        /// 生命周期在RegisterComplete事件发布后结束
-        /// </summary>
-        private RawDataCollection _rawData;
+        private RegisterDataCollection _registerData;
+        private HashSet<string> _entryName;
 
-        public IRegistry<EntryEntity> Entity => _entities;
-        public IRegistry<EntryJob> Job => _jobs;
-        public IRegistry<EntryItem> Item => _items;
-        public IRegistry<EntryWorld> Map => _maps;
-
-        /// <summary>
-        /// PreInit阶段，添加数据加载器
-        /// </summary>
-        public event Action<ICollection<DataLoader>> AddDataLoader;
-
-        /// <summary>
-        /// PreInit阶段，添加数据路径
-        /// </summary>
-        public event Action<ICollection<(Type, string)>> AddDataPath;
-
-        /// <summary>
-        /// Init阶段，注册实体
-        /// </summary>
-        public event Action<IRegistry<EntryEntity>> RegisterEntity;
-
-        /// <summary>
-        /// Init阶段，注册物品
-        /// </summary>
-        public event Action<IRegistry<EntryItem>> RegisterItem;
-
-        /// <summary>
-        /// Init阶段，注册Job
-        /// </summary>
-        public event Action<IRegistry<EntryJob>> RegisterJob;
-
-        /// <summary>
-        /// Init阶段，注册Map
-        /// </summary>
-        public event Action<IRegistry<EntryWorld>> RegisterMap;
-
-        /// <summary>
-        /// PostInit阶段，所有注册工作完成后
-        /// </summary>
-        public event Action RegisterComplete;
+        public IReadOnlyCollection<RegisterEntry> Entry => _registered;
+        public Registry<Registry> Registry => _registry;
+        public Registry<EntryEntity> Entity => _entityRegistry;
+        public Registry<EntryWorld> World => _worldRegistry;
 
         public RegisterCenter(GameManager gm)
         {
-            _entities = new StageRegistry<EntryEntity>("entity");
-            _jobs = new StageRegistry<EntryJob>("job");
-            _items = new StageRegistry<EntryItem>("item");
-            _maps = new StageRegistry<EntryWorld>("map");
-            _rawData = new RawDataCollection();
-            gm.PerInit += LoadData;
-            gm.Init += PerRegisterEntries;
-            gm.PostInit += RegisterEntries;
+            _gm = gm;
+            _registered = new List<RegisterEntry>();
+            _queryDict = new Dictionary<string, int>();
+            _entryName = new HashSet<string>();
+
+            _registry = new Registry<Registry>("registry", _entryName);
+            _entityRegistry = new StageRegistry<EntryEntity>("entity", _entryName);
+            _worldRegistry = new Registry<EntryWorld>("world", _entryName);
         }
 
-        private void LoadData(GameManager gm)
+        public void RegisterRegistry()
         {
-            if (!gm.Load.CanRequest)
+            Registry.Register(_entityRegistry);
+            Registry.Register(_worldRegistry);
+        }
+
+        public async Task GetRegisterEntryData()
+        {
+            _registerData = new RegisterDataCollection();
+            await LoadDataFromCsv(_registerData);
+            _gm.Event.Post(this, new EventEditRegisterData(_registerData));
+        }
+
+        public async Task PreRegister()
+        {
+            RegisterIter(_entityRegistry, _gm.MetaData.EntityInfo);
+            RegisterIter(_worldRegistry, _gm.MetaData.WorldInfo);
+
+            foreach (var registry in Registry)
             {
-                throw new InvalidOperationException("当前上下文不可以加载资源，可能是bug");
-            }
-
-            var dataLoaders = GetDataLoaders();
-            var dataPaths = GetDataPaths(gm);
-            var platform = GameManager.GetPlatform();
-            foreach (var (type, path) in dataPaths)
-            {
-                var ext = Path.GetExtension(path);
-                var loaderType = $"{platform}{ext}";
-                if (!dataLoaders.TryGetValue(loaderType, out var loader))
+                if (registry is IStageRegistry stageRegistry)
                 {
-                    Debug.LogWarningFormat("未找到文件类型{2}的Loader,忽略.[平台{1}][路径{0}]", path, platform, ext);
-                    continue;
-                }
-
-                IAsyncHandleWrapper wrapper;
-                try
-                {
-                    wrapper = loader.StartLoad(type, path, _rawData);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                    continue;
-                }
-
-                gm.Load.Request(wrapper);
-            }
-        }
-
-        private void PerRegisterEntries(GameManager gm)
-        {
-            PrintRawDataInfo();
-
-            WaitRegister(gm.MetaData.EntityInfo, _entities);
-            RegisterEntity?.Invoke(_entities);
-
-            WaitRegister(gm.MetaData.ItemInfo, _items);
-            RegisterItem?.Invoke(_items);
-
-            WaitRegister(gm.MetaData.JobInfo, _jobs);
-            RegisterJob?.Invoke(_jobs);
-
-            WaitRegister(gm.MetaData.WorldInfo, _maps);
-            RegisterMap?.Invoke(_maps);
-
-            RegisterEntity = null;
-            RegisterItem = null;
-            RegisterJob = null;
-        }
-
-        private void RegisterEntries(GameManager gm)
-        {
-            _jobs.RegisterAll();
-            _entities.RegisterAll();
-            _items.RegisterAll();
-            _maps.RegisterAll();
-            RegisterComplete?.Invoke();
-            RegisterComplete = null;
-            _rawData = null;
-
-            PrintRegistryCount(_entities);
-            PrintRegistryCount(_items);
-            PrintRegistryCount(_jobs);
-            PrintRegistryCount(_maps);
-        }
-
-        private void WaitRegister<T>(IEnumerable<MetaData.Info> infos, StageRegistry<T> stageRegistry)
-            where T : IStageProcessEntry
-        {
-            foreach (var info in infos)
-            {
-                var it = _rawData.Query(GameManager.GetDataPath(info.Path));
-                try
-                {
-                    foreach (var entity in it)
-                    {
-                        stageRegistry.AddToWaitRegister(entity);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
+                    await stageRegistry.PreProcessEntry();
                 }
             }
         }
 
-        private void NormalRegister<T>(IEnumerable<MetaData.Info> infos, RegistryImpl<T> registry)
-            where T : IRegisterEntry
+        public void Register()
         {
-            foreach (var jobInfo in infos)
+            foreach (var registry in Registry)
             {
-                foreach (var job in _rawData.Query(GameManager.GetDataPath(jobInfo.Path)))
+                if (registry is IStageRegistry stageRegistry)
                 {
-                    registry.Register(job);
+                    stageRegistry.RegisterAll();
                 }
             }
         }
 
-        private IDictionary<string, DataLoader> GetDataLoaders()
+        public void Remap()
         {
-            var collector = new List<DataLoader>
+            Registry.Remap(0);
+            _registered.Add(Registry);
+            _queryDict.Add(Registry.RegisterName, Registry.RuntimeId);
+            Registry.Remap(_registered, _queryDict);
+            foreach (var registry in Registry)
             {
-                new CsvWinLoader()
-            };
-            AddDataLoader?.Invoke(collector);
-            AddDataLoader = null;
-            return collector.ToDictionary(loader => $"{loader.Platform}.{loader.FileExt}");
+                registry.Remap(_registered, _queryDict);
+            }
         }
 
-        private IEnumerable<(Type, string)> GetDataPaths(GameManager gm)
+        public void Clean()
+        {
+            _entryName = null;
+            _registerData = null;
+            ReleaseEvent();
+        }
+
+        private void ReleaseEvent()
+        {
+            _gm.Event.Unsubscribe(typeof(EventEditRegisterData));
+            foreach (var registry in Registry)
+            {
+                _gm.Event.Unsubscribe(typeof(EventRegister<>).MakeGenericType(registry.EntryType));
+            }
+        }
+
+        private async Task LoadDataFromCsv(RegisterDataCollection collection)
         {
             var dataPath = new List<(Type, string)>();
-            GetDataPathFromMetaData(gm, dataPath);
-            AddDataPath?.Invoke(dataPath);
-            AddDataPath = null;
-            return dataPath;
+            GetDataPathFromMetaData(_gm, dataPath);
+            var task = new List<Task<RegisterData>>();
+            task.AddRange(dataPath.Select(d => CsvWinLoader.AsyncReadRegisterData(d.Item2, d.Item1)));
+            foreach (var t in task)
+            {
+                if (t == null)
+                {
+                    Debug.LogError("数据是空");
+                    continue;
+                }
+
+                collection.Push(await t);
+            }
         }
 
         private static void GetDataPathFromMetaData(GameManager gm, ICollection<(Type, string)> dataPath)
@@ -206,7 +132,7 @@ namespace KSGFK
                     Type type;
                     try
                     {
-                        type = Type.GetType(info.Type);
+                        type = Type.GetType(info.DataType);
                     }
                     catch (Exception e)
                     {
@@ -237,20 +163,36 @@ namespace KSGFK
             }
         }
 
-        private static void PrintRegistryCount<T>(IRegistry<T> registry) where T : IRegisterEntry
+        private static object ConvertRegisterDataToRegisterEntry(object registerData, MetaData.Info info)
         {
-            Debug.LogFormat("[注册表:{0}][数量:{1}]", registry.RegistryName, registry.Count());
+            var entryType = Type.GetType(info.EntryType);
+            if (entryType == null)
+            {
+                throw new ArgumentException();
+            }
+
+            return Activator.CreateInstance(entryType, registerData);
         }
 
-        private void PrintRawDataInfo()
+        private void RegisterIter<T>(Registry<T> registry, IEnumerable<MetaData.Info> info) where T : RegisterEntry
         {
-            foreach (var tuple in _rawData.RawDataStruct)
+            foreach (var i in info)
             {
-                Debug.LogFormat("[类型:{0}][数量:{1}][源:{2}]",
-                    tuple.Value.Item1,
-                    tuple.Value.Item2.Count,
-                    Path.GetFileName(tuple.Key));
+                var data = _registerData.Query(GameManager.GetDataPath(i.Path));
+                foreach (var d in data)
+                {
+                    try
+                    {
+                        registry.Register(ConvertRegisterDataToRegisterEntry(d, i));
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                    }
+                }
             }
+
+            _gm.Event.Post(this, new EventRegister<T>(registry));
         }
     }
 }

@@ -14,7 +14,7 @@ namespace KSGFK
     /// <summary>
     /// Windows平台的CSV格式文件加载
     /// </summary>
-    public class CsvWinLoader : DataLoader
+    public static class CsvWinLoader
     {
         private static readonly Dictionary<Type, Func<string, object>> Parsers;
 
@@ -58,15 +58,13 @@ namespace KSGFK
             };
         }
 
-        public CsvWinLoader() : base(RuntimePlatform.WindowsPlayer.ToString(), "csv") { }
-
-        public override IAsyncHandleWrapper StartLoad(Type type, string path, RawDataCollection collection)
+        public static IAsyncHandleWrapper StartLoad(Type type, string path, RegisterDataCollection collection)
         {
             var task = Read(type, path);
             return new TaskWrapper<IEnumerable<object>>(task, loaded => collection.Push(path, type, loaded));
         }
 
-        private static async Task<IEnumerable<object>> Read(Type type, string path)
+        public static async Task<IEnumerable<object>> Read(Type type, string path)
         {
             var fieldsDict = Helper.GetReflectionInjectFields(type).ToDictionary(f => f.Name);
             var reader = new StreamReader(path, Encoding.UTF8);
@@ -115,6 +113,57 @@ namespace KSGFK
             csv.Dispose();
             reader.Dispose();
             return res;
+        }
+
+        public static async Task<RegisterData> AsyncReadRegisterData(string path, Type dataType)
+        {
+            var strReader = new StreamReader(path, Encoding.UTF8);
+            var csvReader = new CsvReader(strReader, CultureInfo.InvariantCulture);
+            await csvReader.ReadAsync();
+            if (!csvReader.ReadHeader())
+            {
+                Debug.LogWarningFormat("csv:{0},头部读取失败", path);
+                return null;
+            }
+
+            var list = new List<object>();
+            var fields = dataType.GetFields();
+            while (await csvReader.ReadAsync())
+            {
+                var ins = Activator.CreateInstance(dataType);
+                foreach (var fieldInfo in fields)
+                {
+                    var name = fieldInfo.Name;
+                    var info = fieldInfo;
+                    if (!Parsers.TryGetValue(info.FieldType, out var func))
+                    {
+                        Debug.LogWarningFormat("csv:{0},不支持的字段类型:{1}", path, info.FieldType.FullName);
+                        continue;
+                    }
+
+                    var str = csvReader.GetField(name);
+                    if (string.IsNullOrEmpty(str))
+                    {
+                        Debug.LogWarningFormat("csv:{0},不存在列数据:{1}", path, name);
+                        continue;
+                    }
+
+                    try
+                    {
+                        info.SetValue(ins, func(str));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+
+                list.Add(ins);
+            }
+
+            csvReader.Dispose();
+            strReader.Dispose();
+            return new RegisterData(path, dataType, list);
         }
     }
 }

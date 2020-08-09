@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 
 namespace KSGFK
@@ -13,18 +13,18 @@ namespace KSGFK
     {
         PreInit,
         Init,
-        PostInit,
         Running,
         Pause,
         Exit
     }
 
     /// <summary>
-    /// TODO:理清物品和实体的关系。物品和实体不属于同一注册表，不能统一处理
-    /// TODO:持有物品时,物品所在位置
-    /// TODO:物品的使用
-    /// TODO:使用Task代替手动状态机
+    /// TODO:实体物品
+    /// TODO:持有物品时,自动设定物品位置
+    /// TODO:使用物品
     /// TODO:可以指定物品生成坐标
+    /// TODO:重写LoadManager
+    /// TODO:自动释放一次性事件
     /// </summary>
     public class GameManager : MonoBehaviour
     {
@@ -59,21 +59,6 @@ namespace KSGFK
         /// </summary>
         public event Action BeforePreInit;
 
-        /// <summary>
-        /// 读取游戏数据
-        /// </summary>
-        public event Action<GameManager> PerInit;
-
-        /// <summary>
-        /// 加载所需资源
-        /// </summary>
-        public event Action<GameManager> Init;
-
-        /// <summary>
-        /// 后期处理
-        /// </summary>
-        public event Action<GameManager> PostInit;
-
         private async void Awake()
         {
             if (!Instance)
@@ -82,179 +67,117 @@ namespace KSGFK
                 DontDestroyOnLoad(gameObject);
             }
 
-            using (var reader = new StreamReader(Path.Combine(Application.streamingAssetsPath, "metadata.json")))
-            {
-                var str = await reader.ReadToEndAsync();
-                _meta = JsonUtility.FromJson<MetaData>(str);
-            }
-
+            ReadMetaData();
             await Addressables.InitializeAsync().Task;
-            _load = GetComponent<LoadManager>();
-            _job = new JobCenter(this);
-            _register = new RegisterCenter(this);
-            _input = new InputCenter();
-            _event = new EventCenter();
+            InitComponents();
             BeforePreInit?.Invoke();
             BeforePreInit = null;
-
-            StartPerInit();
+            await PreInitGame();
+            Addressables.InstantiateAsync("panel.debug").Completed += h => h.Result.GetComponent<PanelDebug>().Init();
+            InitGame();
         }
 
         private void Update()
         {
-            switch (_nowState)
+            if (NowState == GameState.Running)
             {
-                case GameState.Running:
-                    _job.OnUpdate();
-                    break;
-                case GameState.Init when _load.NowState == LoadState.Sleep:
-                    CompletePerInit();
-                    break;
-                case GameState.PostInit when _load.NowState == LoadState.Sleep:
-                    CompleteInit();
-                    break;
+                Job.OnUpdate();
             }
         }
 
         private void OnDestroy() { _job?.Dispose(); }
 
-        public static void SetCameraFollowTarget(Transform target) { Instance._virtualCamera.Follow = target; }
-
-        private void StartPerInit()
+        private void ReadMetaData()
         {
-            _load.Init();
-            _load.Ready();
-            PerInit?.Invoke(this);
-            _load.AddCompleteCallback(() => Instance._nowState = GameState.Init);
-            _load.Work();
+            using (var reader = new StreamReader(Path.Combine(Application.streamingAssetsPath, "metadata.json")))
+            {
+                var str = reader.ReadToEnd();
+                _meta = JsonUtility.FromJson<MetaData>(str);
+            }
         }
 
-        private void CompletePerInit()
+        private void InitComponents()
         {
-            _load.Ready();
-            _load.AddCompleteCallback(() => Instance._nowState = GameState.PostInit);
-            Init?.Invoke(this);
-            _load.Request("panel.debug",
-                (AsyncOperationHandle<GameObject> handle) =>
-                {
-                    Helper.GetAsyncOpResult(handle)
-                        ?.Instantiate(Instance.UiCanvas.transform)
-                        ?.GetComponent<PanelDebug>()
-                        .Init();
-                });
-            _load.Work();
+            _load = GetComponent<LoadManager>();
+            _job = new JobCenter(this);
+            _register = new RegisterCenter(this);
+            _input = new InputCenter();
+            _event = new EventCenter();
         }
 
-        private void CompleteInit()
+        private async Task PreInitGame()
         {
-            PostInit?.Invoke(this);
-            _nowState = GameState.Running;
+            Register.RegisterRegistry();
+            await Register.GetRegisterEntryData();
+            await Register.PreRegister();
+            Register.Register();
+            Register.Remap();
+            Register.Clean();
+            _nowState = GameState.Init;
+        }
+
+        private void InitGame()
+        {
             _input.Enable();
-            PerInit = null;
-            Init = null;
-            PostInit = null;
+            _nowState = GameState.Running;
         }
 
-        public void StartLoadWorld(int worldId, Action callback = null)
+        public void LoadWorld(int worldId, Action callback = null) { LoadWorld(Register.World[worldId], callback); }
+
+        public void LoadWorld(string worldName, Action callback = null)
         {
-            var entryMap = Register.Map[worldId];
-            if (entryMap == null)
-            {
-                return;
-            }
-
-            StartLoadWorld(entryMap, callback);
+            LoadWorld(Register.World[worldName], callback);
         }
 
-        public void StartLoadWorld(string worldId, Action callback = null)
-        {
-            var entryMap = Register.Map[worldId];
-            if (entryMap == null)
-            {
-                return;
-            }
-
-            StartLoadWorld(entryMap, callback);
-        }
-
-        private void StartLoadWorld(EntryWorld entryWorld, Action callback)
+        private async void LoadWorld(EntryWorld worldEntry, Action callback = null)
         {
             if (World.HasValue)
             {
-                Debug.LogWarning("已经有地图被加载");
+                Debug.LogWarning("有活动中世界");
                 return;
             }
 
-            if (!Load.CanReady)
+            if (worldEntry == null)
             {
-                Debug.LogWarning("现在不能加载地图");
                 return;
             }
 
-            _nowState = GameState.Pause;
-            Load.Ready();
-            var handle = Addressables.LoadSceneAsync(entryWorld.Addr, LoadSceneMode.Additive, false);
-            handle.Completed += h =>
+            var instance = await Addressables.LoadSceneAsync(worldEntry.AssetAddr, LoadSceneMode.Additive).Task;
+            var c = instance.Scene.GetRootGameObjects().FirstOrDefault(go => go.CompareTag("WorldCenter"));
+            if (c == null)
             {
-                if (h.Status != AsyncOperationStatus.Succeeded)
-                {
-                    Debug.LogError("加载场景失败");
-                    return;
-                }
+                Addressables.UnloadSceneAsync(instance);
+                Debug.LogWarning("不是标准世界");
+                return;
+            }
 
-                var result = h.Result;
-                result.ActivateAsync().completed += op =>
-                {
-                    var objs = result.Scene
-                        .GetRootGameObjects()
-                        .FirstOrDefault(obj => obj.CompareTag("WorldCenter"));
-                    if (objs == null)
-                    {
-                        Debug.LogError("找不到WorldCenter，不是标准场景");
-                        Addressables.UnloadSceneAsync(result);
-                    }
-                    else
-                    {
-                        if (!objs.TryGetComponent<World>(out var world))
-                        {
-                            Debug.LogError("找不到World组件，不是标准场景");
-                            Addressables.UnloadSceneAsync(result);
-                        }
-                        else
-                        {
-                            Instance._world = world;
-                            SceneManager.SetActiveScene(result.Scene);
-                            world.Init(this, in result);
-                        }
-                    }
-
-                    Instance._nowState = GameState.Running;
-                };
-            };
-            Load.Request(handle);
-            Load.AddCompleteCallback(callback);
-            Load.Work();
+            if (c.TryGetComponent(out _world))
+            {
+                _world.Init(this, in instance);
+                SceneManager.SetActiveScene(instance.Scene);
+                callback?.Invoke();
+            }
+            else
+            {
+                Addressables.UnloadSceneAsync(instance);
+                Debug.LogWarning("不是标准世界");
+            }
         }
 
-        public void UnloadWorld(Action callback = null)
+        public async void UnloadWorld(Action callback = null)
         {
             if (!World.HasValue)
             {
-                Debug.LogWarning("没有地图被加载");
+                Debug.LogWarning("没有活动中世界");
                 return;
             }
 
-            var world = World.Value;
-            var sceneIns = world.Scene;
-            world.Dispose();
+            await Addressables.UnloadSceneAsync(_world.Scene).Task;
             _world = null;
-            var op = Addressables.UnloadSceneAsync(sceneIns);
-            op.Completed += handle =>
-            {
-                SceneManager.SetActiveScene(SceneManager.GetSceneAt(0));
-                callback?.Invoke();
-            };
+            callback?.Invoke();
         }
+
+        public static void SetCameraFollowTarget(Transform target) { Instance._virtualCamera.Follow = target; }
 
         public static string GetDataPath(string fileName) { return Path.Combine(DataRoot, fileName); }
 

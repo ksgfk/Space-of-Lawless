@@ -9,12 +9,14 @@ namespace KSGFK
         public class Info
         {
             public string Path;
-            public string Type;
+            public string EntryType;
+            public string DataType;
 
-            public Info(string path, string type)
+            public Info(string path, string entryType, string dataType)
             {
                 Path = path;
-                Type = type;
+                EntryType = entryType;
+                DataType = dataType;
             }
         }
 

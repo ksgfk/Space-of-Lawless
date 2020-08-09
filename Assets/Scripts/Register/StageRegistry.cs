@@ -1,27 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KSGFK
 {
-    /// <summary>
-    /// 阶段注册
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class StageRegistry<T> : RegistryImpl<T> where T : IStageProcessEntry
+    public class StageRegistry<T> : Registry<T>, IStageRegistry where T : RegisterEntry, IStageProcess
     {
-        private List<T> _waitList;
+        private SortedSet<T> _wait;
 
-        public StageRegistry(string registryName) : base(registryName) { _waitList = new List<T>(); }
-
-        /// <summary>
-        /// 预处理，加入注册队列
-        /// </summary>
-        public void AddToWaitRegister(T registerEntry)
+        public StageRegistry(string name, ISet<string> entryNameSet) : base(name, entryNameSet)
         {
-            if (_waitList == null) throw new InvalidOperationException("Init阶段才能注册实体");
-            registerEntry.PerProcess();
-            _waitList.Add(registerEntry);
+            _wait = new SortedSet<T>();
+        }
+
+        public void AddToWaitRegister(T entry)
+        {
+            if (_wait == null) throw new InvalidOperationException("Init阶段才能注册实体");
+            if (!_wait.Add(entry))
+            {
+                throw new ArgumentException($"重复的id:{entry.RegisterName}");
+            }
         }
 
         public void AddToWaitRegister(object obj)
@@ -32,28 +32,34 @@ namespace KSGFK
             }
             else
             {
-                throw new InvalidOperationException($"类型不匹配,需要{typeof(T).FullName},传入{obj.GetType().FullName}");
+                throw new ArgumentException($"错误的类型:{obj.GetType()}");
             }
         }
 
-        public override void Register(T registerEntry) { AddToWaitRegister(registerEntry); }
+        public override void Register(T entry) { AddToWaitRegister(entry); }
 
         public override void Register(object obj) { AddToWaitRegister(obj); }
 
-        /// <summary>
-        /// 检查所有注册队列的项，并注册符合条件的项
-        /// </summary>
+        public override void Register(RegisterEntry entry) { AddToWaitRegister(entry); }
+
+        public async Task PreProcessEntry()
+        {
+            foreach (var task in _wait.Select(entry => entry.PreProcess()).Where(task => task != null))
+            {
+                await task;
+            }
+        }
+
         public void RegisterAll()
         {
-            foreach (var entry in _waitList)
+            foreach (var entry in _wait)
             {
                 try
                 {
                     entry.Process();
                     if (!entry.Check(out var info))
                     {
-                        Debug.LogWarningFormat("{0}未通过注册检查,原因 {1}", entry.RegisterName, info);
-                        continue;
+                        throw new ArgumentException(info);
                     }
 
                     base.Register(entry);
@@ -64,7 +70,7 @@ namespace KSGFK
                 }
             }
 
-            _waitList = null;
+            _wait = null;
         }
     }
 }

@@ -4,29 +4,31 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 namespace KSGFK
 {
     [Serializable]
-    public class EntryWorld : IStageProcessEntry
+    public struct WorldInfo
     {
-        private int _runtimeId = int.MinValue;
-        [ReflectionInject] private string name = null;
-        [ReflectionInject] private string addr = null;
+        public readonly string Name;
+        public readonly string Addr;
 
-        public int RuntimeId
+        public WorldInfo(string name, string addr)
         {
-            get => _runtimeId;
-            set => _runtimeId = Helper.SingleAssign(value, _runtimeId != int.MinValue);
+            Name = name;
+            Addr = addr;
         }
+    }
 
-        public string RegisterName => name;
-        public string Addr => addr;
+    public class EntryWorld : RegisterEntry
+    {
+        private readonly WorldInfo _info;
 
-        public void PerProcess() { }
+        public override string RegisterName => _info.Name;
+        public string AssetAddr => _info.Addr;
 
-        public void Process() { }
+        public EntryWorld(WorldInfo info) { _info = info; }
 
-        public bool Check(out string info)
+        public override bool Check(out string info)
         {
-            var res = Helper.IsResourceExist<SceneInstance>(Addr);
-            info = res ? string.Empty : $"不存在场景{Addr}";
+            var res = Helper.IsResourceExist<SceneInstance>(AssetAddr);
+            info = res ? string.Empty : $"不存在场景{AssetAddr}";
             return res;
         }
     }

@@ -3,29 +3,27 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    public class IdentityObject : MonoBehaviour
+    public class IdentityObject : MonoBehaviour, IRuntimeIdentity
     {
         [SerializeField] private int runtimeId = -1;
 
-        public int RuntimeId
+        public int RuntimeId => runtimeId;
+
+        public void SetupId(int id)
         {
-            get => runtimeId;
-            set
+            if (runtimeId <= -1)
             {
-                if (runtimeId <= -1)
+                runtimeId = id;
+            }
+            else
+            {
+                if (id < 0)
                 {
-                    runtimeId = value;
+                    runtimeId = -1;
                 }
                 else
                 {
-                    if (value < 0)
-                    {
-                        runtimeId = -1;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("不可重复赋值");
-                    }
+                    throw new InvalidOperationException("不可重复赋值");
                 }
             }
         }

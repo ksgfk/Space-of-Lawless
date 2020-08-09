@@ -23,7 +23,11 @@ namespace KSGFK
         public InputField createItemName;
         public InputField mapName;
 
-        public void Init() { StartCoroutine(OnUpdate()); }
+        public void Init()
+        {
+            transform.SetParent(GameManager.Instance.UiCanvas.transform, false);
+            StartCoroutine(OnUpdate());
+        }
 
         private void Awake()
         {
@@ -124,11 +128,11 @@ namespace KSGFK
             var txt = mapName.text;
             if (_idNum.IsMatch(txt))
             {
-                em.StartLoadWorld(int.Parse(txt.Substring(3)));
+                em.LoadWorld(int.Parse(txt.Substring(3)));
             }
             else
             {
-                em.StartLoadWorld(txt);
+                em.LoadWorld(txt);
             }
         }
 
@@ -136,12 +140,13 @@ namespace KSGFK
 
         public void DefaultSet()
         {
-            GameManager.Instance.StartLoadWorld(0, () =>
-            {
-                var e =GameManager.Instance.World.Value.SpawnEntity(1);
-                var p = e.gameObject.AddComponent<Player>();
-                p.Setup(e);
-            });
+            // GameManager.Instance.StartLoadWorld(0,
+            //     () =>
+            //     {
+            //         var e = GameManager.Instance.World.Value.SpawnEntity(1);
+            //         var p = e.gameObject.AddComponent<Player>();
+            //         p.Setup(e);
+            //     });
         }
     }
 }

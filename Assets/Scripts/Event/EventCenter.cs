@@ -36,5 +36,7 @@ namespace KSGFK
             var delegateType = e.GetType();
             return _events.TryGetValue(delegateType, out var list) && list.Remove(e);
         }
+
+        public void Unsubscribe(Type eventType) { _events.Remove(typeof(EventHandler<>).MakeGenericType(eventType)); }
     }
 }

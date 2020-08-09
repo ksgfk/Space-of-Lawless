@@ -95,13 +95,12 @@ namespace KSGFK
                 return;
             }
 
-            //TODO:不应该出现模式匹配
-            var entry = entity is Item ? GetItemRegistry()[entity.RuntimeId] : GetEntityRegistry()[entity.RuntimeId];
+            var entry = GetEntityRegistry()[entity.RuntimeId];
             _activeEntity.Remove(entity.Node);
             entry.Destroy(entity);
         }
 
-        protected virtual IRegistry<EntryEntity> GetEntityRegistry() { return _gm.Register.Entity; }
+        protected virtual Registry<EntryEntity> GetEntityRegistry() { return _gm.Register.Entity; }
 
         /// <summary>
         /// 创建物品,可能返回null
@@ -193,7 +192,11 @@ namespace KSGFK
             }
         }
 
-        protected virtual IRegistry<EntryItem> GetItemRegistry() { return _gm.Register.Item; }
+        protected virtual Registry<EntryItem> GetItemRegistry()
+        {
+            // return _gm.Register.Item;
+            return null;
+        }
 
         public void Dispose()
         {

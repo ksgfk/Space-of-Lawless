@@ -19,30 +19,34 @@ namespace KSGFK
 
         private void OnRegisterComplete()
         {
-            _gm.Register.RegisterComplete += () =>
-            {
-                _jobList = GameManager.Instance
-                    .Register
-                    .Job
-                    .Select(entryJob => (IJobWrapper) Activator.CreateInstance(entryJob.JobType))
-                    .ToList();
-            };
+            // _gm.Register.RegisterComplete += () =>
+            // {
+            //     _jobList = GameManager.Instance
+            //         .Register
+            //         .Job
+            //         .Select(entryJob => (IJobWrapper) Activator.CreateInstance(entryJob.JobType))
+            //         .ToList();
+            // };
         }
 
         public void OnUpdate()
         {
-            foreach (var job in _jobList)
+            if (_jobList != null)
             {
-                Profiler.BeginSample(job.GetType().FullName);
-                job.OnUpdate();
-                Profiler.EndSample();
+                foreach (var job in _jobList)
+                {
+                    Profiler.BeginSample(job.GetType().FullName);
+                    job.OnUpdate();
+                    Profiler.EndSample();
+                }
             }
         }
 
         public IJobWrapper GetJob(string name)
         {
-            var index = _gm.Register.Job[name];
-            return _jobList[index.RuntimeId];
+            // var index = _gm.Register.Job[name];
+            // return _jobList[index.RuntimeId];
+            return default;
         }
 
         public IJobWrapper GetJob(int id) { return _jobList[id]; }

@@ -41,7 +41,7 @@ namespace KSGFK
             else
             {
                 result = false;
-                mInfo = $"GO{go.name}不存在{typeof(T).FullName}组件";
+                mInfo = $"GO:{go.name}不存在组件:{typeof(T).FullName}";
             }
 
             info = mInfo;

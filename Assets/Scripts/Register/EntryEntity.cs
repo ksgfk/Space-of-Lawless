@@ -1,31 +1,31 @@
+using System.Threading.Tasks;
+
 namespace KSGFK
 {
-    /// <summary>
-    /// 实体注册项基类
-    /// </summary>
-    public abstract class EntryEntity : EntryIdentity<Entity>
+    public abstract class EntryEntity : EntryInstantiable<Entity>, IStageProcess
     {
-        /// <summary>
-        /// 实例化实体时调用
-        /// </summary>
         protected abstract Entity SpawnEntity();
 
-        /// <summary>
-        /// 销毁实体时调用
-        /// </summary>
-        protected virtual void DestroyEntity(Entity instance) { base.Destroy(instance); }
-
-        protected sealed override Entity InstantiateBehavior()
+        protected sealed override Entity Construct()
         {
-            var result = SpawnEntity();
-            result.OnSpawn();
-            return result;
+            var entity = SpawnEntity();
+            entity.OnSpawn();
+            return entity;
         }
 
         public sealed override void Destroy(Entity instance)
         {
             instance.OnRemoveFromWorld();
-            DestroyEntity(instance);
+            AfterCallOnRemoveFromWorld(instance);
         }
+
+        protected virtual void AfterCallOnRemoveFromWorld(Entity entity)
+        {
+            UnityEngine.Object.Destroy(entity.gameObject);
+        }
+
+        public abstract Task PreProcess();
+
+        public virtual void Process() { }
     }
 }
