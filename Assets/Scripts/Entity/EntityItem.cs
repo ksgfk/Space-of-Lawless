@@ -8,17 +8,26 @@ namespace KSGFK
         [SerializeField] private Entity _thrower;
         private CircleCollider2D _range;
 
-        public Item Hold => _hold;
-        public Entity Thrower => _thrower;
-
-        public void SetHoldItem(Item hold)
+        public Item Hold
         {
-            _hold = hold;
-            var trans = hold.transform;
-            trans.SetParent(transform);
-            trans.localPosition = Vector3.zero;
-            trans.localRotation = Quaternion.identity;
+            get => _hold;
+            set
+            {
+                if (!value)
+                {
+                    GameManager.Instance.World.Value.DestroyEntity(this);
+                    return;
+                }
+
+                _hold = value;
+                var trans = _hold.transform;
+                trans.SetParent(transform);
+                trans.localPosition = Vector3.zero;
+                trans.localRotation = Quaternion.identity;
+            }
         }
+
+        public Entity Thrower => _thrower;
 
         public void SetThrower(Entity thrower) { _thrower = thrower; }
 

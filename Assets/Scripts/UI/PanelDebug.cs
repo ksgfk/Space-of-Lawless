@@ -114,11 +114,11 @@ namespace KSGFK
             var txt = createItemName.text;
             if (_idNum.IsMatch(txt))
             {
-                em.CreateItemInWorld(int.Parse(txt.Substring(3)));
+                em.CreateItemInWorld(int.Parse(txt.Substring(3)), 1);
             }
             else
             {
-                em.CreateItemInWorld(txt);
+                em.CreateItemInWorld(txt, 1);
             }
         }
 

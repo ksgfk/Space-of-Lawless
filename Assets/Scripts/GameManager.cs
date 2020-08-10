@@ -19,13 +19,14 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:捡物品
+    /// TODO:物品在主手时,自动设定物品在实体身上的位置
     /// TODO:直接将物品塞入玩家背包
-    /// TODO:持有物品时,自动设定物品在实体身上的位置
-    /// TODO:使用物品
+    /// TODO:开火！开火！想想办法干tnd一枪！
     /// TODO:可以在Debug面板指定物品生成坐标
     /// TODO:重写LoadManager
     /// TODO:自动释放一次性事件
+    ///
+    /// 属性如果没有set，但有Set方法，说明只能修改一次，尽量不要调用
     /// </summary>
     public class GameManager : MonoBehaviour
     {

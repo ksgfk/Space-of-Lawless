@@ -11,7 +11,7 @@ namespace KSGFK
     [DisallowMultipleComponent]
     public class World : MonoBehaviour, IDisposable
     {
-        protected GameManager _gm;
+        private GameManager _gm;
         private SceneInstance _sceneInstance;
         private LinkedList<Entity> _activeEntity;
         private PoolCenter _pool;
@@ -30,6 +30,8 @@ namespace KSGFK
         /// 对象池
         /// </summary>
         public PoolCenter Pool => _pool;
+
+        public GameManager GM => _gm;
 
         /// <summary>
         /// 世界被卸载时触发事件,所有注册了对象池且引用了池ID的地方都必须监听该事件来释放ID
@@ -126,17 +128,17 @@ namespace KSGFK
 
         protected virtual Registry<EntryItem> GetItemRegistry() { return _gm.Register.Item; }
 
-        public EntityItem CreateItemInWorld(int itemId, Entity creator = null)
+        public EntityItem CreateItemInWorld(int itemId, int count, Entity creator = null)
         {
-            return CreateItemInWorld(GetItemRegistry()[itemId], creator);
+            return CreateItemInWorld(GetItemRegistry()[itemId], count, creator);
         }
 
-        public EntityItem CreateItemInWorld(string itemName, Entity creator = null)
+        public EntityItem CreateItemInWorld(string itemName, int count, Entity creator = null)
         {
-            return CreateItemInWorld(GetItemRegistry()[itemName], creator);
+            return CreateItemInWorld(GetItemRegistry()[itemName], count, creator);
         }
 
-        private EntityItem CreateItemInWorld(EntryItem itemEntry, Entity creator)
+        private EntityItem CreateItemInWorld(EntryItem itemEntry, int count, Entity creator)
         {
             if (itemEntry == null)
             {
@@ -144,11 +146,37 @@ namespace KSGFK
             }
 
             var item = itemEntry.Instantiate();
-            var ie = _gm.Register.NewEntityItem;
-            ie.SetHoldItem(item);
-            ie.SetThrower(creator);
-            AddToActiveEntity(ie);
-            return ie;
+            item.NowStack = count;
+            return CreateItemInWorld(item, creator);
+        }
+
+        public EntityItem CreateItemInWorld(Item item, Entity creator = null)
+        {
+            if (!item)
+            {
+                return null;
+            }
+
+            if (item.NowStack <= 0)
+            {
+                return null;
+            }
+
+            var ei = _gm.Register.NewEntityItem;
+            ei.Hold = item;
+            ei.SetThrower(creator);
+            AddToActiveEntity(ei);
+            return ei;
+        }
+
+        public void DestroyItem(Item item)
+        {
+            if (!item)
+            {
+                return;
+            }
+
+            GetItemRegistry()[item.RuntimeId].Destroy(item);
         }
     }
 }

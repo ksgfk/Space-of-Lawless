@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1938431336315197528}
   - component: {fileID: 1938431336315197535}
   - component: {fileID: 635398729484619370}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: item_desert_eagle
   m_TagString: Item
   m_Icon: {fileID: 0}
@@ -95,8 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _runtimeId: -1
-  maxStack: 1
-  nowStack: 0
+  _maxStack: 0
+  _nowStack: 0
   bulletInitPos: {x: 0.24, y: 0.1}
   _info:
     Damage: 0

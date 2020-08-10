@@ -4,6 +4,8 @@ namespace KSGFK
 {
     public abstract class EntryItem : EntryInstantiable<Item>, IStageProcess
     {
+        public abstract int MaxStack { get; }
+
         protected abstract Item CreateItem();
 
         protected virtual void DestroyItem(Item instance) { UnityEngine.Object.Destroy(instance.gameObject); }
@@ -11,6 +13,7 @@ namespace KSGFK
         protected sealed override Item Construct()
         {
             var item = CreateItem();
+            item.SetMaxStack(MaxStack);
             item.OnCreate();
             return item;
         }

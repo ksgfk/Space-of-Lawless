@@ -10,17 +10,19 @@ namespace KSGFK
     {
         public readonly string Name;
         public readonly string Addr;
+        public readonly int MaxStack;
         public readonly float Damage;
         public readonly float RateOfFire;
         public readonly int MagazineCapacity;
 
-        public ItemGunInfo(string name, string addr, float damage, float rateOfFire, int magazineCapacity)
+        public ItemGunInfo(string name, string addr, int maxStack, float damage, float rateOfFire, int magazineCapacity)
         {
             Name = name;
             Addr = addr;
             Damage = damage;
             RateOfFire = rateOfFire;
             MagazineCapacity = magazineCapacity;
+            MaxStack = maxStack;
         }
 
         public static implicit operator GunInfo(ItemGunInfo gun)
@@ -43,6 +45,7 @@ namespace KSGFK
         public string AssetAddr => _info.Addr;
         public ItemGunInfo GunInfo => _info;
         public GameObject Prefab => _prefab;
+        public override int MaxStack => _info.MaxStack;
 
         public EntryItemGun(ItemGunInfo info) { _info = info; }
 

@@ -11,6 +11,8 @@ namespace KSGFK
     [DisallowMultipleComponent]
     public class Inventory : MonoBehaviour
     {
+        public GameObject holdItemParent;
+
         private EntityLiving _entity;
         [SerializeField] private int _capacity = 3;
         [SerializeField] private LayerMask _pickUpLayer = 10;
@@ -45,41 +47,57 @@ namespace KSGFK
         /// <summary>
         /// 检查拾取范围内的物品
         /// </summary>
-        public IEnumerable<Item> CheckPickupRadius()
+        public IEnumerable<EntityItem> CheckPickupRadius()
         {
             var filter = new ContactFilter2D().NoFilter();
             filter.SetLayerMask(_pickUpLayer);
             _collider.OverlapCollider(filter, _overlapCache);
-            return _overlapCache.Select(cache => cache.GetComponent<Item>());
+            return _overlapCache.Select(cache => cache.GetComponent<EntityItem>());
         }
 
         /// <summary>
         /// 将物品存入背包
         /// </summary>
         /// <param name="items"></param>
-        public void SaveItems(IEnumerable<Item> items)
+        public void PickupItems(IEnumerable<EntityItem> items)
         {
-            foreach (var willSave in items)
+            foreach (var item in items)
             {
-                if (FindSameTypeIndex(willSave, out var sameIndex))
+                var result = InsertItem(item.Hold);
+                item.Hold = result;
+            }
+        }
+
+        public Item InsertItem(Item item)
+        {
+            if (FindSameTypeIndex(item, out var index)) //找背包中相同Item
+            {
+                var res = _container[index].Merge(item); //找到的话尝试合并
+                if (!res) //全部合并进去了，直接返回
                 {
-                    var mergeOver = _container[sameIndex].Merge(willSave);
-                    if (mergeOver.HasValue)
-                    {
-                        DropOverWhenInsertItem(mergeOver.Value);
-                    }
-                }
-                else
-                {
-                    DropOverWhenInsertItem(willSave);
+                    return null;
                 }
             }
+
+            //没找到相同Item，且没合并完
+            if (_container.Count >= Capacity)
+            {
+                return item; //背包没有更多容量了
+            }
+
+            _container.Add(item); //还有空余位置
+            item.TransferOwner(transform);
+            return null;
         }
 
         /// <summary>
         /// 捡起范围内所有物品
         /// </summary>
-        public void PickRadiusItems() { SaveItems(CheckPickupRadius()); }
+        public void PickRadiusItems()
+        {
+            var eis = CheckPickupRadius();
+            PickupItems(eis);
+        }
 
         private bool FindSameTypeIndex(Item item, out int index)
         {
@@ -95,23 +113,6 @@ namespace KSGFK
 
             index = -1;
             return false;
-        }
-
-        private void DropOverWhenInsertItem(Item item)
-        {
-            // if (_container.Count >= _capacity)
-            // {
-            //     if (!item.IsInWorld)
-            //     {
-            //         item.ThrownOutIntoWorld();
-            //     }
-            // }
-            // else
-            // {
-            //     _container.Add(item);
-            //     item.PickedUpFromWorld(_entity);
-            //     item.transform.SetParent(transform);
-            // }
         }
     }
 }

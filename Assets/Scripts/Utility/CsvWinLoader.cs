@@ -141,7 +141,17 @@ namespace KSGFK
                         continue;
                     }
 
-                    var str = csvReader.GetField(name);
+                    string str;
+                    try
+                    {
+                        str = csvReader.GetField(name);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                        continue;
+                    }
+
                     if (string.IsNullOrEmpty(str))
                     {
                         Debug.LogWarningFormat("csv:{0},不存在列数据:{1}", path, name);

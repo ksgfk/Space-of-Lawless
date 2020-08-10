@@ -17,9 +17,8 @@ namespace KSGFK
         public Vector2 bulletInitPos;
         [SerializeField] private GunInfo _info;
 
-        public void SetGunInfo(in GunInfo info)
-        {
-            _info = info;
-        }
+        public GunInfo CoreInfo => _info;
+
+        public void SetGunInfo(in GunInfo info) { _info = info; }
     }
 }

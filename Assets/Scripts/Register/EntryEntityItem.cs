@@ -9,7 +9,7 @@ namespace KSGFK
 
         public override string RegisterName => "entity_item";
 
-        public EntryEntityItem() { _physicLayer = LayerMask.NameToLayer("Entity"); }
+        public EntryEntityItem() { _physicLayer = LayerMask.NameToLayer("EntityItem"); }
 
         public override bool Check(out string reason)
         {

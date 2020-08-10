@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4269140635793578041
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6148475462821851654}
+  m_Layer: 8
+  m_Name: HoldItem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6148475462821851654
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4269140635793578041}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.28, y: -0.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1509282955097764092}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6681522160728325772
 GameObject:
   m_ObjectHideFlags: 0
@@ -32,6 +62,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 6148475462821851654}
   - {fileID: 7069183282168615434}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -135,9 +166,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49b4c49acce54656887d7b66acafdb69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runtimeId: -1
-  maxHealth: 18446744073709551615
-  nowHealth: 0
+  _runtimeId: -1
+  _maxHealth: 18446744073709551615
+  _nowHealth: 0
   _inventory: {fileID: 5392525476782150510}
 --- !u!114 &6686406887708687534
 MonoBehaviour:
@@ -190,7 +221,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1509282955097764092}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &8115615096592600258
 CircleCollider2D:
@@ -220,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a1978a980ef4c8c9743c86bd98fff99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holdItemParent: {fileID: 4269140635793578041}
   _capacity: 3
   _pickUpLayer:
     serializedVersion: 2
