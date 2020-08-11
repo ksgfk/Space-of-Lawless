@@ -3,12 +3,13 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    [RequireComponent(typeof(SpriteRenderer))]
     [DisallowMultipleComponent]
     public class Item : IdentityObject
     {
         [SerializeField] private int _maxStack;
         [SerializeField] private int _nowStack;
-        private Collider2D _coll;
+        private SpriteRenderer _sprite;
 
         public int MaxStack => _maxStack;
 
@@ -44,7 +45,9 @@ namespace KSGFK
             }
         }
 
-        public virtual void OnCreate() { }
+        public SpriteRenderer Sprite => _sprite;
+
+        public virtual void OnCreate() { _sprite = GetComponent<SpriteRenderer>(); }
 
         public virtual void OnDestroyItem() { }
 

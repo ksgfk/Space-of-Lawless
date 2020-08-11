@@ -251,8 +251,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a1978a980ef4c8c9743c86bd98fff99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  holdItemParent: {fileID: 4269140635793578041}
+  holdItemParent: {fileID: 6148475462821851654}
   _capacity: 3
   _pickUpLayer:
     serializedVersion: 2
     m_Bits: 1024
+  _usingItemSlot: 0

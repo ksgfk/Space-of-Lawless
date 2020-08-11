@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,8 +9,8 @@ namespace KSGFK
         public CharacterController2D cc2d;
         public Vector2 pointerPos;
         public Vector2 moveDir;
-
-        private EntityLiving _living;
+        public int maxSlot = -1;
+        public int nowSlot = -1;
 
         private void Update()
         {
@@ -31,8 +30,8 @@ namespace KSGFK
             ctrl.Player.Point.performed -= MousePos;
             ctrl.Player.Move.performed -= StartMove;
             ctrl.Player.Move.canceled -= StopMove;
-            ctrl.Player.Action.performed -= StartAct;
-            ctrl.Player.Action.canceled -= StopAct;
+            ctrl.Player.Act.performed -= Pickup;
+            ctrl.Player.Select.performed -= SelectSlot;
         }
 
         public void Setup(Entity entity)
@@ -53,12 +52,14 @@ namespace KSGFK
 
             if (player is EntityLiving living)
             {
-                _living = living;
-                var hasInv = _living.Inventory;
+                var hasInv = living.Inventory;
                 if (hasInv.HasValue)
                 {
-                    ctrl.Player.Action.performed += StartAct;
-                    ctrl.Player.Action.canceled += StopAct;
+                    var inv = hasInv.Value;
+                    ctrl.Player.Act.performed += Pickup;
+                    ctrl.Player.Select.performed += SelectSlot;
+                    maxSlot = inv.Capacity;
+                    nowSlot = 0;
                 }
             }
         }
@@ -69,12 +70,17 @@ namespace KSGFK
 
         private void StopMove(InputAction.CallbackContext ctx) { moveDir = Vector2.zero; }
 
-        private void StartAct(InputAction.CallbackContext ctx)
+        private void Pickup(InputAction.CallbackContext ctx)
         {
-            Inventory inv = _living.Inventory;
-            inv.PickRadiusItems();
+            Inventory inv = ((EntityLiving) player).Inventory;
+            inv.PickupRadiusItems();
         }
 
-        private void StopAct(InputAction.CallbackContext ctx) { }
+        private void SelectSlot(InputAction.CallbackContext ctx)
+        {
+            nowSlot = nowSlot >= maxSlot - 1 ? 0 : nowSlot + 1;
+            Inventory inv = ((EntityLiving) player).Inventory;
+            inv.SelectUsingItem(nowSlot);
+        }
     }
 }

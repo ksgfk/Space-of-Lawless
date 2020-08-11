@@ -38,9 +38,17 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Action",
+                    "name": "Act",
                     "type": "Button",
                     "id": "afb5aa4a-2fd4-459c-81e1-464ab69a6b7a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Select",
+                    "type": "Button",
+                    "id": "f1bca65c-b58e-46df-b46d-37eb68ad4a83",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -182,11 +190,22 @@
                 {
                     "name": "",
                     "id": "f8f89f1e-3221-4459-a6d0-70096ba0b294",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/g",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Action",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Act",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d087cb3-809a-41d4-abdc-ca79c261c4bc",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Select",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

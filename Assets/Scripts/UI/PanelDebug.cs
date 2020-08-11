@@ -140,13 +140,15 @@ namespace KSGFK
 
         public void DefaultAction()
         {
-            // GameManager.Instance.StartLoadWorld(0,
-            //     () =>
-            //     {
-            //         var e = GameManager.Instance.World.Value.SpawnEntity(1);
-            //         var p = e.gameObject.AddComponent<Player>();
-            //         p.Setup(e);
-            //     });
+            GameManager.Instance.LoadWorld("test",
+                () =>
+                {
+                    World world = GameManager.Instance.World;
+                    world.CreateItemInWorld(7, 1);
+                    var e = world.SpawnEntity("slime");
+                    var p = e.gameObject.AddComponent<Player>();
+                    p.Setup(e);
+                });
         }
     }
 }

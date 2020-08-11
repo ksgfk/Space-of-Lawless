@@ -53,9 +53,17 @@ namespace KSGFK
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Action"",
+                    ""name"": ""Act"",
                     ""type"": ""Button"",
                     ""id"": ""afb5aa4a-2fd4-459c-81e1-464ab69a6b7a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""f1bca65c-b58e-46df-b46d-37eb68ad4a83"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -197,11 +205,22 @@ namespace KSGFK
                 {
                     ""name"": """",
                     ""id"": ""f8f89f1e-3221-4459-a6d0-70096ba0b294"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/g"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Action"",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Act"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d087cb3-809a-41d4-abdc-ca79c261c4bc"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Select"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -783,7 +802,8 @@ namespace KSGFK
             m_Player_Delta = m_Player.FindAction("Delta", throwIfNotFound: true);
             m_Player_Point = m_Player.FindAction("Point", throwIfNotFound: true);
             m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
-            m_Player_Action = m_Player.FindAction("Action", throwIfNotFound: true);
+            m_Player_Act = m_Player.FindAction("Act", throwIfNotFound: true);
+            m_Player_Select = m_Player.FindAction("Select", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -849,7 +869,8 @@ namespace KSGFK
         private readonly InputAction m_Player_Delta;
         private readonly InputAction m_Player_Point;
         private readonly InputAction m_Player_Fire;
-        private readonly InputAction m_Player_Action;
+        private readonly InputAction m_Player_Act;
+        private readonly InputAction m_Player_Select;
         public struct PlayerActions
         {
             private @InputCenter m_Wrapper;
@@ -858,7 +879,8 @@ namespace KSGFK
             public InputAction @Delta => m_Wrapper.m_Player_Delta;
             public InputAction @Point => m_Wrapper.m_Player_Point;
             public InputAction @Fire => m_Wrapper.m_Player_Fire;
-            public InputAction @Action => m_Wrapper.m_Player_Action;
+            public InputAction @Act => m_Wrapper.m_Player_Act;
+            public InputAction @Select => m_Wrapper.m_Player_Select;
             public InputActionMap Get() { return m_Wrapper.m_Player; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -880,9 +902,12 @@ namespace KSGFK
                     @Fire.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
                     @Fire.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
                     @Fire.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
-                    @Action.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAction;
-                    @Action.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAction;
-                    @Action.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAction;
+                    @Act.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAct;
+                    @Act.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAct;
+                    @Act.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAct;
+                    @Select.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSelect;
+                    @Select.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSelect;
+                    @Select.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSelect;
                 }
                 m_Wrapper.m_PlayerActionsCallbackInterface = instance;
                 if (instance != null)
@@ -899,9 +924,12 @@ namespace KSGFK
                     @Fire.started += instance.OnFire;
                     @Fire.performed += instance.OnFire;
                     @Fire.canceled += instance.OnFire;
-                    @Action.started += instance.OnAction;
-                    @Action.performed += instance.OnAction;
-                    @Action.canceled += instance.OnAction;
+                    @Act.started += instance.OnAct;
+                    @Act.performed += instance.OnAct;
+                    @Act.canceled += instance.OnAct;
+                    @Select.started += instance.OnSelect;
+                    @Select.performed += instance.OnSelect;
+                    @Select.canceled += instance.OnSelect;
                 }
             }
         }
@@ -1062,7 +1090,8 @@ namespace KSGFK
             void OnDelta(InputAction.CallbackContext context);
             void OnPoint(InputAction.CallbackContext context);
             void OnFire(InputAction.CallbackContext context);
-            void OnAction(InputAction.CallbackContext context);
+            void OnAct(InputAction.CallbackContext context);
+            void OnSelect(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {
