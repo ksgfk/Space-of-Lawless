@@ -24,7 +24,20 @@ namespace KSGFK
             return obj == null;
         }
 
-        public bool Equals(Nullable<T> other) { return Equals(other.Value); }
+        public bool Equals(Nullable<T> other)
+        {
+            if (!HasValue)
+            {
+                return !other.HasValue;
+            }
+
+            if (other.HasValue)
+            {
+                return Value == other.Value;
+            }
+
+            return false;
+        }
 
         public override bool Equals(object obj) { return obj is Nullable<T> other && Equals(other); }
 

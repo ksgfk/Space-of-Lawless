@@ -19,6 +19,7 @@ namespace KSGFK
     }
 
     /// <summary>
+    /// TODO:重写Job Wrapper
     /// TODO:开火！开火！想想办法干tnd一枪！
     /// TODO:直接将物品塞入玩家背包
     /// TODO:可以在Debug面板指定物品生成坐标
@@ -38,14 +39,12 @@ namespace KSGFK
         [SerializeField] private Canvas _uiCanvas = null;
         [SerializeField] private World _world = null;
         private LoadManager _load;
-        private JobCenter _job;
         private InputCenter _input;
         private MetaData _meta;
         private RegisterCenter _register;
         private EventCenter _event;
 
         public LoadManager Load => _load;
-        public JobCenter Job => _job;
         public Camera MainCamera => _mainCamera;
         public InputCenter Input => _input;
         public Canvas UiCanvas => _uiCanvas;
@@ -78,16 +77,6 @@ namespace KSGFK
             InitGame();
         }
 
-        private void Update()
-        {
-            if (NowState == GameState.Running)
-            {
-                Job.OnUpdate();
-            }
-        }
-
-        private void OnDestroy() { _job?.Dispose(); }
-
         private void ReadMetaData()
         {
             using (var reader = new StreamReader(Path.Combine(Application.streamingAssetsPath, "metadata.json")))
@@ -100,7 +89,6 @@ namespace KSGFK
         private void InitComponents()
         {
             _load = GetComponent<LoadManager>();
-            _job = new JobCenter(this);
             _register = new RegisterCenter(this);
             _input = new InputCenter();
             _event = new EventCenter();

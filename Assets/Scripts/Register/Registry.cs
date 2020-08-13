@@ -161,8 +161,15 @@ namespace KSGFK
                 throw new InvalidOperationException($"重复的名字:{entry.RegisterName}");
             }
 
-            Container.Add(entry);
-            EntryNameSet.Add(entry.RegisterName);
+            if (entry.Check(out var reason))
+            {
+                Container.Add(entry);
+                EntryNameSet.Add(entry.RegisterName);
+            }
+            else
+            {
+                Debug.LogWarning(reason);
+            }
         }
 
         public override void Register(object obj)

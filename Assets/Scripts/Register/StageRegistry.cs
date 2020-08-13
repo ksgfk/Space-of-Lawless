@@ -57,11 +57,6 @@ namespace KSGFK
                 try
                 {
                     entry.Process();
-                    if (!entry.Check(out var info))
-                    {
-                        throw new ArgumentException(info);
-                    }
-
                     base.Register(entry);
                 }
                 catch (Exception e)
