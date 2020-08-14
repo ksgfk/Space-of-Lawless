@@ -10,12 +10,12 @@ namespace KSGFK
         /// <summary>
         /// 用于索引对象池中该GO位置的Id
         /// </summary>
-        [SerializeField] private int poolObjectId = -1;
+        [SerializeField] private int _poolObjectId = -1;
 
         /// <summary>
         /// 用于索引对象池中该GO位置的Id
         /// </summary>
-        public int PoolObjectId { get => poolObjectId; internal set => poolObjectId = value; }
+        public int PoolObjectId => _poolObjectId;
 
         /// <summary>
         /// 发射
@@ -25,5 +25,7 @@ namespace KSGFK
         /// <param name="speed">速度</param>
         /// <param name="duration">存活时间</param>
         public abstract void Launch(Vector2 direction, Vector2 startPos, float speed, float duration);
+
+        public void SetPoolObjectId(int id) { _poolObjectId = id; }
     }
 }

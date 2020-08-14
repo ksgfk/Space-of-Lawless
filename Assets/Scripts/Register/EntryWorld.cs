@@ -1,29 +1,15 @@
-using System;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace KSGFK
 {
-    [Serializable]
-    public struct WorldInfo
-    {
-        public readonly string Name;
-        public readonly string Addr;
-
-        public WorldInfo(string name, string addr)
-        {
-            Name = name;
-            Addr = addr;
-        }
-    }
-
     public class EntryWorld : RegisterEntry
     {
-        private readonly WorldInfo _info;
+        private readonly NameAndAddrInfo _info;
 
         public override string RegisterName => _info.Name;
         public string AssetAddr => _info.Addr;
 
-        public EntryWorld(WorldInfo info) { _info = info; }
+        public EntryWorld(NameAndAddrInfo info) { _info = info; }
 
         public override bool Check(out string info)
         {

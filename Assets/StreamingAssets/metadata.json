@@ -4,9 +4,13 @@
       "Path": "entity_living.csv",
       "EntryType": "KSGFK.EntryEntityLiving",
       "DataType": "KSGFK.EntityLivingInfo"
+    },
+    {
+      "Path": "entity_bullet.csv",
+      "EntryType": "KSGFK.EntryEntityBullet",
+      "DataType": "KSGFK.NameAndAddrInfo"
     }
   ],
-  "JobInfo": [],
   "ItemInfo": [
     {
       "Path": "item_gun.csv",
@@ -18,7 +22,7 @@
     {
       "Path": "world.csv",
       "EntryType": "KSGFK.EntryWorld",
-      "DataType": "KSGFK.WorldInfo"
+      "DataType": "KSGFK.NameAndAddrInfo"
     }
   ]
 }

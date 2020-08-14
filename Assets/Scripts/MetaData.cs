@@ -21,7 +21,6 @@ namespace KSGFK
         }
 
         public Info[] EntityInfo;
-        public Info[] JobInfo;
         public Info[] ItemInfo;
         public Info[] WorldInfo;
     }

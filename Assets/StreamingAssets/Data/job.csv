@@ -1,6 +1,0 @@
-name,full_type_name
-DefaultMoveWithTrans,KSGFK.JobMoveForTransform
-Task,KSGFK.JobTimingTask
-DefaultMoveJob,KSGFK.JobMove
-DefaultRotateJob,KSGFK.JobRotate
-MoveAndRotate,KSGFK.JobMoveAndRotateForTransform

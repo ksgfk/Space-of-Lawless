@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KSGFK
@@ -25,7 +24,5 @@ namespace KSGFK
             var ei = go.AddComponent<EntityItem>();
             return ei;
         }
-
-        public override Task PreProcess() { return null; }
     }
 }

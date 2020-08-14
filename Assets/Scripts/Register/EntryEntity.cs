@@ -16,15 +16,15 @@ namespace KSGFK
         public sealed override void Destroy(Entity instance)
         {
             instance.OnRemoveFromWorld();
-            AfterCallOnRemoveFromWorld(instance);
+            AfterDestroyEntity(instance);
         }
 
-        protected virtual void AfterCallOnRemoveFromWorld(Entity entity)
+        protected virtual void AfterDestroyEntity(Entity entity)
         {
             UnityEngine.Object.Destroy(entity.gameObject);
         }
 
-        public abstract Task PreProcess();
+        public virtual Task PreProcess() { return null; }
 
         public virtual void Process() { }
     }

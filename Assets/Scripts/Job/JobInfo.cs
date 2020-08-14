@@ -1,33 +1,37 @@
-// using System;
-// using MPipeline;
-// using UnityEngine;
-//
-// namespace KSGFK
-// {
-//     [Serializable]
-//     public class JobInfo
-//     {
-//         [SerializeField] private int _index;
-//         public JobWrapper Wrapper { get; }
-//         public int Index => _index;
-//
-//         protected JobInfo(JobWrapper wrapper, int index)
-//         {
-//             Wrapper = wrapper;
-//             _index = index;
-//         }
-//
-//         public void SetIndex(int index) { _index = index; }
-//
-//         public JobInfo<T> Cast<T>() where T : unmanaged { return (JobInfo<T>) this; }
-//
-//         public void Release() { Wrapper.RemoveValue(Index); }
-//     }
-//
-//     public class JobInfo<T> : JobInfo where T : unmanaged
-//     {
-//         public unsafe T* Data => MUnsafeUtility.Cast<T>(Wrapper.GetValue(Index));
-//
-//         public JobInfo(JobWrapper wrapper, int index) : base(wrapper, index) { }
-//     }
-// }
+using System;
+using MPipeline;
+
+namespace KSGFK
+{
+    public sealed unsafe class JobInfo<T> where T : unmanaged
+    {
+        public static JobInfo<T> Default => new JobInfo<T>(default, -1);
+
+        private T* _list;
+        private int _index;
+
+        public T* Pointer => _list;
+        public int Index => _index;
+        public bool IsDefault => Pointer == null || Index < 0;
+
+        public JobInfo(NativeList<T> list, int index)
+        {
+            _list = list.isCreated ? list.unsafePtr : null;
+            _index = index;
+        }
+
+        public void SetIndex(int newIndex) { _index = newIndex; }
+
+        public void SetPointer(NativeList<T> dataList)
+        {
+            if (_list != null) throw new InvalidOperationException();
+            _list = dataList.unsafePtr;
+        }
+
+        public void Release()
+        {
+            _list = null;
+            _index = -1;
+        }
+    }
+}

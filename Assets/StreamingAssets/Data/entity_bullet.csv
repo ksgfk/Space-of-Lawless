@@ -1,2 +1,2 @@
-name,addr,is_pool
-normal,entity.bullet_normal,true
+Name,Addr
+normal,entity.bullet_normal

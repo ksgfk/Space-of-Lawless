@@ -94,5 +94,13 @@ namespace KSGFK
                 wrapper.OnComplete();
             });
         }
+
+        // ReSharper disable once InconsistentNaming
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 XY0(this float2 float2) { return new Vector3(float2.x, float2.y, 0); }
+
+        // ReSharper disable once InconsistentNaming
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 xy0(this float2 float2) { return new float3(float2.x, float2.y, 0); }
     }
 }

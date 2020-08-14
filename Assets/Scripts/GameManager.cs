@@ -19,7 +19,6 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:重写Job Wrapper
     /// TODO:开火！开火！想想办法干tnd一枪！
     /// TODO:直接将物品塞入玩家背包
     /// TODO:可以在Debug面板指定物品生成坐标
@@ -59,7 +58,7 @@ namespace KSGFK
         /// </summary>
         public event Action BeforePreInit;
 
-        private async void Awake()
+        private void Awake()
         {
             if (!Instance)
             {
@@ -68,14 +67,22 @@ namespace KSGFK
             }
 
             ReadMetaData();
-            await Addressables.InitializeAsync().Task;
             InitComponents();
+        }
+
+        private async void Start()
+        {
             BeforePreInit?.Invoke();
             BeforePreInit = null;
+            await Addressables.InitializeAsync().Task;
             await PreInitGame();
             Addressables.InstantiateAsync("panel.debug").Completed += h => h.Result.GetComponent<PanelDebug>().Init();
             InitGame();
         }
+
+        private void Update() { Jobs.Update(); }
+
+        private void OnDestroy() { Jobs.Release(); }
 
         private void ReadMetaData()
         {
@@ -92,6 +99,7 @@ namespace KSGFK
             _register = new RegisterCenter(this);
             _input = new InputCenter();
             _event = new EventCenter();
+            Jobs.Update();
         }
 
         private async Task PreInitGame()
@@ -110,6 +118,8 @@ namespace KSGFK
         {
             _input.Enable();
             _nowState = GameState.Running;
+            Event.Post(this, new EventOnGameStart(this));
+            Event.Unsubscribe(typeof(EventOnGameStart));
         }
 
         public void LoadWorld(int worldId, Action callback = null) { LoadWorld(Register.World[worldId], callback); }
