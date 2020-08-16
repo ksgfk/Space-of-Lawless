@@ -1,5 +1,6 @@
 using MPipeline;
 using Unity.Burst;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Jobs;
@@ -59,14 +60,14 @@ namespace KSGFK
             _transArr.RemoveAtSwapBack(info.Index);
         }
 
-        public override void OnUpdate()
+        protected override JobHandle Update()
         {
             var handle = new Translate
             {
                 Data = DataList,
                 DeltaTime = Time.deltaTime
             }.Schedule(_transArr);
-            handle.Complete();
+            return handle;
         }
 
         public override void Dispose()

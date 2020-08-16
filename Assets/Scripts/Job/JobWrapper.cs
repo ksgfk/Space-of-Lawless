@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MPipeline;
 using Unity.Collections;
+using Unity.Jobs;
 
 namespace KSGFK
 {
@@ -21,7 +22,7 @@ namespace KSGFK
             _jobInfos = new List<JobInfo<TOutput>>();
         }
 
-        public JobInfo<TOutput> AddValue(TInput value)
+        public virtual JobInfo<TOutput> AddValue(TInput value)
         {
             var newJobInfo = new JobInfo<TOutput>(default, -1);
             AddValue(value, newJobInfo);
@@ -59,12 +60,29 @@ namespace KSGFK
             return ref _dataList[info.Index];
         }
 
-        public abstract void OnUpdate();
+        public JobHandle OnUpdate()
+        {
+            if (DataList.Length <= 0)
+            {
+                return default;
+            }
+
+            return Update();
+        }
+
+        protected abstract JobHandle Update();
+
+        public virtual void AfterUpdate() { }
 
         public virtual void Dispose()
         {
-            _dataList.Dispose();
-            _jobInfos.Clear();
+            DataList.Dispose();
+            foreach (var jobInfo in JobInfoList)
+            {
+                jobInfo.Release();
+            }
+
+            JobInfoList.Clear();
         }
     }
 }

@@ -11,8 +11,12 @@ namespace KSGFK
         {
             var trans = transform;
             trans.position = startPos;
-            trans.rotation = Quaternion.AngleAxis(Vector3.SignedAngle(Vector3.up, direction, Vector3.forward),
-                Vector3.forward);
+            Jobs.RotateSingle.AddValue(new JobRotateInput
+            {
+                Direction = direction,
+                Standard = Vector2.up,
+                Trans = trans
+            });
             Jobs.Translate.AddValue(new JobTranslateInput
                 {
                     Transform = trans,

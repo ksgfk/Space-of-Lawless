@@ -11,16 +11,6 @@ namespace KSGFK
     public static class MathExt
     {
         /// <summary>
-        /// 单位弧度对应的角度
-        /// </summary>
-        public const float UnitRadian2Degree = 180 / math.PI;
-
-        /// <summary>
-        /// 单位角度对应的弧度
-        /// </summary>
-        public const float UnitDegree2Radian = math.PI / 180;
-
-        /// <summary>
         /// 分量z置零
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -39,7 +29,7 @@ namespace KSGFK
             var num = sqrt(lengthsq(from) * (double) lengthsq(to));
             return num < 1.00000000362749E-15
                 ? 0.0f
-                : (float) acos(clamp(dot(from, to) / num, -1f, 1f)) * UnitRadian2Degree;
+                : degrees((float) acos(clamp(dot(from, to) / num, -1f, 1f)));
         }
 
         /// <summary>
@@ -64,7 +54,7 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static quaternion NonInitAxisAngle(float3 nonNormalAxis, float degree)
         {
-            return Unity.Mathematics.quaternion.AxisAngle(normalizesafe(nonNormalAxis), degree * UnitDegree2Radian);
+            return Unity.Mathematics.quaternion.AxisAngle(normalizesafe(nonNormalAxis), radians(degree));
         }
 
         public static float3 QuaternionMulVec3(quaternion q, float3 point)
@@ -169,5 +159,13 @@ namespace KSGFK
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEqual(float val, float tar) { return abs(val - tar) <= 0.0000001f; }
+
+        public static float SignedAngle(float3 from, float3 to, float3 axis)
+        {
+            var unsignedAngle = Angle(from, to);
+            var a = cross(from, to) * axis;
+            var sign = Mathf.Sign(a.x + a.y + a.z);
+            return unsignedAngle * sign;
+        }
     }
 }
