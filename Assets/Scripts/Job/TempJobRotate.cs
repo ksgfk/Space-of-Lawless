@@ -21,7 +21,7 @@ namespace KSGFK
         public float2 Direction;
     }
 
-    public class JobRotate : JobWrapper<JobRotateInput, JobRotateOutput>
+    public sealed class TempJobRotate : TempJobWrapper<JobRotateInput, JobRotateOutput>
     {
         private TransformAccessArray _transArr;
         private static readonly Transform[] Empty = Array.Empty<Transform>();
@@ -39,42 +39,30 @@ namespace KSGFK
             }
         }
 
-        public JobRotate() { _transArr = new TransformAccessArray(0, 4); }
+        public TempJobRotate() { _transArr = new TransformAccessArray(0, 1); }
+
+        public override void AddValue(JobRotateInput input)
+        {
+            base.AddValue(input);
+            _transArr.Add(input.Trans);
+        }
 
         protected override JobRotateOutput ConvertData(ref JobRotateInput input)
         {
             return new JobRotateOutput {Standard = input.Standard, Direction = input.Direction};
         }
 
-        public override JobInfo<JobRotateOutput> AddValue(JobRotateInput value)
-        {
-            var data = ConvertData(ref value);
-            DataList.Add(data);
-            _transArr.Add(value.Trans);
-            return null;
-        }
-
-        public override void AddValue(JobRotateInput value, JobInfo<JobRotateOutput> returnValue)
-        {
-            var data = ConvertData(ref value);
-            DataList.Add(data);
-            _transArr.Add(value.Trans);
-        }
-
-        public override void RemoveValue(JobInfo<JobRotateOutput> info) { throw new InvalidOperationException(); }
-
         protected override JobHandle Update()
         {
-            var handle = new Rotate
+            return new Rotate
             {
                 Data = DataList
             }.Schedule(_transArr);
-            return handle;
         }
 
         public override void AfterUpdate()
         {
-            DataList.Clear();
+            base.AfterUpdate();
             _transArr.SetTransforms(Empty);
         }
 

@@ -19,7 +19,7 @@ namespace KSGFK
         public float2 DeltaMove;
     }
 
-    public class JobTranslate : JobWrapper<JobTranslateInput, JobTranslateOutput>
+    public sealed class PersistentJobTranslate : PersistentJobWrapper<JobTranslateInput, JobTranslateOutput>
     {
         private TransformAccessArray _transArr;
 
@@ -41,33 +41,28 @@ namespace KSGFK
             }
         }
 
-        public JobTranslate() { _transArr = new TransformAccessArray(0, 4); }
+        public PersistentJobTranslate() { _transArr = new TransformAccessArray(0, 4); }
 
         protected override JobTranslateOutput ConvertData(ref JobTranslateInput input)
         {
             return new JobTranslateOutput {Velocity = input.Velocity};
         }
 
-        public override void AddValue(JobTranslateInput value, JobInfo<JobTranslateOutput> returnValue)
+        public override void AddValue(JobTranslateInput value, JobInfo returnValue)
         {
             base.AddValue(value, returnValue);
             _transArr.Add(value.Transform);
         }
 
-        public override void RemoveValue(JobInfo<JobTranslateOutput> info)
-        {
-            base.RemoveValue(info);
-            _transArr.RemoveAtSwapBack(info.Index);
-        }
+        protected override void OnRemoveValue(JobInfo info) { _transArr.RemoveAtSwapBack(info.Index); }
 
-        protected override JobHandle Update()
+        protected override JobHandle UpdateBehaviour()
         {
-            var handle = new Translate
+            return new Translate
             {
                 Data = DataList,
                 DeltaTime = Time.deltaTime
             }.Schedule(_transArr);
-            return handle;
         }
 
         public override void Dispose()

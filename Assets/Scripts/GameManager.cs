@@ -19,10 +19,13 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:开火！开火！想想办法干tnd一枪！
+    /// TODO:枪跟随鼠标指针旋转，而且以后AI也能用
+    /// TODO:玩家模型正面始终朝鼠标，而且以后AI也能用
+    /// TODO:子弹正确从枪口而不是弹匣冒出来
+    /// TODO:子弹有生存时间，到时间自动销毁
+    /// TODO:枪械开火间隔、弹匣容量、换弹冷却
     /// TODO:直接将物品塞入玩家背包
     /// TODO:可以在Debug面板指定物品生成坐标
-    /// TODO:重写LoadManager
     /// TODO:自动释放一次性事件
     ///
     /// 属性如果没有set，但有Set方法，说明只能修改一次，尽量不要调用
@@ -37,13 +40,11 @@ namespace KSGFK
         [SerializeField] private CinemachineVirtualCamera _virtualCamera = null;
         [SerializeField] private Canvas _uiCanvas = null;
         [SerializeField] private World _world = null;
-        private LoadManager _load;
         private InputCenter _input;
         private MetaData _meta;
         private RegisterCenter _register;
         private EventCenter _event;
 
-        public LoadManager Load => _load;
         public Camera MainCamera => _mainCamera;
         public InputCenter Input => _input;
         public Canvas UiCanvas => _uiCanvas;
@@ -80,7 +81,7 @@ namespace KSGFK
             InitGame();
         }
 
-        private void Update() { Jobs.Update(); }
+        private void LateUpdate() { Jobs.Update(); }
 
         private void OnDestroy() { Jobs.Release(); }
 
@@ -95,7 +96,6 @@ namespace KSGFK
 
         private void InitComponents()
         {
-            _load = GetComponent<LoadManager>();
             _register = new RegisterCenter(this);
             _input = new InputCenter();
             _event = new EventCenter();

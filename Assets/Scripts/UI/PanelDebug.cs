@@ -144,7 +144,7 @@ namespace KSGFK
                 () =>
                 {
                     World world = GameManager.Instance.World;
-                    world.CreateItemInWorld(7, 1);
+                    world.CreateItemInWorld(8, 1);
                     var e = world.SpawnEntity("slime");
                     var p = e.gameObject.AddComponent<Player>();
                     p.Setup(e);

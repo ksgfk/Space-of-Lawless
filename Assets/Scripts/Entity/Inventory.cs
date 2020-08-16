@@ -181,5 +181,14 @@ namespace KSGFK
                 trans.SetParent(holdItemParent, false);
             }
         }
+
+        public void UseHeldItem()
+        {
+            var item = UsingItem;
+            if (item)
+            {
+                item.OnUse(Holder);
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ namespace KSGFK
         Finish
     }
 
+    [Obsolete("什么时候把这玩意改成基于Task的")]
     public class LoadManager : MonoBehaviour
     {
         [SerializeField] private LoadState nowState;

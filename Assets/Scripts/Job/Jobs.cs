@@ -4,36 +4,45 @@ namespace KSGFK
 {
     public static class Jobs
     {
-        public static readonly JobTranslate Translate;
-        public static readonly JobRotate RotateSingle;
+        private static readonly JobWrapper[] Wrappers;
+        public static readonly PersistentJobTranslate TranslatePersist;
+        public static readonly TempJobRotate RotateTemp;
 
         static Jobs()
         {
-            Translate = new JobTranslate();
-            RotateSingle = new JobRotate();
+            Wrappers = new JobWrapper[]
+            {
+                TranslatePersist = new PersistentJobTranslate(),
+                RotateTemp = new TempJobRotate()
+            };
         }
 
         public static void Release()
         {
-            Translate.Dispose();
-            RotateSingle.Dispose();
+            foreach (var wrapper in Wrappers)
+            {
+                wrapper.Dispose();
+            }
         }
 
         public static unsafe void Update()
         {
-            const int count = 2;
-            var handlers = stackalloc JobHandle[count];
-            handlers[0] = Translate.OnUpdate();
-            handlers[1] = RotateSingle.OnUpdate();
-
-            for (var i = 0; i < count; i++)
+            var handles = stackalloc JobHandle[Wrappers.Length];
+            for (var i = 0; i < Wrappers.Length; i++)
             {
-                ref var handle = ref handlers[i];
+                handles[i] = Wrappers[i].OnUpdate();
+            }
+
+            for (var i = 0; i < Wrappers.Length; i++)
+            {
+                ref var handle = ref handles[i];
                 handle.Complete();
             }
 
-            Translate.AfterUpdate();
-            RotateSingle.AfterUpdate();
+            foreach (var wrapper in Wrappers)
+            {
+                wrapper.AfterUpdate();
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 namespace KSGFK
 {
     [Serializable]
-    public readonly struct ItemGunInfo
+    public class ItemGunInfo
     {
         public readonly string Name;
         public readonly string Addr;
@@ -14,16 +14,28 @@ namespace KSGFK
         public readonly float Damage;
         public readonly float RateOfFire;
         public readonly int MagazineCapacity;
+        public readonly string BulletName;
 
-        public ItemGunInfo(string name, string addr, int maxStack, float damage, float rateOfFire, int magazineCapacity)
+        public ItemGunInfo(
+            string name,
+            string addr,
+            int maxStack,
+            float damage,
+            float rateOfFire,
+            int magazineCapacity,
+            string bulletName)
         {
             Name = name;
             Addr = addr;
             Damage = damage;
             RateOfFire = rateOfFire;
             MagazineCapacity = magazineCapacity;
+            BulletName = bulletName;
             MaxStack = maxStack;
         }
+
+        [Obsolete("用于反射", true)]
+        public ItemGunInfo() { }
 
         public static implicit operator GunInfo(ItemGunInfo gun)
         {
@@ -31,7 +43,8 @@ namespace KSGFK
             {
                 Damage = gun.Damage,
                 MagazineCapacity = gun.MagazineCapacity,
-                RateOfFire = gun.RateOfFire
+                RateOfFire = gun.RateOfFire,
+                BulletName = gun.BulletName
             };
         }
     }

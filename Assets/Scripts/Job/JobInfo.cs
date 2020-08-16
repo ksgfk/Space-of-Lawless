@@ -1,36 +1,34 @@
 using System;
-using MPipeline;
 
 namespace KSGFK
 {
-    public sealed unsafe class JobInfo<T> where T : unmanaged
+    public sealed class JobInfo
     {
-        public static JobInfo<T> Default => new JobInfo<T>(default, -1);
+        public static JobInfo Default => new JobInfo(default, -1);
 
-        private T* _list;
+        private JobWrapper _wrapper;
         private int _index;
 
-        public T* Pointer => _list;
+        public JobWrapper Wrapper => _wrapper;
         public int Index => _index;
-        public bool IsDefault => Pointer == null || Index < 0;
+        public bool IsDefault => Wrapper == null || Index < 0;
 
-        public JobInfo(NativeList<T> list, int index)
+        public JobInfo(JobWrapper wrapper, int index)
         {
-            _list = list.isCreated ? list.unsafePtr : null;
+            _wrapper = wrapper;
             _index = index;
         }
 
         public void SetIndex(int newIndex) { _index = newIndex; }
 
-        public void SetPointer(NativeList<T> dataList)
+        public void SetWrapper(JobWrapper wrapper)
         {
-            if (_list != null) throw new InvalidOperationException();
-            _list = dataList.unsafePtr;
+            _wrapper = wrapper ?? throw new InvalidOperationException();
         }
 
         public void Release()
         {
-            _list = null;
+            _wrapper = null;
             _index = -1;
         }
     }
