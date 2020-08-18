@@ -15,7 +15,8 @@ namespace KSGFK
     [DisallowMultipleComponent]
     public class ItemGun : Item
     {
-        public Vector2 bulletInitPos;
+        public Transform barrelStart;
+        public Transform muzzle;
         [SerializeField] private GunInfo _info;
         [SerializeField] private int _bulletId = -1;
 
@@ -25,10 +26,10 @@ namespace KSGFK
         {
             World world = GameManager.Instance.World;
             var bullet = world.SpawnEntity<EntityBullet>(_bulletId);
-            Vector2 userPos = user.transform.position;
-            Vector2 gunPos = transform.position;
-            gunPos += bulletInitPos;
-            bullet.Launch(gunPos - userPos, gunPos, 5, 5);
+            Vector2 startPos = barrelStart.position;
+            Vector2 endPos = muzzle.position;
+            var dir = endPos - startPos;
+            bullet.Launch(dir, startPos, 5, 5);
         }
 
         public override void OnCreate()

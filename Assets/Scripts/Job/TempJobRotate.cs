@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Jobs;
+using static Unity.Mathematics.math;
+using static Unity.Mathematics.quaternion;
 
 namespace KSGFK
 {
@@ -35,7 +37,7 @@ namespace KSGFK
             {
                 ref var data = ref Data[index];
                 var degree = MathExt.SignedAngle(data.Standard.xy0(), data.Direction.xy0(), new float3(0, 0, 1));
-                transform.rotation = quaternion.AxisAngle(new float3(0, 0, 1), degree);
+                transform.rotation = EulerZXY(0, 0, radians(degree));
             }
         }
 

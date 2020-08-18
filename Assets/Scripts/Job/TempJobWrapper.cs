@@ -11,12 +11,12 @@ namespace KSGFK
         private NativeList<TOutput> _dataList;
 
         protected NativeList<TOutput> DataList => _dataList;
-        
+
         public virtual void AddValue(TInput input)
         {
             if (!_dataList.isCreated)
             {
-                _dataList = new NativeList<TOutput>(6, Allocator.Temp);
+                _dataList = new NativeList<TOutput>(6, Allocator.Persistent);
             }
 
             _dataList.Add(ConvertData(ref input));
@@ -24,7 +24,10 @@ namespace KSGFK
 
         protected abstract TOutput ConvertData(ref TInput input);
 
-        public sealed override JobHandle OnUpdate() { return !_dataList.isCreated ? default : Update(); }
+        public sealed override JobHandle OnUpdate()
+        {
+            return !_dataList.isCreated || _dataList.Length <= 0 ? default : Update();
+        }
 
         protected abstract JobHandle Update();
 
@@ -35,8 +38,7 @@ namespace KSGFK
                 return;
             }
 
-            _dataList.Dispose();
-            _dataList = default;
+            _dataList.Clear();
         }
 
         public override void Dispose() { _dataList.Dispose(); }

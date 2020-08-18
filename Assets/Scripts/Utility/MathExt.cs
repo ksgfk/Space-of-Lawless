@@ -26,10 +26,14 @@ namespace KSGFK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Angle(float3 from, float3 to)
         {
-            var num = sqrt(lengthsq(from) * (double) lengthsq(to));
-            return num < 1.00000000362749E-15
-                ? 0.0f
-                : degrees((float) acos(clamp(dot(from, to) / num, -1f, 1f)));
+            var denominator = sqrt(lengthsq(from) * lengthsq(to));
+            if (denominator < FLT_MIN_NORMAL)
+            {
+                return 0F;
+            }
+
+            var d = clamp(dot(from, to) / denominator, -1F, 1F);
+            return degrees(acos(d));
         }
 
         /// <summary>

@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -39,8 +40,9 @@ namespace KSGFK
             ctrl.Player.Move.canceled -= StopMove;
             ctrl.Player.Act.performed -= Pickup;
             ctrl.Player.Select.performed -= SelectSlot;
-            ctrl.Player.Fire.started += StartUseItem;
-            ctrl.Player.Fire.canceled += StopUseItem;
+            ctrl.Player.Fire.started -= StartUseItem;
+            ctrl.Player.Fire.canceled -= StopUseItem;
+            ctrl.Player.Point.performed -= RotateInv;
         }
 
         public void Setup(Entity entity)
@@ -69,6 +71,7 @@ namespace KSGFK
                     ctrl.Player.Select.performed += SelectSlot;
                     ctrl.Player.Fire.started += StartUseItem;
                     ctrl.Player.Fire.canceled += StopUseItem;
+                    ctrl.Player.Point.performed += RotateInv;
                     maxSlot = inv.Capacity;
                     nowSlot = 0;
                 }
@@ -97,5 +100,13 @@ namespace KSGFK
         private void StartUseItem(InputAction.CallbackContext ctx) { isUseItem = true; }
 
         private void StopUseItem(InputAction.CallbackContext ctx) { isUseItem = false; }
+
+        private void RotateInv(InputAction.CallbackContext ctx)
+        {
+            var mousePos = ctx.ReadValue<Vector2>();
+            Vector2 pos = GameManager.Instance.MainCamera.ScreenToWorldPoint(mousePos);
+            Inventory inv = ((EntityLiving) player).Inventory;
+            inv.Rotate(pos);
+        }
     }
 }

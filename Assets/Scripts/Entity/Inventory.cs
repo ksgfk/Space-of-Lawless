@@ -167,8 +167,8 @@ namespace KSGFK
             var nowUsing = UsingItem;
             if (nowUsing)
             {
-                UsingItem.Sprite.enabled = false;
-                UsingItem.transform.SetParent(transform, false);
+                nowUsing.Sprite.enabled = false;
+                MoveToNoUse(nowUsing);
             }
 
             _usingItemSlot = slot;
@@ -176,11 +176,18 @@ namespace KSGFK
             if (nextUsing)
             {
                 nextUsing.Sprite.enabled = true;
-                var trans = UsingItem.transform;
-                trans.localPosition = Vector3.zero;
-                trans.SetParent(holdItemParent, false);
+                MoveToUse(nextUsing);
             }
         }
+
+        private void MoveToUse(Item usingItem)
+        {
+            var trans = UsingItem.transform;
+            trans.SetParent(holdItemParent, false);
+            trans.localPosition = usingItem.RotateOffset;
+        }
+
+        private void MoveToNoUse(Item noUse) { noUse.transform.SetParent(transform, false); }
 
         public void UseHeldItem()
         {
@@ -189,6 +196,18 @@ namespace KSGFK
             {
                 item.OnUse(Holder);
             }
+        }
+
+        public void Rotate(Vector2 targetPos)
+        {
+            var invTrans = holdItemParent;
+            Vector2 invPos = invTrans.position;
+            Jobs.RotateTemp.AddValue(new JobRotateInput
+            {
+                Direction = targetPos - invPos,
+                Standard = Vector2.right,
+                Trans = invTrans
+            });
         }
     }
 }

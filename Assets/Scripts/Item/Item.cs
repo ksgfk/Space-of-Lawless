@@ -9,6 +9,7 @@ namespace KSGFK
     {
         [SerializeField] private int _maxStack;
         [SerializeField] private int _nowStack;
+        [SerializeField] private Transform _rotateCenter;
         private SpriteRenderer _sprite;
 
         public int MaxStack => _maxStack;
@@ -45,9 +46,18 @@ namespace KSGFK
             }
         }
 
+        public Vector2 RotateOffset => -(Vector2) _rotateCenter.localPosition;
+
         public SpriteRenderer Sprite => _sprite;
 
-        public virtual void OnCreate() { _sprite = GetComponent<SpriteRenderer>(); }
+        public virtual void OnCreate()
+        {
+            _sprite = GetComponent<SpriteRenderer>();
+            if (!_rotateCenter)
+            {
+                _rotateCenter = transform;
+            }
+        }
 
         public virtual void OnDestroyItem() { }
 
