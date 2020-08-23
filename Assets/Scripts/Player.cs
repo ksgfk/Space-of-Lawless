@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -43,6 +42,7 @@ namespace KSGFK
             ctrl.Player.Fire.started -= StartUseItem;
             ctrl.Player.Fire.canceled -= StopUseItem;
             ctrl.Player.Point.performed -= RotateInv;
+            ctrl.Player.Point.performed -= RotateBody;
         }
 
         public void Setup(Entity entity)
@@ -54,6 +54,7 @@ namespace KSGFK
                 ctrl.Player.Point.performed += MousePos;
                 ctrl.Player.Move.performed += StartMove;
                 ctrl.Player.Move.canceled += StopMove;
+                ctrl.Player.Point.performed += RotateBody;
             }
             else
             {
@@ -107,6 +108,15 @@ namespace KSGFK
             Vector2 pos = GameManager.Instance.MainCamera.ScreenToWorldPoint(mousePos);
             Inventory inv = ((EntityLiving) player).Inventory;
             inv.Rotate(pos);
+        }
+
+        private void RotateBody(InputAction.CallbackContext ctx)
+        {
+            var mousePos = ctx.ReadValue<Vector2>();
+            Vector2 mwPos = GameManager.Instance.MainCamera.ScreenToWorldPoint(mousePos);
+            var trans = player.transform;
+            Vector2 pPos = trans.position;
+            cc2d.Face = mwPos.x > pPos.x ? FaceDirection.Right : FaceDirection.Left;
         }
     }
 }

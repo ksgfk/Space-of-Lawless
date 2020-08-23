@@ -42,8 +42,8 @@ GameObject:
   - component: {fileID: 8414444806684423218}
   - component: {fileID: 5432443742517121405}
   - component: {fileID: 5080223789682851331}
-  - component: {fileID: 1369153154782787185}
   - component: {fileID: 6686406887708687534}
+  - component: {fileID: 1181190884725049541}
   m_Layer: 8
   m_Name: slime
   m_TagString: Entity
@@ -154,22 +154,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.39
---- !u!114 &1369153154782787185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6681522160728325772}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49b4c49acce54656887d7b66acafdb69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _runtimeId: -1
-  _maxHealth: 18446744073709551615
-  _nowHealth: 0
-  _inventory: {fileID: 5392525476782150510}
 --- !u!114 &6686406887708687534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,6 +175,22 @@ MonoBehaviour:
   acceleration: 5
   dumpForce: 10
   _velocity: {x: 0, y: 0}
+--- !u!114 &1181190884725049541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6681522160728325772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b4c49acce54656887d7b66acafdb69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _runtimeId: -1
+  _maxHealth: 18446744073709551615
+  _nowHealth: 0
+  _inventory: {fileID: 5392525476782150510}
 --- !u!1 &8866598714137082400
 GameObject:
   m_ObjectHideFlags: 0

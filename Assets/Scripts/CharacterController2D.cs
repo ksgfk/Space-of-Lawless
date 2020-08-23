@@ -1,7 +1,14 @@
+using System;
 using UnityEngine;
 
 namespace KSGFK
 {
+    public enum FaceDirection
+    {
+        Right,
+        Left
+    }
+
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class CharacterController2D : MonoBehaviour
@@ -19,6 +26,33 @@ namespace KSGFK
         private bool _isSpeedUp;
 
         public Vector2 Velocity => _velocity;
+
+        public virtual FaceDirection Face
+        {
+            get => transform.localScale.x > 0 ? FaceDirection.Right : FaceDirection.Left;
+            set
+            {
+                var trans = transform;
+                var scale = trans.localScale;
+                int turn;
+                if (value == FaceDirection.Right)
+                {
+                    TurnRight?.Invoke(this);
+                    turn = 1;
+                }
+                else
+                {
+                    TurnLeft?.Invoke(this);
+                    turn = -1;
+                }
+
+                scale.x = Mathf.Abs(scale.x) * turn;
+                trans.localScale = scale;
+            }
+        }
+
+        public event Action<CharacterController2D> TurnRight;
+        public event Action<CharacterController2D> TurnLeft;
 
         private void Awake()
         {

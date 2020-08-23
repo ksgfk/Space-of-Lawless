@@ -54,6 +54,22 @@ namespace KSGFK
             {
                 Debug.LogError("使用中物品的节点不存在");
             }
+
+            _entity.Cc2d.TurnLeft += _ =>
+            {
+                var scale = holdItemParent.localScale;
+                scale.x = -Mathf.Abs(scale.x);
+                scale.y = -Mathf.Abs(scale.y);
+                holdItemParent.localScale = scale;
+            };
+
+            _entity.Cc2d.TurnRight += _ =>
+            {
+                var scale = holdItemParent.localScale;
+                scale.x = Mathf.Abs(scale.x);
+                scale.y = Mathf.Abs(scale.y);
+                holdItemParent.localScale = scale;
+            };
         }
 
         /// <summary>
@@ -185,6 +201,10 @@ namespace KSGFK
             var trans = UsingItem.transform;
             trans.SetParent(holdItemParent, false);
             trans.localPosition = usingItem.RotateOffset;
+            var scale = trans.localScale;
+            scale.x = Mathf.Abs(scale.x);
+            scale.y = Mathf.Abs(scale.y);
+            trans.localScale = scale;
         }
 
         private void MoveToNoUse(Item noUse) { noUse.transform.SetParent(transform, false); }
@@ -202,12 +222,15 @@ namespace KSGFK
         {
             var invTrans = holdItemParent;
             Vector2 invPos = invTrans.position;
-            Jobs.RotateTemp.AddValue(new JobRotateInput
-            {
-                Direction = targetPos - invPos,
-                Standard = Vector2.right,
-                Trans = invTrans
-            });
+            // Jobs.RotateTemp.AddValue(new JobRotateInput
+            // {
+            //     Direction = targetPos - invPos,
+            //     Standard = Vector2.right,
+            //     Trans = invTrans
+            // });
+            //这里不用Job，因为Job是该帧结束时才计算，可能会导致一些问题
+            var degree = Vector3.SignedAngle(Vector3.right, targetPos - invPos, Vector3.forward);
+            invTrans.rotation = Quaternion.Euler(0, 0, degree);
         }
     }
 }
