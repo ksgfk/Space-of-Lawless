@@ -58,6 +58,7 @@ namespace KSGFK
             var bullet = (EntityBullet) entity;
             world.Pool.Return(PoolId, bullet.PoolObjectId);
             bullet.SetPoolObjectId(-1);
+            bullet.SetId(-1);
         }
     }
 }

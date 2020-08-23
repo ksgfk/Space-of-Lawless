@@ -1,7 +1,6 @@
 ﻿using KSGFK;
 using NUnit.Framework;
-using Unity.Mathematics;
-using UnityEngine;
+using Unity.Collections;
 
 namespace Tests
 {
@@ -10,15 +9,22 @@ namespace Tests
         [Test]
         public void TestJobPasses()
         {
-            Vector3 start = Vector3.right;
-            Vector3 axis = Vector3.forward;
-            Vector3 endU = new Vector3(-1, -1, -1);
-            float3 endN = new float3(-1, -1, -1);
-            var resU = Vector3.SignedAngle(start, endU, axis);
-            var resN = MathExt.SignedAngle(start, endN, axis);
-            Assert.True(resU - resN <= 0.000001f);
-            Debug.Log(resU);
-            Debug.Log(resN);
+            using (var pq = new NativePriorityQueue<int>(Allocator.Temp))
+            {
+                pq.Enqueue(2);
+                pq.Enqueue(3);
+                pq.Enqueue(1);
+                pq.Enqueue(666);
+                pq.Enqueue(23);
+                pq.Enqueue(233);
+
+                Assert.True(pq.Dequeue() == 1);
+                Assert.True(pq.Dequeue() == 2);
+                Assert.True(pq.Dequeue() == 3);
+                Assert.True(pq.Dequeue() == 23);
+                Assert.True(pq.Dequeue() == 233);
+                Assert.True(pq.Dequeue() == 666);
+            }
         }
     }
 }

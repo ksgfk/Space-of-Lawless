@@ -19,8 +19,6 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:卸载世界后一些注册项需再次获取对象池
-    /// TODO:子弹有生存时间，到时间自动销毁
     /// TODO:枪械开火间隔、弹匣容量、换弹冷却
     /// TODO:直接将物品塞入玩家背包
     /// TODO:可以在Debug面板指定物品生成坐标
@@ -170,7 +168,9 @@ namespace KSGFK
                 return;
             }
 
-            await Addressables.UnloadSceneAsync(_world.Scene).Task;
+            var world = World.Value;
+            world.Dispose();
+            await Addressables.UnloadSceneAsync(world.Scene).Task;
             _world = null;
             callback?.Invoke();
         }

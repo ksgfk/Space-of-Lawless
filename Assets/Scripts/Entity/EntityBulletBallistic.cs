@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace KSGFK
@@ -24,6 +23,8 @@ namespace KSGFK
                     Velocity = new Vector2(0, speed)
                 },
                 _jobInfo);
+            //TODO:实体可能提前删除
+            Jobs.TimingTask.AddTask(duration, () => GameManager.Instance.World.Value.DestroyEntity(this));
         }
 
         public override void OnSpawn()

@@ -7,13 +7,15 @@ namespace KSGFK
         private static readonly JobWrapper[] Wrappers;
         public static readonly PersistentJobTranslate TranslatePersist;
         public static readonly TempJobRotate RotateTemp;
+        public static readonly NormalJobTimingTask TimingTask;
 
         static Jobs()
         {
             Wrappers = new JobWrapper[]
             {
                 TranslatePersist = new PersistentJobTranslate(),
-                RotateTemp = new TempJobRotate()
+                RotateTemp = new TempJobRotate(),
+                TimingTask = new NormalJobTimingTask()
             };
         }
 
