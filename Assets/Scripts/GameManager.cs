@@ -77,7 +77,15 @@ namespace KSGFK
             InitGame();
         }
 
-        private void LateUpdate() { Jobs.Update(); }
+        private void LateUpdate()
+        {
+            Jobs.Update();
+            if (World.HasValue)
+            {
+                var world = World.Value;
+                world.AfterUpdate();
+            }
+        }
 
         private void OnDestroy() { Jobs.Release(); }
 

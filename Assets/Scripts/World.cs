@@ -15,6 +15,7 @@ namespace KSGFK
         private SceneInstance _sceneInstance;
         private LinkedList<Entity> _activeEntity;
         private PoolCenter _pool;
+        private List<Entity> _rmCache;
 
         /// <summary>
         /// 场景实例
@@ -44,6 +45,7 @@ namespace KSGFK
             _sceneInstance = sceneInstance;
             _activeEntity = new LinkedList<Entity>();
             _pool = new PoolCenter();
+            _rmCache = new List<Entity>();
         }
 
         protected virtual Entity SpawnEntity(EntryEntity entry)
@@ -97,9 +99,19 @@ namespace KSGFK
                 return;
             }
 
-            var entry = GetEntityRegistry()[entity.RuntimeId];
-            _activeEntity.Remove(entity.Node);
-            entry.Destroy(entity);
+            _rmCache.Add(entity);
+        }
+
+        public void AfterUpdate()
+        {
+            foreach (var entity in _rmCache)
+            {
+                var entry = GetEntityRegistry()[entity.RuntimeId];
+                _activeEntity.Remove(entity.Node);
+                entry.Destroy(entity);
+            }
+
+            _rmCache.Clear();
         }
 
         protected virtual Registry<EntryEntity> GetEntityRegistry() { return _gm.Register.Entity; }

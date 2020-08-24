@@ -8,35 +8,47 @@ using UnityEngine;
 
 namespace KSGFK
 {
-    /// <summary>
-    /// TODO:提供删除任务API
-    /// </summary>
     public sealed class NormalJobTimingTask : JobWrapper
     {
         private readonly struct TaskInfo : IComparable<TaskInfo>
         {
             public readonly float ExecuteTime;
             public readonly int TaskIndex;
+            public readonly int TaskGen;
 
-            public TaskInfo(float executeTime, int taskIndex)
+            public TaskInfo(float executeTime, int taskIndex, int taskGen)
             {
                 ExecuteTime = executeTime;
                 TaskIndex = taskIndex;
+                TaskGen = taskGen;
             }
 
             public int CompareTo(TaskInfo other) { return ExecuteTime.CompareTo(other.ExecuteTime); }
         }
 
+        private struct InternalTask
+        {
+            public Action Task;
+            public int Gen;
+
+            public InternalTask(Action task, int gen)
+            {
+                Task = task;
+                Gen = gen;
+            }
+        }
+
         private NativePriorityQueue<TaskInfo> _timeQueue;
-        private NativeList<int> _executeIndex;
-        private readonly List<Action> _taskList;
+        private NativeList<TaskInfo> _executeIndex;
+        private readonly List<InternalTask> _taskList;
         private int _usableIndex;
+        private bool _canModify;
 
         [BurstCompile]
         private struct InternalTimingTask : IJob
         {
             public NativePriorityQueue<TaskInfo> TaskQueue;
-            public NativeList<int> ExeIndex;
+            public NativeList<TaskInfo> ExeIndex;
             public float NowTime;
 
             public void Execute()
@@ -46,7 +58,7 @@ namespace KSGFK
                     ref var top = ref TaskQueue.Peek();
                     if (NowTime >= top.ExecuteTime)
                     {
-                        ExeIndex.Add(top.TaskIndex);
+                        ExeIndex.Add(ref top);
                         TaskQueue.Dequeue();
                     }
                     else
@@ -60,9 +72,10 @@ namespace KSGFK
         public NormalJobTimingTask()
         {
             _timeQueue = new NativePriorityQueue<TaskInfo>(Allocator.Persistent);
-            _executeIndex = new NativeList<int>(0, Allocator.Persistent);
-            _taskList = new List<Action>();
+            _executeIndex = new NativeList<TaskInfo>(0, Allocator.Persistent);
+            _taskList = new List<InternalTask>();
             _usableIndex = 0;
+            _canModify = true;
         }
 
         public override JobHandle OnUpdate()
@@ -82,29 +95,36 @@ namespace KSGFK
 
         public override void AfterUpdate()
         {
+            _canModify = false;
             for (var i = 0; i < _executeIndex.Length; i++)
             {
-                try
+                ref var taskInfo = ref _executeIndex[i];
+                var task = _taskList[taskInfo.TaskIndex];
+                if (task.Gen == taskInfo.TaskGen)
                 {
-                    _taskList[_executeIndex[i]]();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
+                    try
+                    {
+                        task.Task?.Invoke();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                    }
                 }
             }
 
             for (var i = 0; i < _executeIndex.Length; i++)
             {
-                var index = _executeIndex[i];
-                _taskList[index] = null;
-                if (index < _usableIndex)
+                ref var index = ref _executeIndex[i];
+                _taskList[index.TaskIndex] = new InternalTask(null, index.TaskGen);
+                if (index.TaskIndex < _usableIndex)
                 {
-                    _usableIndex = index;
+                    _usableIndex = index.TaskIndex;
                 }
             }
 
             _executeIndex.Clear();
+            _canModify = true;
         }
 
         public override void Dispose()
@@ -114,18 +134,33 @@ namespace KSGFK
             _taskList.Clear();
         }
 
-        public void AddTask(float delay, Action task)
+        public JobInfo AddTask(float delay, Action task)
+        {
+            var info = new JobInfo(null, -1);
+            AddTask(delay, task, info);
+            return info;
+        }
+
+        public void AddTask(float delay, Action task, JobInfo info)
         {
             if (task == null) throw new ArgumentNullException();
+            if (!_canModify) throw new InvalidOperationException();
             var taskIndex = _usableIndex;
             if (taskIndex >= _taskList.Count)
             {
-                _taskList.Add(null);
+                _taskList.Add(new InternalTask(null, 0));
             }
 
-            _taskList[taskIndex] = task;
+            var t = _taskList[taskIndex];
+            t.Gen = t.Gen == int.MaxValue ? 0 : t.Gen + 1;
+            t.Task = task;
+            _taskList[taskIndex] = t;
+
             FindNextUsableIndex();
-            _timeQueue.Enqueue(new TaskInfo(Time.time + delay, taskIndex));
+
+            _timeQueue.Enqueue(new TaskInfo(Time.time + delay, taskIndex, t.Gen));
+            info.SetWrapper(this);
+            info.SetIndex(taskIndex);
         }
 
         private void FindNextUsableIndex()
@@ -138,7 +173,8 @@ namespace KSGFK
                     break;
                 }
 
-                if (_taskList[_usableIndex] != null)
+                var t = _taskList[_usableIndex];
+                if (t.Task != null)
                 {
                     _usableIndex++;
                 }
@@ -146,6 +182,19 @@ namespace KSGFK
                 {
                     break;
                 }
+            }
+        }
+
+        public void RemoveTask(JobInfo info)
+        {
+            if (info.Wrapper != this) throw new InvalidOperationException();
+            if (!_canModify) throw new InvalidOperationException();
+            var t = _taskList[info.Index];
+            t.Task = null;
+            _taskList[info.Index] = t;
+            if (info.Index < _usableIndex)
+            {
+                _usableIndex = info.Index;
             }
         }
     }
