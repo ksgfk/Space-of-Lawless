@@ -1,13 +1,20 @@
 //源码来源:https://github.com/MaxwellGengYF/Unity-MPipeline
 //作者MaxwellGengYF
 
+using System;
 using System.Runtime.CompilerServices;
+using KSGFK;
 using Unity.Collections;
 using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace MPipeline
 {
+    public interface IFunction<A, R>
+    {
+        R Run(ref A a);
+    }
+
     public static unsafe class MUnsafeUtility
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

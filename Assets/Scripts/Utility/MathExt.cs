@@ -1,4 +1,6 @@
+using System;
 using System.Runtime.CompilerServices;
+using MPipeline;
 using Unity.Mathematics;
 using UnityEngine;
 using static Unity.Mathematics.math;
@@ -170,6 +172,128 @@ namespace KSGFK
             var a = cross(from, to) * axis;
             var sign = Mathf.Sign(a.x + a.y + a.z);
             return unsignedAngle * sign;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Swap<T>(ref T l, ref T r)
+        {
+            var t = l;
+            l = r;
+            r = t;
+        }
+
+        public static unsafe void Quicksort<T>(T* a, int p, int q) where T : unmanaged, IFunction<T, int>
+        {
+            int i = p;
+            int j = q;
+            T temp = a[p];
+
+            while (i < j)
+            {
+                while (a[j].Run(ref temp) >= 0 && j > i) j--;
+
+                if (j > i)
+                {
+                    a[i] = a[j];
+                    i++;
+                    while (a[i].Run(ref temp) <= 0 && i < j) i++;
+                    if (i < j)
+                    {
+                        a[j] = a[i];
+                        j--;
+                    }
+                }
+            }
+
+            a[i] = temp;
+            if (p < (i - 1)) Quicksort(a, p, i - 1);
+            if ((j + 1) < q) Quicksort(a, j + 1, q);
+        }
+
+        public static unsafe void Quicksort(int* a, int p, int q)
+        {
+            int i = p;
+            int j = q;
+            int temp = a[p];
+
+            while (i < j)
+            {
+                while (a[j] >= temp && j > i) j--;
+
+                if (j > i)
+                {
+                    a[i] = a[j];
+                    i++;
+                    while (a[i] <= temp && i < j) i++;
+                    if (i < j)
+                    {
+                        a[j] = a[i];
+                        j--;
+                    }
+                }
+            }
+
+            a[i] = temp;
+            if (p < (i - 1)) Quicksort(a, p, i - 1);
+            if ((j + 1) < q) Quicksort(a, j + 1, q);
+        }
+
+        public static unsafe int BinarySearch<T>(T* arr, int start, int end, ref T target)
+            where T : unmanaged, IFunction<T, int>
+        {
+            var left = start;
+            var right = end;
+            while (true)
+            {
+                var mid = (right + left) / 2;
+                if (arr[mid].Run(ref target) == 0)
+                {
+                    return mid;
+                }
+
+                if (left > right)
+                {
+                    return -1;
+                }
+
+                if (arr[mid].Run(ref target) >= 0)
+                {
+                    right = mid - 1;
+                }
+                else
+                {
+                    left = mid + 1;
+                }
+            }
+        }
+
+        public static unsafe int BinarySearch<T>(T* arr, int start, int end, T target)
+            where T : unmanaged, IComparable<T>
+        {
+            var left = start;
+            var right = end;
+            while (true)
+            {
+                var mid = (right + left) / 2;
+                if (arr[mid].CompareTo(target) == 0)
+                {
+                    return mid;
+                }
+
+                if (left > right)
+                {
+                    return -1;
+                }
+
+                if (arr[mid].CompareTo(target) >= 0)
+                {
+                    right = mid - 1;
+                }
+                else
+                {
+                    left = mid + 1;
+                }
+            }
         }
     }
 }

@@ -1,201 +1,204 @@
 using System;
-using System.Collections.Generic;
 using MPipeline;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace KSGFK
 {
-    public sealed class NormalJobTimingTask : JobWrapper
+    public sealed unsafe class NormalJobTimingTask : JobWrapper
     {
-        private readonly struct TaskInfo : IComparable<TaskInfo>
+        private struct TaskInfo : IComparable<TaskInfo>, IFunction<TaskInfo, int>
         {
-            public readonly float ExecuteTime;
-            public readonly int TaskIndex;
-            public readonly int TaskGen;
+            public float Time;
+            public int Pointer;
 
-            public TaskInfo(float executeTime, int taskIndex, int taskGen)
-            {
-                ExecuteTime = executeTime;
-                TaskIndex = taskIndex;
-                TaskGen = taskGen;
-            }
-
-            public int CompareTo(TaskInfo other) { return ExecuteTime.CompareTo(other.ExecuteTime); }
+            public int CompareTo(TaskInfo other) { return Time.CompareTo(other.Time); }
+            public int Run(ref TaskInfo a) { return Time.CompareTo(a.Time); }
         }
-
-        private struct InternalTask
-        {
-            public Action Task;
-            public int Gen;
-
-            public InternalTask(Action task, int gen)
-            {
-                Task = task;
-                Gen = gen;
-            }
-        }
-
-        private NativePriorityQueue<TaskInfo> _timeQueue;
-        private NativeList<TaskInfo> _executeIndex;
-        private readonly List<InternalTask> _taskList;
-        private int _usableIndex;
-        private bool _canModify;
 
         [BurstCompile]
-        private struct InternalTimingTask : IJob
+        private struct TimingTask : IJob
         {
-            public NativePriorityQueue<TaskInfo> TaskQueue;
-            public NativeList<TaskInfo> ExeIndex;
+            public NativeList<TaskInfo> WaitingList;
+            public NativeQueue<TaskInfo> AddCache;
+            public NativeQueue<int> RmCache;
+            [NativeDisableUnsafePtrRestriction] public NativeList_Int* ExeList;
             public float NowTime;
 
             public void Execute()
             {
-                while (TaskQueue.Count > 0)
+                if (AddCache.Length > 0)
                 {
-                    ref var top = ref TaskQueue.Peek();
-                    if (NowTime >= top.ExecuteTime)
+                    AddTask();
+                }
+
+                if (RmCache.Length > 0)
+                {
+                    RemoveTask();
+                }
+
+                if (WaitingList.Length > 0)
+                {
+                    SelectTask();
+                }
+            }
+
+            private void AddTask()
+            {
+                while (AddCache.TryDequeue(out var taskInfo))
+                {
+                    WaitingList.Add(ref taskInfo);
+                }
+
+                MathExt.Quicksort(WaitingList.unsafePtr, 0, WaitingList.Length - 1);
+            }
+
+            private void RemoveTask()
+            {
+                while (RmCache.TryDequeue(out var ptr))
+                {
+                    for (int i = 0; i < WaitingList.Length; i++)
                     {
-                        ExeIndex.Add(ref top);
-                        TaskQueue.Dequeue();
+                        ref var info = ref WaitingList[i];
+                        if (info.Pointer == ptr)
+                        {
+                            WaitingList.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            private void SelectTask()
+            {
+                var end = -1;
+                for (var i = 0; i < WaitingList.Length; i++)
+                {
+                    ref var task = ref WaitingList[i];
+                    if (task.Time <= NowTime)
+                    {
+                        end = i;
                     }
                     else
                     {
                         break;
                     }
                 }
+
+                if (end <= -1)
+                {
+                    return;
+                }
+
+                *ExeList = new NativeList_Int(end + 1, Allocator.TempJob);
+                for (var i = 0; i <= end; i++)
+                {
+                    ExeList->Add(WaitingList[i].Pointer);
+                }
             }
         }
 
+        /// <summary>
+        /// 等待倒计时的任务列表
+        /// </summary>
+        private NativeList<TaskInfo> _waitingList;
+
+        /// <summary>
+        /// 添加任务缓存
+        /// </summary>
+        private NativeQueue<TaskInfo> _addCache;
+
+        /// <summary>
+        /// 删除任务缓存
+        /// </summary>
+        private NativeQueue<int> _rmCache;
+
+        /// <summary>
+        /// 可以执行的任务
+        /// </summary>
+        private NativeList_Int _exeList;
+
+        /// <summary>
+        /// 任务储存池
+        /// </summary>
+        private readonly DisorderPool<Action> _tasks;
+
         public NormalJobTimingTask()
         {
-            _timeQueue = new NativePriorityQueue<TaskInfo>(Allocator.Persistent);
-            _executeIndex = new NativeList<TaskInfo>(0, Allocator.Persistent);
-            _taskList = new List<InternalTask>();
-            _usableIndex = 0;
-            _canModify = true;
+            _waitingList = new NativeList<TaskInfo>(0, Allocator.Persistent);
+            _addCache = new NativeQueue<TaskInfo>(0, Allocator.Persistent);
+            _rmCache = new NativeQueue<int>(0, Allocator.Persistent);
+            _tasks = new DisorderPool<Action>();
+            _exeList = new NativeList_Int();
         }
 
         public override JobHandle OnUpdate()
         {
-            if (_timeQueue.Count <= 0)
+            fixed (NativeList_Int* p = &_exeList)
             {
-                return default;
+                if (_addCache.Length > 0 || _rmCache.Length > 0 || _waitingList.Length > 0)
+                {
+                    return new TimingTask
+                    {
+                        WaitingList = _waitingList,
+                        AddCache = _addCache,
+                        ExeList = p,
+                        NowTime = Time.time,
+                        RmCache = _rmCache
+                    }.Schedule();
+                }
+                else
+                {
+                    return default;
+                }
             }
-
-            return new InternalTimingTask
-            {
-                TaskQueue = _timeQueue,
-                ExeIndex = _executeIndex,
-                NowTime = Time.time
-            }.Schedule();
         }
 
         public override void AfterUpdate()
         {
-            _canModify = false;
-            for (var i = 0; i < _executeIndex.Length; i++)
+            if (_exeList.isCreated)
             {
-                ref var taskInfo = ref _executeIndex[i];
-                var task = _taskList[taskInfo.TaskIndex];
-                if (task.Gen == taskInfo.TaskGen)
+                for (var i = 0; i < _exeList.Length; i++)
                 {
-                    try
-                    {
-                        task.Task?.Invoke();
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(e);
-                    }
+                    _tasks.TakeOut(_exeList[i]).Invoke();
                 }
-            }
 
-            for (var i = 0; i < _executeIndex.Length; i++)
-            {
-                ref var index = ref _executeIndex[i];
-                _taskList[index.TaskIndex] = new InternalTask(null, index.TaskGen);
-                if (index.TaskIndex < _usableIndex)
-                {
-                    _usableIndex = index.TaskIndex;
-                }
+                _waitingList.RemoveRange(0, _exeList.Length - 1);
+                _exeList.Dispose();
             }
-
-            _executeIndex.Clear();
-            _canModify = true;
         }
 
         public override void Dispose()
         {
-            _timeQueue.Dispose();
-            _executeIndex.Dispose();
-            _taskList.Clear();
+            _waitingList.Dispose();
+            _addCache.Dispose();
+            _rmCache.Dispose();
+            _tasks.Clear();
+            _exeList.Dispose();
         }
 
         public JobInfo AddTask(float delay, Action task)
         {
-            var info = new JobInfo(null, -1);
+            var info = JobInfo.Default;
             AddTask(delay, task, info);
             return info;
         }
 
         public void AddTask(float delay, Action task, JobInfo info)
         {
-            if (task == null) throw new ArgumentNullException();
-            if (!_canModify) throw new InvalidOperationException();
-            var taskIndex = _usableIndex;
-            if (taskIndex >= _taskList.Count)
-            {
-                _taskList.Add(new InternalTask(null, 0));
-            }
-
-            var t = _taskList[taskIndex];
-            t.Gen = t.Gen == int.MaxValue ? 0 : t.Gen + 1;
-            t.Task = task;
-            _taskList[taskIndex] = t;
-
-            FindNextUsableIndex();
-
-            _timeQueue.Enqueue(new TaskInfo(Time.time + delay, taskIndex, t.Gen));
+            var pointer = _tasks.PutIn(task);
+            _addCache.Enqueue(new TaskInfo {Time = Time.time + delay, Pointer = pointer});
+            info.SetIndex(pointer);
             info.SetWrapper(this);
-            info.SetIndex(taskIndex);
-        }
-
-        private void FindNextUsableIndex()
-        {
-            _usableIndex++;
-            while (true)
-            {
-                if (_usableIndex >= _taskList.Count)
-                {
-                    break;
-                }
-
-                var t = _taskList[_usableIndex];
-                if (t.Task != null)
-                {
-                    _usableIndex++;
-                }
-                else
-                {
-                    break;
-                }
-            }
         }
 
         public void RemoveTask(JobInfo info)
         {
-            if (info.Wrapper != this) throw new InvalidOperationException();
-            if (!_canModify) throw new InvalidOperationException();
-            var t = _taskList[info.Index];
-            t.Task = null;
-            _taskList[info.Index] = t;
-            if (info.Index < _usableIndex)
-            {
-                _usableIndex = info.Index;
-            }
+            if (info.Wrapper != this) throw new ArgumentException();
+            _rmCache.Enqueue(info.Index);
         }
     }
 }

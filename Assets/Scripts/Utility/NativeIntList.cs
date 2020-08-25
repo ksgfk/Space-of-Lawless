@@ -1,7 +1,3 @@
-//源码来源:https://github.com/MaxwellGengYF/Unity-MPipeline
-//作者MaxwellGengYF
-
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -12,21 +8,13 @@ using UnityEngine;
 
 namespace MPipeline
 {
-    public unsafe struct NativeListData
-    {
-        public int count;
-        public int capacity;
-        public Allocator allocator;
-        public void* ptr;
-    }
-
-    public unsafe struct NativeList<T> : IEnumerable<T>, IDisposable where T : unmanaged
+    public unsafe struct NativeList_Int : IEnumerable<int>
     {
         [NativeDisableUnsafePtrRestriction] private NativeListData* data;
         public bool isCreated { get; private set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NativeList(int capacity, Allocator alloc)
+        public NativeList_Int(int capacity, Allocator alloc)
         {
             isCreated = true;
             capacity = Mathf.Max(capacity, 1);
@@ -34,18 +22,18 @@ namespace MPipeline
             data->count = 0;
             data->capacity = capacity;
             data->allocator = alloc;
-            data->ptr = MUnsafeUtility.Malloc<T>(sizeof(T) * capacity, alloc);
+            data->ptr = MUnsafeUtility.Malloc<int>(sizeof(int) * capacity, alloc);
         }
 
-        public NativeList(int count, Allocator alloc, T defaultValue)
+        public NativeList_Int(int count, Allocator alloc, int defaultValue)
         {
             isCreated = true;
             data = MUnsafeUtility.Malloc<NativeListData>(sizeof(NativeListData), alloc);
             data->count = count;
             data->capacity = count;
             data->allocator = alloc;
-            data->ptr = MUnsafeUtility.Malloc<T>(sizeof(T) * count, alloc);
-            T* add = (T*) data->ptr;
+            data->ptr = MUnsafeUtility.Malloc<int>(sizeof(int) * count, alloc);
+            int* add = (int*) data->ptr;
             for (int i = 0; i < count; ++i)
             {
                 add[i] = defaultValue;
@@ -53,14 +41,14 @@ namespace MPipeline
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NativeList(int count, int capacity, Allocator alloc)
+        public NativeList_Int(int count, int capacity, Allocator alloc)
         {
             isCreated = true;
             data = MUnsafeUtility.Malloc<NativeListData>(sizeof(NativeListData), alloc);
             data->count = count;
             data->capacity = capacity;
             data->allocator = alloc;
-            data->ptr = MUnsafeUtility.Malloc<T>(sizeof(T) * capacity, alloc);
+            data->ptr = MUnsafeUtility.Malloc<int>(sizeof(int) * capacity, alloc);
         }
 
         public Allocator allocator
@@ -72,9 +60,9 @@ namespace MPipeline
         private void Resize()
         {
             if (data->count <= data->capacity) return;
-            data->capacity = Mathf.Max(data->capacity + 1, (int) (data->capacity * 1.5));
-            void* newPtr = MUnsafeUtility.Malloc<T>(sizeof(T) * data->capacity, data->allocator);
-            UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(T) * data->count);
+            data->capacity *= 2;
+            void* newPtr = MUnsafeUtility.Malloc<int>(sizeof(int) * data->capacity, data->allocator);
+            UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(int) * data->count);
             UnsafeUtility.Free(data->ptr, data->allocator);
             data->ptr = newPtr;
         }
@@ -83,9 +71,9 @@ namespace MPipeline
         {
             if (data->count <= data->capacity) return;
             int oldCap = data->capacity;
-            data->capacity = Mathf.Max((int) (oldCap * 1.2f), data->count);
-            void* newPtr = MUnsafeUtility.Malloc<T>(sizeof(T) * data->capacity, data->allocator);
-            UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(T) * oldCap);
+            data->capacity = data->count;
+            void* newPtr = MUnsafeUtility.Malloc<int>(sizeof(int) * data->capacity, data->allocator);
+            UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(int) * oldCap);
             UnsafeUtility.Free(data->ptr, data->allocator);
             data->ptr = newPtr;
         }
@@ -94,8 +82,8 @@ namespace MPipeline
         {
             if (capacity <= data->capacity) return;
             data->capacity = capacity;
-            void* newPtr = MUnsafeUtility.Malloc<T>(sizeof(T) * data->capacity, data->allocator);
-            UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(T) * data->count);
+            void* newPtr = MUnsafeUtility.Malloc<int>(sizeof(int) * data->capacity, data->allocator);
+            UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(int) * data->count);
             UnsafeUtility.Free(data->ptr, data->allocator);
             data->ptr = newPtr;
         }
@@ -121,26 +109,7 @@ namespace MPipeline
             data->count--;
         }
 
-        public void RemoveRange(int start, int end)
-        {
-            if (start > end) return;
-            var rmCount = end - start + 1;
-            if (rmCount >= data->count)
-            {
-                data->count = 0;
-                return;
-            }
-
-            var last = Length - 1;
-            for (var i = end + 1; i <= last; i++)
-            {
-                this[i - rmCount] = this[i];
-            }
-
-            data->count -= rmCount;
-        }
-
-        public void RemoveElement(T target, System.Func<T, T, bool> conditionFunc)
+        public void RemoveElement(int target, System.Func<int, int, bool> conditionFunc)
         {
             for (int i = 0; i < Length; ++i)
             {
@@ -164,10 +133,10 @@ namespace MPipeline
             get { return data->capacity; }
         }
 
-        public T* unsafePtr
+        public int* unsafePtr
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return (T*) data->ptr; }
+            get { return (int*) data->ptr; }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -182,22 +151,22 @@ namespace MPipeline
             }
         }
 
-        public ref T this[int id]
+        public ref int this[int id]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                T* ptr = (T*) data->ptr;
+                int* ptr = (int*) data->ptr;
                 return ref *(ptr + id);
             }
         }
 
-        public ref T this[uint id]
+        public ref int this[uint id]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                T* ptr = (T*) data->ptr;
+                int* ptr = (int*) data->ptr;
                 return ref *(ptr + id);
             }
         }
@@ -209,7 +178,7 @@ namespace MPipeline
             ResizeToCount();
         }
 
-        public void AddRange(T[] array)
+        public void AddRange(int[] array)
         {
             int last = data->count;
             data->count += array.Length;
@@ -217,36 +186,36 @@ namespace MPipeline
             fixed (void* source = &array[0])
             {
                 void* dest = unsafePtr + last;
-                UnsafeUtility.MemCpy(dest, source, array.Length * sizeof(T));
+                UnsafeUtility.MemCpy(dest, source, array.Length * sizeof(int));
             }
         }
 
-        public void AddRange(T* array, int length)
+        public void AddRange(int* array, int length)
         {
             int last = data->count;
             data->count += length;
             ResizeToCount();
             void* dest = unsafePtr + last;
-            UnsafeUtility.MemCpy(dest, array, length * sizeof(T));
+            UnsafeUtility.MemCpy(dest, array, length * sizeof(int));
         }
 
-        public void AddRange(NativeList<T> array)
+        public void AddRange(NativeList_Int array)
         {
             int last = data->count;
             data->count += array.Length;
             ResizeToCount();
             void* dest = unsafePtr + last;
-            UnsafeUtility.MemCpy(dest, array.unsafePtr, array.Length * sizeof(T));
+            UnsafeUtility.MemCpy(dest, array.unsafePtr, array.Length * sizeof(int));
         }
 
-        public int ConcurrentAdd(T value)
+        public int ConcurrentAdd(int value)
         {
             int last = Interlocked.Increment(ref data->count);
             //Concurrent Resize
             if (last <= data->capacity)
             {
                 last--;
-                T* ptr = (T*) data->ptr;
+                int* ptr = (int*) data->ptr;
                 *(ptr + last) = value;
                 return last;
             }
@@ -255,14 +224,14 @@ namespace MPipeline
             return -1;
         }
 
-        public int ConcurrentAdd(ref T value)
+        public int ConcurrentAdd(ref int value)
         {
             int last = Interlocked.Increment(ref data->count);
             //Concurrent Resize
             if (last <= data->capacity)
             {
                 last--;
-                T* ptr = (T*) data->ptr;
+                int* ptr = (int*) data->ptr;
                 *(ptr + last) = value;
                 return last;
             }
@@ -271,7 +240,7 @@ namespace MPipeline
             return -1;
         }
 
-        public int ConcurrentAdd(T value, object lockerObj)
+        public int ConcurrentAdd(int value, object lockerObj)
         {
             int last = Interlocked.Increment(ref data->count);
             //Concurrent Resize
@@ -282,8 +251,8 @@ namespace MPipeline
                     if (last > data->capacity)
                     {
                         int newCapacity = data->capacity * 2;
-                        void* newPtr = MUnsafeUtility.Malloc<T>(sizeof(T) * newCapacity, data->allocator);
-                        UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(T) * data->count);
+                        void* newPtr = MUnsafeUtility.Malloc<int>(sizeof(int) * newCapacity, data->allocator);
+                        UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(int) * data->count);
                         UnsafeUtility.Free(data->ptr, data->allocator);
                         data->ptr = newPtr;
                         data->capacity = newCapacity;
@@ -292,12 +261,12 @@ namespace MPipeline
             }
 
             last--;
-            T* ptr = (T*) data->ptr;
+            int* ptr = (int*) data->ptr;
             *(ptr + last) = value;
             return last;
         }
 
-        public int ConcurrentAdd(ref T value, object lockerObj)
+        public int ConcurrentAdd(ref int value, object lockerObj)
         {
             int last = Interlocked.Increment(ref data->count);
             //Concurrent Resize
@@ -308,8 +277,8 @@ namespace MPipeline
                     if (last > data->capacity)
                     {
                         int newCapacity = data->capacity * 2;
-                        void* newPtr = MUnsafeUtility.Malloc<T>(sizeof(T) * newCapacity, data->allocator);
-                        UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(T) * data->count);
+                        void* newPtr = MUnsafeUtility.Malloc<int>(sizeof(int) * newCapacity, data->allocator);
+                        UnsafeUtility.MemCpy(newPtr, data->ptr, sizeof(int) * data->count);
                         UnsafeUtility.Free(data->ptr, data->allocator);
                         data->ptr = newPtr;
                         data->capacity = newCapacity;
@@ -318,26 +287,26 @@ namespace MPipeline
             }
 
             last--;
-            T* ptr = (T*) data->ptr;
+            int* ptr = (int*) data->ptr;
             *(ptr + last) = value;
             return last;
         }
 
-        public void Add(T value)
+        public void Add(int value)
         {
             int last = data->count;
             data->count++;
             Resize();
-            T* ptr = (T*) data->ptr;
+            int* ptr = (int*) data->ptr;
             *(ptr + last) = value;
         }
 
-        public void Add(ref T value)
+        public void Add(ref int value)
         {
             int last = data->count;
             data->count++;
             Resize();
-            T* ptr = (T*) data->ptr;
+            int* ptr = (int*) data->ptr;
             *(ptr + last) = value;
         }
 
@@ -356,23 +325,23 @@ namespace MPipeline
         IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<T> GetEnumerator() { return new ListIenumerator<T>(data); }
+        public IEnumerator<int> GetEnumerator() { return new ListIenumerator_Int(data); }
     }
 
-    public unsafe struct ListIenumerator<T> : IEnumerator<T> where T : unmanaged
+    public unsafe struct ListIenumerator_Int : IEnumerator<int>
     {
         [NativeDisableUnsafePtrRestriction] private NativeListData* data;
         private int iteIndex;
 
-        public ListIenumerator(NativeListData* dataPtr)
+        public ListIenumerator_Int(NativeListData* dataPtr)
         {
             data = dataPtr;
             iteIndex = -1;
         }
 
-        object IEnumerator.Current { get { return ((T*) data->ptr)[iteIndex]; } }
+        object IEnumerator.Current { get { return ((int*) data->ptr)[iteIndex]; } }
 
-        public T Current { get { return ((T*) data->ptr)[iteIndex]; } }
+        public int Current { get { return ((int*) data->ptr)[iteIndex]; } }
 
         public bool MoveNext() { return (++iteIndex < (data->count)); }
 

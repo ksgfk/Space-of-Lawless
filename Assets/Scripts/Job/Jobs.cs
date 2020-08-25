@@ -35,6 +35,7 @@ namespace KSGFK
                 handles[i] = Wrappers[i].OnUpdate();
             }
 
+            JobHandle.ScheduleBatchedJobs();
             for (var i = 0; i < Wrappers.Length; i++)
             {
                 ref var handle = ref handles[i];
