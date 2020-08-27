@@ -42,7 +42,7 @@ namespace KSGFK
             var bullet = world.SpawnEntity<EntityBullet>(_bulletId);
             Vector2 startPos = barrelStart.position;
             Vector2 endPos = muzzle.position;
-            bullet.Launch(endPos - startPos, startPos, 5, 5);
+            bullet.Launch(user, endPos - startPos, startPos, 5);
 
             _lastFireTime = nowTime;
             if (_nowMagCap > 0)

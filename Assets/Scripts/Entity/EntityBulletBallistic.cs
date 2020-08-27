@@ -2,13 +2,17 @@ using UnityEngine;
 
 namespace KSGFK
 {
+    [RequireComponent(typeof(Collider2D))]
+    [RequireComponent(typeof(Rigidbody2D))]
     [DisallowMultipleComponent]
     public class EntityBulletBallistic : EntityBullet
     {
+        public LayerMask collideLayer;
+
         private JobInfo _transInfo;
         private JobInfo _rmInfo;
 
-        public override void Launch(Vector2 direction, Vector2 startPos, float speed, float duration)
+        protected override void Launch(Vector2 direction, Vector2 startPos, float speed)
         {
             var trans = transform;
             trans.position = startPos;
@@ -24,7 +28,6 @@ namespace KSGFK
                     Velocity = new Vector2(0, speed)
                 },
                 _transInfo);
-            Jobs.TimingTask.AddTask(duration, () => GameManager.Instance.World.Value.DestroyEntity(this), _rmInfo);
         }
 
         public override void OnSpawn()
@@ -51,6 +54,26 @@ namespace KSGFK
             {
                 Jobs.TimingTask.RemoveTask(_rmInfo);
             }
+        }
+
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (!MathExt.ContainsLayer(other.gameObject.layer, collideLayer))
+            {
+                return;
+            }
+
+            OnTriggerCollider(other.gameObject);
+        }
+
+        protected virtual void OnTriggerCollider(GameObject go)
+        {
+            if (go == _launcher.gameObject)
+            {
+                return;
+            }
+
+            GameManager.Instance.World.Value.DestroyEntity(this);
         }
     }
 }

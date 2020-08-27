@@ -295,5 +295,11 @@ namespace KSGFK
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsLayer(LayerMask src, LayerMask other)
+        {
+            return (other.value & (1 << src.value)) > 0;
+        }
     }
 }

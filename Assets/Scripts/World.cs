@@ -16,6 +16,7 @@ namespace KSGFK
         private LinkedList<Entity> _activeEntity;
         private PoolCenter _pool;
         private List<Entity> _rmCache;
+        private HashSet<Entity> _cacheSet;
 
         /// <summary>
         /// 场景实例
@@ -46,6 +47,7 @@ namespace KSGFK
             _activeEntity = new LinkedList<Entity>();
             _pool = new PoolCenter();
             _rmCache = new List<Entity>();
+            _cacheSet = new HashSet<Entity>();
         }
 
         protected virtual Entity SpawnEntity(EntryEntity entry)
@@ -104,13 +106,15 @@ namespace KSGFK
 
         public void AfterUpdate()
         {
-            foreach (var entity in _rmCache)
+            _cacheSet.UnionWith(_rmCache);
+            foreach (var entity in _cacheSet)
             {
                 var entry = GetEntityRegistry()[entity.RuntimeId];
                 _activeEntity.Remove(entity.Node);
                 entry.Destroy(entity);
             }
 
+            _cacheSet.Clear();
             _rmCache.Clear();
         }
 

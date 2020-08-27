@@ -12,19 +12,20 @@ namespace KSGFK
         /// </summary>
         [SerializeField] private int _poolObjectId = -1;
 
+        [SerializeField] protected Entity _launcher;
+
         /// <summary>
         /// 用于索引对象池中该GO位置的Id
         /// </summary>
         public int PoolObjectId => _poolObjectId;
+        
+        public void Launch(Entity launcher,Vector2 direction, Vector2 startPos, float speed)
+        {
+            _launcher = launcher;
+            Launch(direction, startPos, speed);
+        }
 
-        /// <summary>
-        /// 发射
-        /// </summary>
-        /// <param name="direction">方向</param>
-        /// <param name="startPos">起始位置</param>
-        /// <param name="speed">速度</param>
-        /// <param name="duration">存活时间</param>
-        public abstract void Launch(Vector2 direction, Vector2 startPos, float speed, float duration);
+        protected abstract void Launch(Vector2 direction, Vector2 startPos, float speed);
 
         public void SetPoolObjectId(int id) { _poolObjectId = id; }
     }
