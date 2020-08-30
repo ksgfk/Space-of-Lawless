@@ -20,7 +20,6 @@ namespace KSGFK
 
     /// <summary>
     /// TODO:备用弹匣，换弹冷却
-    /// TODO:扔枪
     /// TODO:捡相同枪可以合并子弹
     /// TODO:直接将物品塞入玩家背包
     /// TODO:可以在Debug面板指定物品生成坐标

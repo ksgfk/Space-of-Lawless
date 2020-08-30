@@ -88,7 +88,14 @@ namespace KSGFK
         private void Pickup(InputAction.CallbackContext ctx)
         {
             Inventory inv = ((EntityLiving) player).Inventory;
-            inv.PickupRadiusItems();
+            if (inv.UsingItem)
+            {
+                inv.DropUsingItem();
+            }
+            else
+            {
+                inv.PickupRadiusItems();
+            }
         }
 
         private void SelectSlot(InputAction.CallbackContext ctx)

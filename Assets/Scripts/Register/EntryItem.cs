@@ -4,6 +4,7 @@ namespace KSGFK
 {
     public abstract class EntryItem : EntryInstantiable<Item>, IStageProcess
     {
+        public abstract float CollideRadius { get; }
         public abstract int MaxStack { get; }
 
         protected abstract Item CreateItem();
@@ -14,6 +15,7 @@ namespace KSGFK
         {
             var item = CreateItem();
             item.SetMaxStack(MaxStack);
+            item.SetCollideRadius(CollideRadius);
             item.OnCreate();
             return item;
         }

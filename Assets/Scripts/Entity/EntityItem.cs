@@ -6,7 +6,7 @@ namespace KSGFK
     {
         [SerializeField] private Item _hold;
         [SerializeField] private Entity _thrower;
-        private CircleCollider2D _range;
+        private CircleCollider2D _coll;
 
         public Item Hold
         {
@@ -28,13 +28,10 @@ namespace KSGFK
         }
 
         public Entity Thrower => _thrower;
+        public CircleCollider2D Coll => _coll;
 
         public void SetThrower(Entity thrower) { _thrower = thrower; }
 
-        public override void OnSpawn()
-        {
-            _range = GetComponent<CircleCollider2D>();
-            _range.radius = 1;
-        }
+        public override void OnSpawn() { _coll = GetComponent<CircleCollider2D>(); }
     }
 }

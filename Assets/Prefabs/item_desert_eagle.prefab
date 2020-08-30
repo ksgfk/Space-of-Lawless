@@ -101,6 +101,7 @@ MonoBehaviour:
   _maxStack: 0
   _nowStack: 0
   _rotateCenter: {fileID: 4060623204972089892}
+  _collideRadius: 0
   barrelStart: {fileID: 7878493711847268618}
   muzzle: {fileID: 6556749366727948615}
   _info:
@@ -109,6 +110,8 @@ MonoBehaviour:
     MagazineCapacity: 0
     BulletName: 
   _bulletId: -1
+  _lastFireTime: 0
+  _nowMagCap: 0
 --- !u!1 &5006870650520412514
 GameObject:
   m_ObjectHideFlags: 0

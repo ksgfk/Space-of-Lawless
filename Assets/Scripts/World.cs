@@ -181,6 +181,7 @@ namespace KSGFK
             var ei = _gm.Register.NewEntityItem;
             ei.Hold = item;
             ei.SetThrower(creator);
+            ei.Coll.radius = item.CollideRadius;
             AddToActiveEntity(ei);
             return ei;
         }

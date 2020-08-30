@@ -10,6 +10,7 @@ namespace KSGFK
     {
         public readonly string Name;
         public readonly string Addr;
+        public readonly float CollideRadius;
         public readonly int MaxStack;
         public readonly float Damage;
         public readonly float RateOfFire;
@@ -19,6 +20,7 @@ namespace KSGFK
         public ItemGunInfo(
             string name,
             string addr,
+            float collideRadius,
             int maxStack,
             float damage,
             float rateOfFire,
@@ -31,6 +33,7 @@ namespace KSGFK
             RateOfFire = rateOfFire;
             MagazineCapacity = magazineCapacity;
             BulletName = bulletName;
+            CollideRadius = collideRadius;
             MaxStack = maxStack;
         }
 
@@ -58,6 +61,7 @@ namespace KSGFK
         public string AssetAddr => _info.Addr;
         public ItemGunInfo GunInfo => _info;
         public GameObject Prefab => _prefab;
+        public override float CollideRadius => _info.CollideRadius;
         public override int MaxStack => _info.MaxStack;
 
         public EntryItemGun(ItemGunInfo info) { _info = info; }

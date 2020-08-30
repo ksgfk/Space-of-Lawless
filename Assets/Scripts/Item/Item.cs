@@ -11,6 +11,7 @@ namespace KSGFK
         [SerializeField] private int _nowStack;
         [SerializeField] private Transform _rotateCenter;
         private SpriteRenderer _sprite;
+        [SerializeField] private float _collideRadius;
 
         public int MaxStack => _maxStack;
 
@@ -45,6 +46,8 @@ namespace KSGFK
                 _nowStack = value;
             }
         }
+
+        public float CollideRadius => _collideRadius;
 
         public Vector2 RotateOffset => -(Vector2) _rotateCenter.localPosition;
 
@@ -95,5 +98,7 @@ namespace KSGFK
         }
 
         public void TransferOwner(Transform owner) { transform.SetParent(owner); }
+
+        public void SetCollideRadius(float collideRadius) { _collideRadius = collideRadius; }
     }
 }

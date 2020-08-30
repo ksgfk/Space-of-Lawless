@@ -58,63 +58,6 @@ namespace KSGFK
             };
         }
 
-        public static IAsyncHandleWrapper StartLoad(Type type, string path, RegisterDataCollection collection)
-        {
-            var task = Read(type, path);
-            return new TaskWrapper<IEnumerable<object>>(task, loaded => collection.Push(path, type, loaded));
-        }
-
-        public static async Task<IEnumerable<object>> Read(Type type, string path)
-        {
-            var fieldsDict = Helper.GetReflectionInjectFields(type).ToDictionary(f => f.Name);
-            var reader = new StreamReader(path, Encoding.UTF8);
-            var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            var res = new List<object>();
-            await csv.ReadAsync();
-            if (!csv.ReadHeader())
-            {
-                Debug.LogWarningFormat("csv:{0},头部读取失败", path);
-                return res;
-            }
-
-            while (await csv.ReadAsync())
-            {
-                var ins = Activator.CreateInstance(type);
-                foreach (var pair in fieldsDict)
-                {
-                    var name = pair.Key;
-                    var info = pair.Value;
-                    if (!Parsers.TryGetValue(info.FieldType, out var func))
-                    {
-                        Debug.LogWarningFormat("csv:{0},不支持的字段类型:{1}", path, info.FieldType.FullName);
-                        continue;
-                    }
-
-                    var str = csv.GetField(name);
-                    if (string.IsNullOrEmpty(str))
-                    {
-                        Debug.LogWarningFormat("csv:{0},不存在列数据:{1}", path, name);
-                        continue;
-                    }
-
-                    try
-                    {
-                        info.SetValue(ins, func(str));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
-
-                res.Add(ins);
-            }
-
-            csv.Dispose();
-            reader.Dispose();
-            return res;
-        }
-
         public static async Task<RegisterData> AsyncReadRegisterData(string path, Type dataType)
         {
             var strReader = new StreamReader(path, Encoding.UTF8);

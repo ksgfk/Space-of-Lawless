@@ -102,5 +102,13 @@ namespace KSGFK
         // ReSharper disable once InconsistentNaming
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float3 xy0(this float2 float2) { return new float3(float2.x, float2.y, 0); }
+
+        public static void RotateMirror(this Transform trans, bool xDir, bool yDir)
+        {
+            var scale = trans.localScale;
+            scale.x = xDir ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+            scale.y = yDir ? Mathf.Abs(scale.y) : -Mathf.Abs(scale.y);
+            trans.localScale = scale;
+        }
     }
 }
