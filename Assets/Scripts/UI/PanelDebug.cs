@@ -112,14 +112,18 @@ namespace KSGFK
         {
             World em = _gm.World;
             var txt = createItemName.text;
+            EntityItem ei;
             if (_idNum.IsMatch(txt))
             {
-                em.CreateItemInWorld(int.Parse(txt.Substring(3)), 1);
+                ei = em.CreateItemInWorld(int.Parse(txt.Substring(3)), 1);
             }
             else
             {
-                em.CreateItemInWorld(txt, 1);
+                ei = em.CreateItemInWorld(txt, 1);
             }
+
+            var item = ei.Hold;
+            item.NowStack = item.MaxStack;
         }
 
         public void OnLoadWorldBtnPress()
@@ -144,7 +148,10 @@ namespace KSGFK
                 () =>
                 {
                     World world = GameManager.Instance.World;
-                    world.CreateItemInWorld(8, 1);
+                    var gun = world.CreateItemInWorld("desert_eagle", 1);
+                    gun.transform.position = new Vector3(-2, 0);
+                    var ammo = world.CreateItemInWorld("hg_ammo", 48);
+                    ammo.transform.position = new Vector3(2, 0);
                     var e = world.SpawnEntity("slime");
                     var p = e.gameObject.AddComponent<Player>();
                     p.Setup(e);

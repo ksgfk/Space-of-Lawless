@@ -17,6 +17,7 @@ namespace KSGFK
     {
         public Transform barrelStart;
         public Transform muzzle;
+        public AmmoTypes usableAmmo;
         [SerializeField] private GunInfo _info;
         [SerializeField] private int _bulletId = -1;
         [SerializeField] private float _lastFireTime;
@@ -26,6 +27,19 @@ namespace KSGFK
 
         public override void OnUse(EntityLiving user)
         {
+            if (_nowMagCap == 0)
+            {
+                Inventory inv = user.Inventory;
+                var itemBullet = inv.FindFirst(i => i is ItemBullet ib && ib.ammoType == usableAmmo);
+                if (itemBullet)
+                {
+                    var b = itemBullet.NowStack;
+                    var willIn = b >= _info.MagazineCapacity ? _info.MagazineCapacity : b;
+                    itemBullet.NowStack -= willIn;
+                    _nowMagCap += willIn;
+                }
+            }
+
             var nowTime = Time.time;
             var nextFireTime = _lastFireTime + _info.RateOfFire;
             if (nowTime < nextFireTime)

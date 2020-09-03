@@ -52,31 +52,31 @@ namespace KSGFK
         }
     }
 
-    public class EntryItemGun : EntryItem
+    public sealed class EntryItemGun : EntryItem
     {
         private readonly ItemGunInfo _info;
-        private GameObject _prefab;
 
-        public override string RegisterName => _info.Name;
-        public string AssetAddr => _info.Addr;
         public ItemGunInfo GunInfo => _info;
-        public GameObject Prefab => _prefab;
-        public override float CollideRadius => _info.CollideRadius;
-        public override int MaxStack => _info.MaxStack;
 
-        public EntryItemGun(ItemGunInfo info) { _info = info; }
+        public EntryItemGun(ItemGunInfo info) : base(new ItemInfo(info.Name,
+            info.Addr,
+            info.MaxStack,
+            info.CollideRadius))
+        {
+            _info = info;
+        }
 
         public override Task PreProcess()
         {
-            var handle = Addressables.LoadAssetAsync<GameObject>(AssetAddr);
-            handle.Completed += h => _prefab = Helper.GetAsyncOpResult(h);
+            var handle = Addressables.LoadAssetAsync<GameObject>(BaseInfo.Addr);
+            handle.Completed += h => MPrefab = Helper.GetAsyncOpResult(h);
             return handle.Task;
         }
 
         public override bool Check(out string reason)
         {
-            var res = Helper.CheckResource(_prefab, AssetAddr, out var resInfo);
-            var com = Helper.CheckComponent<ItemGun>(_prefab, out var comInfo);
+            var res = Helper.CheckResource(MPrefab, BaseInfo.Addr, out var resInfo);
+            var com = Helper.CheckComponent<ItemGun>(Prefab, out var comInfo);
             reason = $"{resInfo}|{comInfo}";
             return res && com;
         }
@@ -84,7 +84,7 @@ namespace KSGFK
         protected override Item CreateItem()
         {
             var item = UnityEngine.Object.Instantiate(Prefab).GetComponent<ItemGun>();
-            item.SetGunInfo(_info);
+            item.SetGunInfo(GunInfo);
             return item;
         }
     }

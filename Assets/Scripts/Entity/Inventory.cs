@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,7 +11,7 @@ namespace KSGFK
     /// </summary>
     [RequireComponent(typeof(CircleCollider2D))]
     [DisallowMultipleComponent]
-    public class Inventory : MonoBehaviour
+    public class Inventory : MonoBehaviour, IEnumerable<Item>
     {
         public Transform holdItemParent;
 
@@ -20,6 +22,7 @@ namespace KSGFK
         private List<Item> _container = null;
         private CircleCollider2D _collider;
         private List<Collider2D> _overlapCache;
+        private HashSet<int> _modify;
 
         /// <summary>
         /// 最大容量
@@ -36,7 +39,40 @@ namespace KSGFK
         /// </summary>
         public EntityLiving Holder => _entity;
 
-        public Item UsingItem { get => _container[_usingItemSlot]; set => _container[_usingItemSlot] = value; }
+        public Item UsingItem { get => this[_usingItemSlot]; set => this[_usingItemSlot] = value; }
+        public int UsingSlot => _usingItemSlot;
+
+        public Item this[int index]
+        {
+            get
+            {
+                var i = _container[index];
+                if (i)
+                {
+                    _modify.Add(index);
+                }
+
+                return i;
+            }
+            set
+            {
+                _container[index] = value;
+                _modify.Add(index);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (_modify.Count != 0)
+            {
+                foreach (var i in _modify)
+                {
+                    Clear(i);
+                }
+
+                _modify.Clear();
+            }
+        }
 
         public void Init(EntityLiving entity)
         {
@@ -54,6 +90,8 @@ namespace KSGFK
             {
                 Debug.LogError("使用中物品的节点不存在");
             }
+
+            _modify = new HashSet<int>();
 
             _entity.Cc2d.TurnLeft += _ => holdItemParent.RotateMirror(false, false);
             _entity.Cc2d.TurnRight += _ => holdItemParent.RotateMirror(true, true);
@@ -188,10 +226,7 @@ namespace KSGFK
             var trans = UsingItem.transform;
             trans.SetParent(holdItemParent, false);
             trans.localPosition = usingItem.RotateOffset;
-            var scale = trans.localScale;
-            scale.x = Mathf.Abs(scale.x);
-            scale.y = Mathf.Abs(scale.y);
-            trans.localScale = scale;
+            trans.RotateMirror(true, true);
         }
 
         private void MoveToNoUse(Item noUse) { noUse.transform.SetParent(transform, false); }
@@ -223,6 +258,49 @@ namespace KSGFK
             UsingItem = null;
             ei.transform.position = Holder.transform.position;
             return ei;
+        }
+
+        public IEnumerator<Item> GetEnumerator()
+        {
+            foreach (var item in _container)
+            {
+                if (item)
+                {
+                    yield return item;
+                }
+            }
+
+            for (var i = 0; i < _container.Count; i++)
+            {
+                Clear(i);
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+
+        private void Clear(int index)
+        {
+            var item = _container[index];
+            if (item && item.IsEmpty)
+            {
+                GameManager.Instance.World.Value.DestroyItem(item);
+                _container[index] = null;
+            }
+        }
+
+        public Item FindFirst(Func<Item, bool> predicate)
+        {
+            for (var i = 0; i < _container.Count; i++)
+            {
+                var item = _container[i];
+                if (predicate(item))
+                {
+                    _modify.Add(i);
+                    return item;
+                }
+            }
+
+            return null;
         }
     }
 }

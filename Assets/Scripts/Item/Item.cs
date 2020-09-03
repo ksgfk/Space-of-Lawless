@@ -17,27 +17,9 @@ namespace KSGFK
 
         public int NowStack
         {
-            get
-            {
-                if (_nowStack <= 0)
-                {
-                    throw new ArgumentException($"非法堆叠数量:{_nowStack}");
-                }
-
-                return _nowStack;
-            }
+            get => _nowStack;
             set
             {
-                if (value < 0)
-                {
-                    throw new ArgumentException($"非法堆叠数量:{value}");
-                }
-
-                if (value == 0)
-                {
-                    GameManager.Instance.World.Value.DestroyItem(this);
-                }
-
                 if (value > MaxStack)
                 {
                     value = MaxStack;
@@ -52,6 +34,7 @@ namespace KSGFK
         public Vector2 RotateOffset => -(Vector2) _rotateCenter.localPosition;
 
         public SpriteRenderer Sprite => _sprite;
+        public virtual bool IsEmpty => NowStack == 0;
 
         public virtual void OnCreate()
         {
@@ -71,7 +54,7 @@ namespace KSGFK
         /// </summary>
         /// <param name="item">将要合并的物品</param>
         /// <returns>合并后，剩余传入物品，若无剩余物品则返回null</returns>
-        public Item Merge(Item item)
+        public virtual Item Merge(Item item)
         {
             if (!item)
             {

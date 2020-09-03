@@ -16,6 +16,11 @@
       "Path": "item_gun.csv",
       "EntryType": "KSGFK.EntryItemGun",
       "DataType": "KSGFK.ItemGunInfo"
+    },
+    {
+      "Path": "item.csv",
+      "EntryType": "KSGFK.EntryItem",
+      "DataType": "KSGFK.ItemInfo"
     }
   ],
   "WorldInfo": [
