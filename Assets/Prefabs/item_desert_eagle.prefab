@@ -104,14 +104,18 @@ MonoBehaviour:
   _collideRadius: 0
   barrelStart: {fileID: 7878493711847268618}
   muzzle: {fileID: 6556749366727948615}
+  usableAmmo:
+    _value: 1
   _info:
     Damage: 0
     RateOfFire: 0
+    Reload: 0
     MagazineCapacity: 0
     BulletName: 
   _bulletId: -1
   _lastFireTime: 0
   _nowMagCap: 0
+  _isReload: 0
 --- !u!1 &5006870650520412514
 GameObject:
   m_ObjectHideFlags: 0

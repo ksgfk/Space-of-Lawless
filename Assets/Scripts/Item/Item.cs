@@ -80,8 +80,6 @@ namespace KSGFK
             _maxStack = maxStack;
         }
 
-        public void TransferOwner(Transform owner) { transform.SetParent(owner); }
-
         public void SetCollideRadius(float collideRadius) { _collideRadius = collideRadius; }
     }
 }

@@ -14,8 +14,10 @@ namespace KSGFK
         public readonly int MaxStack;
         public readonly float Damage;
         public readonly float RateOfFire;
+        public readonly float Reload;
         public readonly int MagazineCapacity;
         public readonly string BulletName;
+        public readonly int UsedAmmo;
 
         public ItemGunInfo(
             string name,
@@ -24,17 +26,21 @@ namespace KSGFK
             int maxStack,
             float damage,
             float rateOfFire,
+            float reload,
             int magazineCapacity,
-            string bulletName)
+            string bulletName,
+            int usedAmmo)
         {
             Name = name;
             Addr = addr;
-            Damage = damage;
-            RateOfFire = rateOfFire;
-            MagazineCapacity = magazineCapacity;
-            BulletName = bulletName;
             CollideRadius = collideRadius;
             MaxStack = maxStack;
+            Damage = damage;
+            RateOfFire = rateOfFire;
+            Reload = reload;
+            MagazineCapacity = magazineCapacity;
+            BulletName = bulletName;
+            UsedAmmo = usedAmmo;
         }
 
         [Obsolete("用于反射", true)]
@@ -47,7 +53,9 @@ namespace KSGFK
                 Damage = gun.Damage,
                 MagazineCapacity = gun.MagazineCapacity,
                 RateOfFire = gun.RateOfFire,
-                BulletName = gun.BulletName
+                EntityBulletName = gun.BulletName,
+                Reload = gun.Reload,
+                UsableAmmo = new AmmoType(gun.UsedAmmo)
             };
         }
     }

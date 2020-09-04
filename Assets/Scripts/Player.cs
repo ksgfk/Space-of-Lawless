@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -88,13 +89,14 @@ namespace KSGFK
         private void Pickup(InputAction.CallbackContext ctx)
         {
             Inventory inv = ((EntityLiving) player).Inventory;
-            if (inv.UsingItem)
+            var it = inv.CheckPickupRadius();
+            if (!it.Any())
             {
                 inv.DropUsingItem();
             }
             else
             {
-                inv.PickupRadiusItems();
+                inv.PickupItems(it);
             }
         }
 

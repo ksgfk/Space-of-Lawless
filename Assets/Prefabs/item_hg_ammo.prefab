@@ -130,4 +130,5 @@ MonoBehaviour:
   _nowStack: 0
   _rotateCenter: {fileID: 0}
   _collideRadius: 0
-  bulletType: 0
+  ammoType:
+    _value: 1

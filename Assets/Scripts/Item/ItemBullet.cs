@@ -2,6 +2,6 @@ namespace KSGFK
 {
     public class ItemBullet : Item
     {
-        public AmmoTypes ammoType;
+        public AmmoType ammoType = AmmoType.HgAmmo;
     }
 }

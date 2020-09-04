@@ -138,13 +138,13 @@ namespace KSGFK
             }
 
             _container[index] = item; //还有空余位置
-            item.TransferOwner(transform);
             if (index == _usingItemSlot)
             {
                 SelectUsingItem(index);
             }
             else
             {
+                item.transform.SetParent(transform, false);
                 item.Sprite.enabled = false;
             }
 
@@ -251,8 +251,14 @@ namespace KSGFK
 
         public EntityItem DropUsingItem()
         {
+            var us = UsingItem;
+            if (!us)
+            {
+                return null;
+            }
+
             World world = GameManager.Instance.World;
-            var willDrop = UsingItem;
+            var willDrop = us;
             var ei = world.CreateItemInWorld(willDrop, Holder);
             willDrop.transform.RotateMirror(_entity.Cc2d.Face == FaceDirection.Right, true);
             UsingItem = null;
@@ -288,19 +294,18 @@ namespace KSGFK
             }
         }
 
-        public Item FindFirst(Func<Item, bool> predicate)
+        public int FindFirst(Func<Item, bool> predicate)
         {
             for (var i = 0; i < _container.Count; i++)
             {
                 var item = _container[i];
                 if (predicate(item))
                 {
-                    _modify.Add(i);
-                    return item;
+                    return i;
                 }
             }
 
-            return null;
+            return -1;
         }
     }
 }

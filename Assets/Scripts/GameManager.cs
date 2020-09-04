@@ -19,9 +19,9 @@ namespace KSGFK
     }
 
     /// <summary>
-    /// TODO:换弹时间
+    /// TODO:重构CSV读取
+    /// TODO:ItemBullet改名ItemAmmo,类型
     /// TODO:捡相同枪可以合并子弹
-    /// TODO:新的扔枪方案
     /// TODO:直接将物品塞入玩家背包
     /// TODO:可以在Debug面板指定物品生成坐标
     /// TODO:自动释放一次性事件
