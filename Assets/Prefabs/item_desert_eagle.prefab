@@ -102,16 +102,16 @@ MonoBehaviour:
   _nowStack: 0
   _rotateCenter: {fileID: 4060623204972089892}
   _collideRadius: 0
-  barrelStart: {fileID: 7878493711847268618}
-  muzzle: {fileID: 6556749366727948615}
-  usableAmmo:
-    _value: 1
+  launchDirStart: {fileID: 7878493711847268618}
+  launchDirEnd: {fileID: 6556749366727948615}
   _info:
     Damage: 0
     RateOfFire: 0
     Reload: 0
     MagazineCapacity: 0
-    BulletName: 
+    EntityBulletName: 
+    UsedAmmo:
+      _value: 0
   _bulletId: -1
   _lastFireTime: 0
   _nowMagCap: 0

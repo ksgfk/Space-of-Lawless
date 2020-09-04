@@ -124,7 +124,7 @@ namespace KSGFK
             var dataPath = new List<(Type, string)>();
             GetDataPathFromMetaData(_gm, dataPath);
             var task = new List<Task<RegisterData>>();
-            task.AddRange(dataPath.Select(d => CsvWinLoader.AsyncReadRegisterData(d.Item2, d.Item1)));
+            task.AddRange(dataPath.Select(d => CsvWinLoader.ReadAsync(d.Item2, d.Item1)));
             foreach (var t in task)
             {
                 if (t == null)
@@ -148,7 +148,7 @@ namespace KSGFK
                     Type type;
                     try
                     {
-                        type = Type.GetType(info.DataType);
+                        type = Type.GetType(info.DataType, true);
                     }
                     catch (Exception e)
                     {

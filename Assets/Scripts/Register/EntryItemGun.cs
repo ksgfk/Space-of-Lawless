@@ -1,50 +1,20 @@
 using System;
 using System.Threading.Tasks;
+using CsvHelper.Configuration;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace KSGFK
 {
     [Serializable]
-    public class ItemGunInfo
+    public class ItemGunInfo : ItemInfo
     {
-        public readonly string Name;
-        public readonly string Addr;
-        public readonly float CollideRadius;
-        public readonly int MaxStack;
-        public readonly float Damage;
-        public readonly float RateOfFire;
-        public readonly float Reload;
-        public readonly int MagazineCapacity;
-        public readonly string BulletName;
-        public readonly int UsedAmmo;
-
-        public ItemGunInfo(
-            string name,
-            string addr,
-            float collideRadius,
-            int maxStack,
-            float damage,
-            float rateOfFire,
-            float reload,
-            int magazineCapacity,
-            string bulletName,
-            int usedAmmo)
-        {
-            Name = name;
-            Addr = addr;
-            CollideRadius = collideRadius;
-            MaxStack = maxStack;
-            Damage = damage;
-            RateOfFire = rateOfFire;
-            Reload = reload;
-            MagazineCapacity = magazineCapacity;
-            BulletName = bulletName;
-            UsedAmmo = usedAmmo;
-        }
-
-        [Obsolete("用于反射", true)]
-        public ItemGunInfo() { }
+        public float Damage { get; set; }
+        public float RateOfFire { get; set; }
+        public float Reload { get; set; }
+        public int MagazineCapacity { get; set; }
+        public string EntityBulletName { get; set; }
+        public AmmoType UsedAmmo { get; set; }
 
         public static implicit operator GunInfo(ItemGunInfo gun)
         {
@@ -53,10 +23,27 @@ namespace KSGFK
                 Damage = gun.Damage,
                 MagazineCapacity = gun.MagazineCapacity,
                 RateOfFire = gun.RateOfFire,
-                EntityBulletName = gun.BulletName,
+                EntityBulletName = gun.EntityBulletName,
                 Reload = gun.Reload,
-                UsableAmmo = new AmmoType(gun.UsedAmmo)
+                UsedAmmo = gun.UsedAmmo
             };
+        }
+    }
+
+    public class ItemGunInfoMap : ClassMap<ItemGunInfo>
+    {
+        public ItemGunInfoMap()
+        {
+            Map(info => info.Name);
+            Map(info => info.Addr);
+            Map(info => info.MaxStack);
+            Map(info => info.CollideRadius);
+            Map(info => info.Damage);
+            Map(info => info.RateOfFire);
+            Map(info => info.Reload);
+            Map(info => info.MagazineCapacity);
+            Map(info => info.EntityBulletName);
+            Map(info => info.UsedAmmo).TypeConverter<AmmoTypeConverter>();
         }
     }
 
@@ -66,13 +53,7 @@ namespace KSGFK
 
         public ItemGunInfo GunInfo => _info;
 
-        public EntryItemGun(ItemGunInfo info) : base(new ItemInfo(info.Name,
-            info.Addr,
-            info.MaxStack,
-            info.CollideRadius))
-        {
-            _info = info;
-        }
+        public EntryItemGun(ItemGunInfo info) : base(info) { _info = info; }
 
         public override Task PreProcess()
         {

@@ -122,6 +122,11 @@ namespace KSGFK
                 ei = em.CreateItemInWorld(txt, 1);
             }
 
+            if (!ei)
+            {
+                return;
+            }
+
             var item = ei.Hold;
             item.NowStack = item.MaxStack;
         }

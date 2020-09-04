@@ -1,23 +1,12 @@
-using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace KSGFK
 {
-    [Serializable]
-    public readonly struct EntityLivingInfo
+    public class EntityLivingInfo : EntryBaseInfo
     {
-        public readonly string Name;
-        public readonly string Addr;
-        public readonly ulong MaxHealth;
-
-        public EntityLivingInfo(string name, string addr, ulong maxHealth)
-        {
-            Name = name;
-            Addr = addr;
-            MaxHealth = maxHealth;
-        }
+        public ulong MaxHealth { get; set; }
     }
 
     public class EntryEntityLiving : EntryEntity

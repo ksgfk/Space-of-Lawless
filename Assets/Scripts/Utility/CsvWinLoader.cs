@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
+using CsvHelper.Configuration;
 using UnityEngine;
 
 namespace KSGFK
@@ -16,102 +15,37 @@ namespace KSGFK
     /// </summary>
     public static class CsvWinLoader
     {
-        private static readonly Dictionary<Type, Func<string, object>> Parsers;
+        public static readonly List<ClassMap> ClassMaps = new List<ClassMap>();
 
-        /// <summary>
-        /// 字符串解释器,将csv中的字符串解析为对象
-        /// </summary>
-        public static IDictionary<Type, Func<string, object>> Parser => Parsers;
+        static CsvWinLoader() { ClassMaps.Add(new ItemGunInfoMap()); }
 
-        static CsvWinLoader()
-        {
-            Parsers = new Dictionary<Type, Func<string, object>>
-            {
-                {typeof(string), str => str},
-                {typeof(int), str => int.Parse(str)},
-                {typeof(float), str => float.Parse(str)},
-                {typeof(double), str => double.Parse(str)},
-                {typeof(bool), str => bool.Parse(str)},
-                {
-                    typeof(Color), str =>
-                    {
-                        var c = typeof(Color);
-                        var color = c.GetProperty(str, BindingFlags.Public | BindingFlags.Static);
-                        if (color != null)
-                        {
-                            return color.GetGetMethod().Invoke(null, null);
-                        }
-
-                        var rgba = str.Split(';').Select(rgb => int.Parse(rgb) / 255f).ToArray();
-                        switch (rgba.Length)
-                        {
-                            case 3:
-                                return new Color(rgba[0], rgba[1], rgba[2]);
-                            case 4:
-                                return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
-                            default:
-                                throw new ArgumentException("颜色是RGBA格式且用;分开");
-                        }
-                    }
-                },
-                {typeof(ulong), str => ulong.Parse(str)}
-            };
-        }
-
-        public static async Task<RegisterData> AsyncReadRegisterData(string path, Type dataType)
+        public static async Task<RegisterData> ReadAsync(string path, Type dataType)
         {
             var strReader = new StreamReader(path, Encoding.UTF8);
-            var csvReader = new CsvReader(strReader, CultureInfo.InvariantCulture);
-            await csvReader.ReadAsync();
-            if (!csvReader.ReadHeader())
+            var csvReader = new CsvReader(strReader, CultureInfo.CurrentCulture);
+            foreach (var classMap in ClassMaps)
             {
-                Debug.LogWarningFormat("csv:{0},头部读取失败", path);
-                return null;
+                csvReader.Configuration.RegisterClassMap(classMap);
             }
 
             var list = new List<object>();
-            var fields = dataType.GetFields();
-            while (await csvReader.ReadAsync())
+            var asyncEnumerator = csvReader.GetRecordsAsync(dataType).GetAsyncEnumerator();
+            try
             {
-                var ins = Activator.CreateInstance(dataType);
-                foreach (var fieldInfo in fields)
+                while (await asyncEnumerator.MoveNextAsync())
                 {
-                    var name = fieldInfo.Name;
-                    var info = fieldInfo;
-                    if (!Parsers.TryGetValue(info.FieldType, out var func))
-                    {
-                        Debug.LogWarningFormat("csv:{0},不支持的字段类型:{1}", path, info.FieldType.FullName);
-                        continue;
-                    }
-
-                    string str;
-                    try
-                    {
-                        str = csvReader.GetField(name);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(e);
-                        continue;
-                    }
-
-                    if (string.IsNullOrEmpty(str))
-                    {
-                        Debug.LogWarningFormat("csv:{0},不存在列数据:{1}", path, name);
-                        continue;
-                    }
-
-                    try
-                    {
-                        info.SetValue(ins, func(str));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
+                    var human = asyncEnumerator.Current;
+                    list.Add(human);
                 }
-
-                list.Add(ins);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"无法读取:{path}");
+                Debug.LogError(e);
+            }
+            finally
+            {
+                await asyncEnumerator.DisposeAsync();
             }
 
             csvReader.Dispose();

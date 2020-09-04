@@ -8,7 +8,7 @@
     {
       "Path": "entity_bullet.csv",
       "EntryType": "KSGFK.EntryEntityBullet",
-      "DataType": "KSGFK.NameAndAddrInfo"
+      "DataType": "KSGFK.EntryBaseInfo"
     }
   ],
   "ItemInfo": [
@@ -27,7 +27,7 @@
     {
       "Path": "world.csv",
       "EntryType": "KSGFK.EntryWorld",
-      "DataType": "KSGFK.NameAndAddrInfo"
+      "DataType": "KSGFK.EntryBaseInfo"
     }
   ]
 }

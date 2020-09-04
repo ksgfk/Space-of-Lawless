@@ -6,7 +6,7 @@ namespace KSGFK
 {
     public class EntryEntityBullet : EntryEntity
     {
-        private readonly NameAndAddrInfo _info;
+        private readonly EntryBaseInfo _info;
         private GameObject _prefab;
         private int _poolId;
 
@@ -15,7 +15,7 @@ namespace KSGFK
         public string AssetAddr => _info.Addr;
         public int PoolId => _poolId;
 
-        public EntryEntityBullet(NameAndAddrInfo info)
+        public EntryEntityBullet(EntryBaseInfo info)
         {
             _info = info;
             _poolId = -1;

@@ -1,25 +1,13 @@
-using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace KSGFK
 {
-    [Serializable]
-    public readonly struct ItemInfo
+    public class ItemInfo : EntryBaseInfo
     {
-        public readonly string Name;
-        public readonly string Addr;
-        public readonly int MaxStack;
-        public readonly float CollideRadius;
-
-        public ItemInfo(string name, string addr, int maxStack, float collideRadius)
-        {
-            Name = name;
-            Addr = addr;
-            MaxStack = maxStack;
-            CollideRadius = collideRadius;
-        }
+        public int MaxStack { get; set; }
+        public float CollideRadius { get; set; }
     }
 
     public class EntryItem : EntryInstantiable<Item>, IStageProcess

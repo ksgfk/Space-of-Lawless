@@ -4,12 +4,12 @@ namespace KSGFK
 {
     public class EntryWorld : RegisterEntry
     {
-        private readonly NameAndAddrInfo _info;
+        private readonly EntryBaseInfo _info;
 
         public override string RegisterName => _info.Name;
         public string AssetAddr => _info.Addr;
 
-        public EntryWorld(NameAndAddrInfo info) { _info = info; }
+        public EntryWorld(EntryBaseInfo info) { _info = info; }
 
         public override bool Check(out string info)
         {

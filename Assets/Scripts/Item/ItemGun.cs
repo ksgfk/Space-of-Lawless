@@ -12,14 +12,14 @@ namespace KSGFK
         public float Reload;
         public int MagazineCapacity;
         public string EntityBulletName;
-        public AmmoType UsableAmmo;
+        public AmmoType UsedAmmo;
     }
 
     [DisallowMultipleComponent]
     public class ItemGun : Item
     {
-        public Transform barrelStart;
-        public Transform muzzle;
+        public Transform launchDirStart;
+        public Transform launchDirEnd;
         [SerializeField] private GunInfo _info;
         [SerializeField] private int _bulletId = -1;
         [SerializeField] private float _lastFireTime;
@@ -52,7 +52,7 @@ namespace KSGFK
             }
 
             Inventory inv = user.Inventory;
-            var reloadAmmo = inv.FindFirst(i => i is ItemBullet ib && ib.ammoType.Equals(_info.UsableAmmo));
+            var reloadAmmo = inv.FindFirst(i => i is ItemAmmo ib && ib.type.Equals(_info.UsedAmmo));
             if (reloadAmmo != -1)
             {
                 StartCoroutine(Reload(inv, reloadAmmo));
@@ -91,8 +91,8 @@ namespace KSGFK
         {
             World world = GameManager.Instance.World;
             var bullet = world.SpawnEntity<EntityBullet>(_bulletId);
-            Vector2 startPos = barrelStart.position;
-            Vector2 endPos = muzzle.position;
+            Vector2 startPos = launchDirStart.position;
+            Vector2 endPos = launchDirEnd.position;
             bullet.Launch(user, endPos - startPos, startPos, 5);
         }
 
